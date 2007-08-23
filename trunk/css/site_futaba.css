@@ -9,7 +9,9 @@ body {
 
 h2 {
 	margin: 0px;
+	margin-top: 1em;
 	background: #fca;
+	font-size: 100%;
 }
 
 h2 a {

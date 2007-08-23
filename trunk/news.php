@@ -113,31 +113,6 @@ if ($_GET['p']=='faq') {
 		echo ' - '.date("n/j/y @ g:iA T", $line['postedat']);
 		echo '</span><span class="permalink"><a href="#' . $line['id'] . '" name="' . $line['id'] . '" title="permalink">#</a></span></h2>
 		'.stripslashes($line['message']).'</div><br>';
-		if ($entries == 8) {
-			if (isset($kusabaorg)) {
-				echo '<div class="content">
-				<h2><div class="newssub">Advertisement</div><div class="permalink">&nbsp;</div></h2>
-				<div style="text-align: center;">
-				<script type="text/javascript"><!--
-				google_ad_client = "pub-6158454562572132";
-				google_ad_width = 728;
-				google_ad_height = 90;
-				google_ad_format = "728x90_as";
-				google_cpa_choice = "CAEaCGnW6F1dtL5nUDRQLVAMUANQCFAFUARQQw";
-				google_ad_channel = "0185701305";
-				google_color_border = "FFFFEE";
-				google_color_bg = "FFFFEE";
-				google_color_link = "800000";
-				google_color_text = "CB7E46";
-				google_color_url = "800000";
-				//-->
-				</script>
-				<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-				</script>
-				</div>
-				</div><br>';
-			}
-		}
 	}
 }
 
