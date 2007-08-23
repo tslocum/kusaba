@@ -8,7 +8,7 @@
   * Global moderators/janitors are now possible by checking an "all boards" checkbox
   * When editing a board's options, you may now choose to automatically regenerate all of its html files after saving
   * *Reports have been fixed!*
-  * The list of boards ([b1 / b2 / b3] etc) can now be chosen to have created automatically, or use the boards.html file
+  * The list of boards shown at the top/bottom of board pages can now be chosen to have created automatically, or use the boards.html file
   * Blotter capability has been added
   * A ban appeal system has been added
 
