@@ -1,0 +1,11 @@
+#summary How to section your boards
+
+First go to the manage panel, Misc -> Edit Sections.
+
+Add a section, and take note of its ID.
+
+Go to Board options, select a board, and in the Section box, place that ID.
+
+Save the changes.
+
+Reload your front page, and it should show up.
