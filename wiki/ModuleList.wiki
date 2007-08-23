@@ -1,0 +1,11 @@
+#summary A list of available modules.
+
+= Official Modules =
+
+ * [FortuneModule Fortune]
+ * [SillyNamesModule Silly Names]
+ * [RussianRouletteModule Russian Roulette]
+
+
+= Third-party Modules=
+ * [RPSModule Rock Paper Scissor]
