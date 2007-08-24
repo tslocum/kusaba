@@ -3,7 +3,7 @@
 
 = Introduction =
 
-Me and Steve had been thinking about having something like a module system for quite some time, but it wasn't until recently that I decided to give it a shot.  At first I didn't like it at all, but once I rearranged some things and put in a new structure for flow I was happy.  If you have seen Drupal's module system, you will soon realize I have modeled it after that.
+I had been thinking about having something like a module system for quite some time, but it wasn't until recently that I decided to give it a shot.  At first I didn't like it at all, but once I rearranged some things and put in a new structure for flow I was happy.  If you have seen Drupal's module system, you will soon realize I have modeled it after that.
 
 With Modules, people can write their own code which will *hook* into various places where data is exchanged inside of kusaba, such as making a post.
 
