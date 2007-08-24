@@ -107,14 +107,14 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		
 		if (isset($_SESSION['manageusername'])) {
-			$results = $tc_db->GetOne("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");
-			if ($this->CurrentUserIsAdministrator() || $results == 'allboards') {
+			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");
+			if ($this->CurrentUserIsAdministrator() || $results[0][0] == 'allboards') {
 				$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
 				foreach ($resultsboard as $lineboard) {
 					setcookie("kumod", "yes", time() + 3600, KU_BOARDSFOLDER . $lineboard['name'] . "/", KU_DOMAIN);
 				}
 			} else {
-				if ($results != '') {
+				if ($results[0][0] != '') {
 					foreach ($results as $line) {
 						$array_boards = explode('|', $line['boards']);
 					}
@@ -2777,14 +2777,14 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		
 		$staff_boardsmoderated = array();
-		$results = $tc_db->GetOne("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
-		if ($this->CurrentUserIsAdministrator() || $results == 'allboards') {
+		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
+		if ($this->CurrentUserIsAdministrator() || $results[0][0] == 'allboards') {
 			$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 			foreach ($resultsboard as $lineboard) {
 				$staff_boardsmoderated = array_merge($staff_boardsmoderated, array($lineboard['name']));
 			}
 		} else {
-			if ($results != '') {
+			if ($results[0][0] != '') {
 				foreach ($results as $line) {
 					$array_boards = explode('|', $line['boards']);
 				}
