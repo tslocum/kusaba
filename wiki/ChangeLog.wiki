@@ -1,4 +1,8 @@
 #summary kusaba changelog
+#labels Featured
+
+= 1.0.1 =
+  * A style resembling Futaba has been added for text boards
 
 = 1.0.0 =
   * Trevorchan has been renamed to *kusaba*!
