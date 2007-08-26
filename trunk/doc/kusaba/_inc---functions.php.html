@@ -1,0 +1,1441 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs for page functions.php</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="file-name"><img src="../media/images/Page_logo.png" alt="File" style="vertical-align: middle">/inc/functions.php</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+											<a href="#sec-constants">Constants</a>
+			|									<a href="#sec-functions">Functions</a>
+			</div>
+	<div class="info-box-body">	
+		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Miscellaneous functions used throughout the script.</p>
+<p class="description"><p>The functions script has no theme; any and all functions which are used globally  will be found in this file.</p></p>
+		
+			</div>
+</div>
+		
+
+	
+	<a name="sec-constants"></a>	
+	<div class="info-box">
+		<div class="info-box-title">Constants</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+									<span class="disabled">Constants</span>
+			|										<a href="#sec-functions">Functions</a>
+					</div>
+		<div class="info-box-body">	
+			<a name="defineFILE_APPEND"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Constant.png" />
+		<span class="const-title">
+			<span class="const-name">FILE_APPEND</span> = 1
+			(line <span class="line-number">1248</span>)
+		</span>
+	</div>
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+		
+</div>
+		</div>
+	</div>
+	
+	
+	<a name="sec-functions"></a>	
+	<div class="info-box">
+		<div class="info-box-title">Functions</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+													<a href="#sec-constants">Constants</a>
+				|									<span class="disabled">Functions</span>
+		</div>
+		<div class="info-box-body">	
+			<a name="functionautoHideThreadJavascript" id="functionautoHideThreadJavascript"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">autoHideThreadJavascript</span> (line <span class="line-number">687</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create the javascript which will check if the user has the thread hidden, and if so, hide the thread and show the un-hide thread span</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Javascript</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			autoHideThreadJavascript
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$id</span><span class="var-description">: Thread ID</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionboardid_to_dir" id="functionboardid_to_dir"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">boardid_to_dir</span> (line <span class="line-number">285</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Convert a board ID to a board name</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Board directory</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			boardid_to_dir
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$boardid</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$boardid</span><span class="var-description">: Board ID</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncalculateNameAndTripcode" id="functioncalculateNameAndTripcode"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">calculateNameAndTripcode</span> (line <span class="line-number">773</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Will check if there is already a cached version of the name string in the database, and if so, get it, instead of recalculating it</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Name and tripcode</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			calculateNameAndTripcode
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$post_name</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$post_name</span><span class="var-description">: Text entered in the Name field</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncalculatenumpages" id="functioncalculatenumpages"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">calculatenumpages</span> (line <span class="line-number">304</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Calculate the number of pages which will be needed for the supplied number of posts</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Number of pages required</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">integer</span>
+		<span class="method-name">
+			calculatenumpages
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$boardtype</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$numposts</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$boardtype</span><span class="var-description">: Board type</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$numposts</span><span class="var-description">: Number of posts</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionchangeLocale" id="functionchangeLocale"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">changeLocale</span> (line <span class="line-number">31</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			changeLocale
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$newlocale</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$newlocale</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncheckMarkedForDeletion" id="functioncheckMarkedForDeletion"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">checkMarkedForDeletion</span> (line <span class="line-number">590</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Check if a thread is marked for deletion</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Marked or not</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			checkMarkedForDeletion
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$post</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$maxage</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$post</span><span class="var-description">: Post data</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$maxage</span><span class="var-description">: Maximum thread age</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncheckMd5" id="functioncheckMd5"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">checkMd5</span> (line <span class="line-number">122</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Check if the supplied md5 file hash is currently recorded inside of the database, attached to a non-deleted post</p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			checkMd5
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$md5</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$md5</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$board</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncleanBoardName" id="functioncleanBoardName"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">cleanBoardName</span> (line <span class="line-number">135</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			cleanBoardName
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$board</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionclearBlotterCache" id="functionclearBlotterCache"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">clearBlotterCache</span> (line <span class="line-number">260</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			clearBlotterCache
+		</span>
+				()
+			</div>
+
+		
+	
+</div>
+<a name="functionclearPostCache" id="functionclearPostCache"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">clearPostCache</span> (line <span class="line-number">273</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Clear cache for the supplied post ID of the supplied board</p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			clearPostCache
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$id</span><span class="var-description">: Post ID</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board name</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncloseOpenTags" id="functioncloseOpenTags"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">closeOpenTags</span> (line <span class="line-number">878</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Closes all HTML tags left open</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> HTML with all tags closed</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			closeOpenTags
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$html</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$html</span><span class="var-description">: HTML to be checked</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionConvertBytes" id="functionConvertBytes"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">ConvertBytes</span> (line <span class="line-number">1221</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Format an amount of bytes to a better looking representation of the size</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Formatted amount</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			ConvertBytes
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$number</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$number</span><span class="var-description">: Bytes</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functioncreateThumbnail" id="functioncreateThumbnail"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">createThumbnail</span> (line <span class="line-number">991</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create a thumbnail</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Success/fail</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			createThumbnail
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$filename</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$new_w</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$new_h</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$name</span><span class="var-description">: File to be thumbnailed</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$filename</span><span class="var-description">: Path to place the thumbnail</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$new_w</span><span class="var-description">: Maximum width</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$new_h</span><span class="var-description">: Maximum height</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiondeletePostBox" id="functiondeletePostBox"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">deletePostBox</span> (line <span class="line-number">703</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create the delete post box, displayed at the bottom left of pages in non text boards, or inside the thread in text boards</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Delete post box</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			deletePostBox
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$boardtype</span>, <span class="var-type">boolean</span>&nbsp;<span class="var-name">$enablereporting</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$boardtype</span><span class="var-description">: Board type</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$enablereporting</span><span class="var-description">: Whether enable reporting is enabled</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiondeletionForm" id="functiondeletionForm"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">deletionForm</span> (line <span class="line-number">373</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Generate the form for post deletion</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Generated Form tag and board element</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			deletionForm
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiondo_redirect" id="functiondo_redirect"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">do_redirect</span> (line <span class="line-number">860</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			do_redirect
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$url</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$url</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionembeddedVideoBox" id="functionembeddedVideoBox"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">embeddedVideoBox</span> (line <span class="line-number">753</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Display the embedded video</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Embedded video</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			embeddedVideoBox
+		</span>
+					(<span class="var-type">array</span>&nbsp;<span class="var-name">$post</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$post</span><span class="var-description">: Post data</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionfastImageCopyResampled" id="functionfastImageCopyResampled"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">fastImageCopyResampled</span> (line <span class="line-number">1050</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Faster method than only calling imagecopyresampled()</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Success/fail</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			fastImageCopyResampled
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">&$dst_image</span>, <span class="var-type"></span>&nbsp;<span class="var-name">&$src_image</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$dst_x</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$dst_y</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$src_x</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$src_y</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$dst_w</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$dst_h</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$src_w</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$src_h</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$quality</span> = <span class="var-default">3</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$dst_image</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">&$src_image</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$dst_x</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$dst_y</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$src_x</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$src_y</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$dst_w</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$dst_h</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$src_w</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$src_h</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$quality</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionfile_get_contents" id="functionfile_get_contents"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">file_get_contents</span> (line <span class="line-number">1243</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			file_get_contents
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$file</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$file</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionfile_put_contents" id="functionfile_put_contents"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">file_put_contents</span> (line <span class="line-number">1249</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			file_put_contents
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$n</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$d</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$flag</span> = <span class="var-default">false</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$n</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$d</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$flag</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionformatLongMessage" id="functionformatLongMessage"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">formatLongMessage</span> (line <span class="line-number">498</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Format a long message to be shortened if it exceeds the allowed length on a page</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> The formatted message</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			formatLongMessage
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$message</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$threadid</span>, <span class="var-type">boolean</span>&nbsp;<span class="var-name">$page</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$message</span><span class="var-description">: Post message</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$threadid</span><span class="var-description">: Thread ID</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$page</span><span class="var-description">: Is rendering for a page</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionformatNameAndTrip" id="functionformatNameAndTrip"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">formatNameAndTrip</span> (line <span class="line-number">459</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Format the display of the name and tripcode of a post</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Generated name and tripcode html</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			formatNameAndTrip
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$name</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$email</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$tripcode</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$name</span><span class="var-description">: Name used in post</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$email</span><span class="var-description">: Email used in post</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$tripcode</span><span class="var-description">: Tripcode used in post</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiongetBlotter" id="functiongetBlotter"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">getBlotter</span> (line <span class="line-number">189</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			getBlotter
+		</span>
+					([<span class="var-type"></span>&nbsp;<span class="var-name">$all</span> = <span class="var-default">false</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$all</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiongetBlotterLastUpdated" id="functiongetBlotterLastUpdated"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">getBlotterLastUpdated</span> (line <span class="line-number">254</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			getBlotterLastUpdated
+		</span>
+				()
+			</div>
+
+		
+	
+</div>
+<a name="functiongetfiletypeinfo" id="functiongetfiletypeinfo"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">getfiletypeinfo</span> (line <span class="line-number">318</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Gets information about the filetype provided, which is specified in the manage panel</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Filetype image, width, and height</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			getfiletypeinfo
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$filetype</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$filetype</span><span class="var-description">: Filetype</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionmanagement_addlogentry" id="functionmanagement_addlogentry"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">management_addlogentry</span> (line <span class="line-number">338</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Add an entry to the modlog</p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			management_addlogentry
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$entry</span>, [<span class="var-type">integer</span>&nbsp;<span class="var-name">$category</span> = <span class="var-default">0</span>], [<span class="var-type">string</span>&nbsp;<span class="var-name">$forceusername</span> = <span class="var-default">&#039;&#039;</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$entry</span><span class="var-description">: Entry text</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$category</span><span class="var-description">: Category to file under.   0 - No category, 1 - Login, 2 - Cleanup/rebuild boards and html files, 3 - Board adding/deleting, 4 - Board updates, 5 - Locking/stickying, 6 - Staff changes, 7 - Thread deletion/post deletion, 8 - Bans, 9 - News, 10 - Global changes, 11 - Wordfilter</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$forceusername</span><span class="var-description">: Username to force as the entry username</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionmarkedForDeletionMessage" id="functionmarkedForDeletionMessage"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">markedForDeletionMessage</span> (line <span class="line-number">603</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Marked for deletion message</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Marked for deletion (old).</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			markedForDeletionMessage
+		</span>
+				()
+			</div>
+
+		
+	
+</div>
+<a name="functionmicrotime_float" id="functionmicrotime_float"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">microtime_float</span> (line <span class="line-number">27</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Miscellaneous functions used throughout the script.</p>
+<p class="description"><p>The functions script has no theme; any and all functions which are used globally  will be found in this file.</p></p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			microtime_float
+		</span>
+				()
+			</div>
+
+		
+	
+</div>
+<a name="functionmime_content_type" id="functionmime_content_type"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">mime_content_type</span> (line <span class="line-number">1236</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			mime_content_type
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$f</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$f</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionords_to_unistr" id="functionords_to_unistr"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">ords_to_unistr</span> (line <span class="line-number">1095</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Find the string value of a pair of ords</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> String</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			ords_to_unistr
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$ords</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$encoding</span> = <span class="var-default">&#039;UTF-8&#039;</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$ords</span><span class="var-description">: Ords</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$encoding</span><span class="var-description">: Encoding</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionpageList" id="functionpageList"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">pageList</span> (line <span class="line-number">402</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Generate the list of pages, linking to each</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Generated page list</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			pageList
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$boardpage</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$pages</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$boardpage</span><span class="var-description">: Current board page</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$pages</span><span class="var-description">: Number of pages</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionprintStylesheets" id="functionprintStylesheets"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">printStylesheets</span> (line <span class="line-number">67</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Print all available stylesheets</p>
+<p class="description"><p>Creates a &lt;link&gt; tag for each stylesheet defined in the config</p></p>
+	<ul class="tags">
+				<li><span class="field">return:</span> HTML formatted stylesheet &lt;link&gt; tags</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			printStylesheets
+		</span>
+					([<span class="var-type">string</span>&nbsp;<span class="var-name">$prefered_stylesheet</span> = <span class="var-default">KU_DEFAULTSTYLE</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$prefered_stylesheet</span><span class="var-description">: Prefered stylesheet, which will be given the type &quot;stylesheet&quot; instead of &quot;alternate stylesheet&quot;.  Defaults to KU_DEFAULTSTYLE.</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionprintStylesheetsSite" id="functionprintStylesheetsSite"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">printStylesheetsSite</span> (line <span class="line-number">87</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			printStylesheetsSite
+		</span>
+					([<span class="var-type"></span>&nbsp;<span class="var-name">$prefered_stylesheet</span> = <span class="var-default">KU_DEFAULTMENUSTYLE</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$menu</span> = <span class="var-default">false</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$prefered_stylesheet</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$menu</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionprint_page" id="functionprint_page"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">print_page</span> (line <span class="line-number">43</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			print_page
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$filename</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$contents</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$filename</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$contents</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$board</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionrecursive_directory_size" id="functionrecursive_directory_size"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">recursive_directory_size</span> (line <span class="line-number">1153</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Find the size of a directory, including any subdirectories</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Size/number of files</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			recursive_directory_size
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$directory</span>, [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$format</span> = <span class="var-default">FALSE</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$directory</span><span class="var-description">: Directory</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$format</span><span class="var-description">: Format</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionremoveBoard" id="functionremoveBoard"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">removeBoard</span> (line <span class="line-number">945</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Remove a board</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Result</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">boolean</span>
+		<span class="method-name">
+			removeBoard
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$dir</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$dir</span><span class="var-description">: Directory to remove</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionremoveDir" id="functionremoveDir"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">removeDir</span> (line <span class="line-number">910</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Recursively delete a directory</p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			removeDir
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$path</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$path</span><span class="var-description">: Intial path to delete</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionsetDelPassJavascript" id="functionsetDelPassJavascript"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">setDelPassJavascript</span> (line <span class="line-number">741</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create the javascript which fills the password boxe for the delete post form</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Javascript</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			setDelPassJavascript
+		</span>
+				()
+			</div>
+
+		
+	
+</div>
+<a name="functionstr_ireplace" id="functionstr_ireplace"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">str_ireplace</span> (line <span class="line-number">1263</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			str_ireplace
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$find</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$replace</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$string</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$find</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$replace</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$string</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionthreadLinks" id="functionthreadLinks"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">threadLinks</span> (line <span class="line-number">622</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create thread links which are displayed at the top of thread pages, sometimes on the bottom as well, and also displayed in the thread info row</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Thread links</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			threadLinks
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$type</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$threadid</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$boardtype</span>, <span class="var-type">boolean</span>&nbsp;<span class="var-name">$modifier_last50</span>, <span class="var-type">boolean</span>&nbsp;<span class="var-name">$modifier_first100</span>, [<span class="var-type">boolean</span>&nbsp;<span class="var-name">$forcereplymodehide</span> = <span class="var-default">false</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$type</span><span class="var-description">: Board type</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$threadid</span><span class="var-description">: Thread ID</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$modifier_last50</span><span class="var-description">: Last 50 modifier in effect</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$modifier_first100</span><span class="var-description">: First 100 modifier in effect</span>			</li>
+					<li>
+				<span class="var-type">boolean</span>
+				<span class="var-name">$forcereplymodehide</span><span class="var-description">: Force the Reply Mode to be hidden</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$boardtype</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functiontimeDiff" id="functiontimeDiff"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">timeDiff</span> (line <span class="line-number">139</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			timeDiff
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$timestamp</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$detailed</span> = <span class="var-default">false</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$max_detail_levels</span> = <span class="var-default">8</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$precision_level</span> = <span class="var-default">&#039;second&#039;</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$timestamp</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$detailed</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$max_detail_levels</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$precision_level</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionunHideThreadSpan" id="functionunHideThreadSpan"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">unHideThreadSpan</span> (line <span class="line-number">385</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Generate the un-hide thread span</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Generated span</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			unHideThreadSpan
+		</span>
+					(<span class="var-type">integer</span>&nbsp;<span class="var-name">$id</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$id</span><span class="var-description">: Thread ID</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionunistr_to_ords" id="functionunistr_to_ords"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">unistr_to_ords</span> (line <span class="line-number">1115</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Find the ord value of a string</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Ords</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">array</span>
+		<span class="method-name">
+			unistr_to_ords
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$str</span>, [<span class="var-type">string</span>&nbsp;<span class="var-name">$encoding</span> = <span class="var-default">&#039;UTF-8&#039;</span>])
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$str</span><span class="var-description">: String</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$encoding</span><span class="var-description">: Encoding</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionuploadImageboardPageRow" id="functionuploadImageboardPageRow"><!-- --></a>
+<div class="evenrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">uploadImageboardPageRow</span> (line <span class="line-number">532</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Create a single row for a thread, which will be displayed in the upload imageboard board pages</p>
+	<ul class="tags">
+				<li><span class="field">return:</span> Thread row</li>
+			</ul>
+	<div class="method-signature">
+		<span class="method-result">string</span>
+		<span class="method-name">
+			uploadImageboardPageRow
+		</span>
+					(<span class="var-type">string</span>&nbsp;<span class="var-name">$post</span>, <span class="var-type">string</span>&nbsp;<span class="var-name">$board</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$maxage</span>, <span class="var-type">integer</span>&nbsp;<span class="var-name">$replies</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$post</span><span class="var-description">: Post data</span>			</li>
+					<li>
+				<span class="var-type">string</span>
+				<span class="var-name">$board</span><span class="var-description">: Board directory</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$maxage</span><span class="var-description">: Maximum thread age</span>			</li>
+					<li>
+				<span class="var-type">integer</span>
+				<span class="var-name">$replies</span><span class="var-description">: Number of replies to the thread</span>			</li>
+				</ul>
+		
+	
+</div>
+<a name="functionvalidateIds" id="functionvalidateIds"><!-- --></a>
+<div class="oddrow">
+	
+	<div>
+		<img src="../media/images/Function.png" />
+		<span class="method-title">validateIds</span> (line <span class="line-number">359</span>)
+	</div> 
+
+	<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Run a greater than zero check on each ID in the array</p>
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			validateIds
+		</span>
+					(<span class="var-type">array</span>&nbsp;<span class="var-name">$ids</span>)
+			</div>
+
+			<ul class="parameters">
+					<li>
+				<span class="var-type">array</span>
+				<span class="var-name">$ids</span><span class="var-description">: Array of thread IDs</span>			</li>
+				</ul>
+		
+	
+</div>
+		</div>
+	</div>
+	
+	<p class="notes" id="credit">
+		Documentation generated on Fri, 24 Aug 2007 10:43:18 -0700 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.0</a>
+	</p>
+	</div></body>
+</html>

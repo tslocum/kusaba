@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+			<!-- template designed by Marco Von Ballmoos -->
+			<title>Docs For Class Bans</title>
+			<link rel="stylesheet" href="../media/stylesheet.css" />
+			<meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'/>
+		</head>
+		<body>
+			<div class="page-body">			
+<h2 class="class-name"><img src="../media/images/Class_logo.png"
+														alt=" Class"
+														title=" Class"
+														style="vertical-align: middle"> Bans</h2>
+
+<a name="sec-description"></a>
+<div class="info-box">
+	<div class="info-box-title">Description</div>
+	<div class="nav-bar">
+					<span class="disabled">Description</span> |
+															<a href="#sec-method-summary">Methods</a> (<a href="#sec-methods">details</a>)
+						
+					</div>
+	<div class="info-box-body">
+        		<!-- ========== Info from phpDoc block ========= -->
+<p class="short-description">Bans Class</p>
+<p class="description"><p>Assorted banning-related functions placed into class format</p></p>
+		<p class="notes">
+			Located in <a class="field" href="_inc---classes---bans.class.php.html">/inc/classes/bans.class.php</a> (line <span class="field">26</span>)
+		</p>
+		
+				
+		<pre></pre>
+	
+			</div>
+</div>
+
+
+
+
+	<a name="sec-method-summary"></a>
+	<div class="info-box">
+		<div class="info-box-title">Method Summary</span></div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+												<span class="disabled">Methods</span> (<a href="#sec-methods">details</a>)
+		</div>
+		<div class="info-box-body">			
+			<div class="method-summary">
+																																																								<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
+										<a href="#BanCheck" title="details" class="method-name">BanCheck</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$ip</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$board</span> = <span class="var-default">''</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$force_display</span> = <span class="var-default">false</span>])
+									</div>
+																<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
+										<a href="#BanUser" title="details" class="method-name">BanUser</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$ip</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$modname</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$globalban</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$duration</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$boards</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$reason</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$appealat</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">0</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$allowread</span> = <span class="var-default">1</span>])
+									</div>
+																<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
+										<a href="#DisplayBannedMessage" title="details" class="method-name">DisplayBannedMessage</a>
+											(<span class="var-type"></span>&nbsp;<span class="var-name">$globalban</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$boards</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$reason</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$at</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$until</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$appealat</span>)
+									</div>
+																<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
+										<a href="#RemoveExpiredBans" title="details" class="method-name">RemoveExpiredBans</a>
+										()
+									</div>
+																<div class="method-definition">
+					<img src="../media/images/Method.png" alt=" "/>
+											<span class="method-result">void</span>
+										<a href="#UpdateHtaccess" title="details" class="method-name">UpdateHtaccess</a>
+										()
+									</div>
+											</div>
+		</div>
+	</div>		
+
+	
+	<a name="sec-methods"></a>
+	<div class="info-box">
+		<div class="info-box-title">Methods</div>
+		<div class="nav-bar">
+			<a href="#sec-description">Description</a> |
+													<a href="#sec-method-summary">Methods</a> (<span class="disabled">details</span>)
+						
+		</div>
+		<div class="info-box-body">
+			<A NAME='method_detail'></A>
+<a name="methodBanCheck" id="BanCheck"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">BanCheck</span> (line <span class="line-number">39</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			BanCheck
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$ip</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$board</span> = <span class="var-default">''</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$force_display</span> = <span class="var-default">false</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$ip</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$board</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$force_display</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodBanUser" id="BanUser"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">BanUser</span> (line <span class="line-number">79</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			BanUser
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$ip</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$modname</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$globalban</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$duration</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$boards</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$reason</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$appealat</span>, [<span class="var-type"></span>&nbsp;<span class="var-name">$type</span> = <span class="var-default">0</span>], [<span class="var-type"></span>&nbsp;<span class="var-name">$allowread</span> = <span class="var-default">1</span>])
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$ip</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$modname</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$globalban</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$duration</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$boards</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$reason</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$appealat</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$type</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$allowread</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodDisplayBannedMessage" id="DisplayBannedMessage"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">DisplayBannedMessage</span> (line <span class="line-number">107</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			DisplayBannedMessage
+		</span>
+					(<span class="var-type"></span>&nbsp;<span class="var-name">$globalban</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$boards</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$reason</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$at</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$until</span>, <span class="var-type"></span>&nbsp;<span class="var-name">$appealat</span>)
+			</div>
+	
+			<ul class="parameters">
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$globalban</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$boards</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$reason</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$at</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$until</span>			</li>
+					<li>
+				<span class="var-type"></span>
+				<span class="var-name">$appealat</span>			</li>
+				</ul>
+		
+			
+	</div>
+<a name="methodRemoveExpiredBans" id="RemoveExpiredBans"><!-- --></a>
+<div class="oddrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">RemoveExpiredBans</span> (line <span class="line-number">29</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			RemoveExpiredBans
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+<a name="methodUpdateHtaccess" id="UpdateHtaccess"><!-- --></a>
+<div class="evenrow">
+	
+	<div class="method-header">
+		<img src="../media/images/Method.png" />
+		<span class="method-title">UpdateHtaccess</span> (line <span class="line-number">150</span>)
+	</div> 
+	
+	<!-- ========== Info from phpDoc block ========= -->
+	
+	<div class="method-signature">
+		<span class="method-result">void</span>
+		<span class="method-name">
+			UpdateHtaccess
+		</span>
+				()
+			</div>
+	
+		
+			
+	</div>
+						
+		</div>
+	</div>
+
+	
+	<p class="notes" id="credit">
+		Documentation generated on Fri, 24 Aug 2007 10:43:16 -0700 by <a href="http://www.phpdoc.org" target="_blank">phpDocumentor 1.4.0</a>
+	</p>
+	</div></body>
+</html>

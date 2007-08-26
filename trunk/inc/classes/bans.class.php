@@ -159,7 +159,7 @@ class Bans {
 		if (count($results) > 0) {
 			$htaccess_contents_bans_iplist .= 'RewriteCond %{REMOTE_ADDR} (';
 			foreach($results AS $line) {
-					$htaccess_contents_bans_iplist .= str_replace('.', '\\.', md5_decrypt($line['ip'], KU_RANDOMSEED)) . '|';
+				$htaccess_contents_bans_iplist .= str_replace('.', '\\.', md5_decrypt($line['ip'], KU_RANDOMSEED)) . '|';
 			}
 			$htaccess_contents_bans_iplist = substr($htaccess_contents_bans_iplist, 0, -1);
 			$htaccess_contents_bans_iplist .= ')$' . "\n";

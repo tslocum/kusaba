@@ -25,6 +25,7 @@
  */   
 
 require 'config.php';
+require KU_ROOTDIR . 'inc/functions.php';
 require KU_ROOTDIR . 'inc/classes/menu.class.php';
 
 if (KU_STATICMENU) {

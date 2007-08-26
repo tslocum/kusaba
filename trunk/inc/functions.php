@@ -457,7 +457,7 @@ function pageList($boardpage, $pages, $board) {
  * @return string Generated name and tripcode html
  */  
 function formatNameAndTrip($name, $email, $tripcode) {
-	$output = '<span class="postername">' . "\n" . '	';
+	$output = '<span class="postername">';
 			
 	if ($email != '') {
 		$output .= '<a href="mailto:' . $email . '">';
@@ -475,14 +475,14 @@ function formatNameAndTrip($name, $email, $tripcode) {
 		$output .= '</a>';
 	}
 	
-	$output .= "\n" . '</span>' . "\n";
+	$output .= '</span>';
 	
 	if ($tripcode != '') {
-		$output .= '<span class="postertrip">' . "\n" .
-		'	!' . $tripcode . "\n" .
-		'</span>' . "\n";
+		$output .= '<span class="postertrip">!' . $tripcode . '</span>';
 	}
 	
+	$output .= "\n";
+		
 	return $output;
 }
 
@@ -530,52 +530,48 @@ function formatLongMessage($message, $board, $threadid, $page) {
  * @return string Thread row
  */ 
 function uploadImageboardPageRow($post, $board, $maxage, $replies) {
+	if ($post['tag'] == '') {
+		$post['tag'] = '*';
+	}
+	if ($post['filesize_formatted'] == '') {
+		$filesize = ConvertBytes($post['filesize']);
+	} else {
+		$filesize = $post['filesize_formatted'];
+	}
 	$output = '<tr';
 	/* If the thread is two hours or less from being pruned, add the style for old rows */
 	if (checkMarkedForDeletion($post, $maxage)) {
 		$output .= ' class="replyhl"';
 	}
 	$output .= '>' . "\n" .
-	'<td align="center">' . "\n" .
-	'	' . $post['id'] . "\n" .
-	'</td>' . "\n" .
-	'<td>' . "\n" .
-	formatNameAndTrip($post['name'], $post['email'], $post['tripcode']) .
-	'</td>' . "\n" .
-	'<td align="center">' . "\n" .
-	'	[<a href="' . KU_BOARDSFOLDER . $board . '/src/' . $post['filename'] . '.' . $post['filetype'] . '" target="_blank">' . $post['filename'] . '.' . $post['filetype'] . '</a>]' . "\n" .
-	'</td>' . "\n";
-	
-	if ($post['tag'] == '') {
-		$post['tag'] = '*';
-	}
-	
-	$output .= '<td align="center">' . "\n" .
-	'	[' . $post['tag'] . ']' . "\n" .
-	'</td>' . "\n" .
-	'<td>' . "\n" .
-	'	' . $post['subject'] . "\n" .
-	'</td>' . "\n" .
-	'<td align="center">' . "\n" .
-	'	';
-	
-	if ($post['filesize_formatted'] == '') {
-		$output .= ConvertBytes($post['filesize']);
-	} else {
-		$output .= $post['filesize_formatted'];
-	}
-	
-	$output .= "\n" . '</td>' . "\n" .
-	'<td>' . "\n" .
-	'	<nobr>' . date("y/m/d(D)H:i", $post['postedat']) . '</nobr>' . "\n" .
-	'</td>' . "\n" .
-	'<td align="center">' . "\n" .
-	'	' . $replies . "\n" .
-	'</td>' . "\n" .
-	'<td align="center">' . "\n" .
-	'	[<a href="' . KU_BOARDSFOLDER . $board . '/res/' . $post['id'] . '.html">Reply</a>]' . "\n" .
-	'</td>' . "\n" .
-	'</tr>';
+	'	<td align="center">' . "\n" .
+	'		' . $post['id'] . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		' . formatNameAndTrip($post['name'], $post['email'], $post['tripcode']) .
+	'	</td>' . "\n" .
+	'	<td align="center">' . "\n" .
+	'		[<a href="' . KU_BOARDSFOLDER . $board . '/src/' . $post['filename'] . '.' . $post['filetype'] . '" target="_blank">' . $post['filename'] . '.' . $post['filetype'] . '</a>]' . "\n" .
+	'	</td>' . "\n" .
+	'	<td align="center">' . "\n" .
+	'		[' . $post['tag'] . ']' . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		' . $post['subject'] . "\n" .
+	'	</td>' . "\n" .
+	'	<td align="center">' . "\n" .
+	'		' . $filesize . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		<nobr>' . date("y/m/d(D)H:i", $post['postedat']) . '</nobr>' . "\n" .
+	'	</td>' . "\n" .
+	'	<td align="center">' . "\n" .
+	'		' . $replies . "\n" .
+	'	</td>' . "\n" .
+	'	<td align="center">' . "\n" .
+	'		[<a href="' . KU_BOARDSFOLDER . $board . '/res/' . $post['id'] . '.html">Reply</a>]' . "\n" .
+	'	</td>' . "\n" .
+	'</tr>' . "\n";
 	
 	return $output;
 }

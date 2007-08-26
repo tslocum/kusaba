@@ -65,11 +65,13 @@ class Parse {
 		if ($boardtype==1) {
 			/* The css for text boards use 'quote' as the class for quotes */
 			$class = 'quote';
+			$linechar = '';
 		} else {
 			/* The css for imageboards use 'unkfunc' (???) as the class for quotes */
 			$class = 'unkfunc';
+			$linechar = "\n";
 		}
-		$buffer = preg_replace('/^(&gt;[^>](.*))\n/m', '<span class="'.$class.'">\\1</span>' . "\n", $buffer);
+		$buffer = preg_replace('/^(&gt;[^>](.*))\n/m', '<span class="'.$class.'">\\1</span>' . $linechar, $buffer);
 		/* Remove the > from the quoted line if it is a text board */
 		if ($boardtype==1) {
 			$buffer = str_replace('<span class="'.$class.'">&gt;', '<span class="'.$class.'">', $buffer);
