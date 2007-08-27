@@ -3,6 +3,7 @@
 
 = 1.0.1 =
   * A style resembling Futaba has been added for text boards
+  * Imagemagick may now be used for thumbnailing files by setting KU_THUMBMETHOD to 'imagemagick'
 
 = 1.0.0 =
   * Trevorchan has been renamed to *kusaba*!
