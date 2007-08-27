@@ -985,56 +985,67 @@ function removeBoard($dir){
  * @return boolean Success/fail 
  */ 
 function createThumbnail($name, $filename, $new_w, $new_h) {
-	$system=explode(".", $filename);
-	$system = array_reverse($system);
-	if (preg_match("/jpg|jpeg/", $system[0])) {
-		$src_img=imagecreatefromjpeg($name);
-	} else if (preg_match("/png/", $system[0])) {
-		$src_img=imagecreatefrompng($name);
-	} else if (preg_match("/gif/", $system[0])) {
-		$src_img=imagecreatefromgif($name);
-	} else {
-		return false;
-	}
-	
-	if (!$src_img) {
-		echo '<br>Unable to open the uploaded image for thumbnailing.  Maybe its a different filetype, and has the wrong extension?';
-		return false;
-	}
-	$old_x = imageSX($src_img);
-	$old_y = imageSY($src_img);
-	if ($old_x > $old_y) {
-		$percent = $new_w / $old_x;
-	} else {
-		$percent = $new_h / $old_y;
-	}
-	$thumb_w = round($old_x * $percent);
-	$thumb_h = round($old_y * $percent);
-	
-	$dst_img = ImageCreateTrueColor($thumb_w, $thumb_h);
-	fastImageCopyResampled($dst_img, $src_img, 0, 0, 0, 0, $thumb_w, $thumb_h, $old_x, $old_y);
-	
-	if (preg_match("/png/", $system[0])) {
-		if (!imagepng($dst_img, $filename)) {
-			echo 'unable to imagepng.';
+	if (KU_THUMBMETHOD == 'imagemagick') {
+		exec('convert ' . escapeshellarg($name) . ' -resize ' . $new_w . 'x' . $new_h . ' -quality 70 ' . escapeshellarg($filename) . '');
+		if (is_file($filename)) {
+			return true;
+		} else {
 			return false;
 		}
-	} else if (preg_match("/jpg|jpeg/", $system[0])) {
-		if (!imagejpeg($dst_img, $filename, 70)) {
-			echo 'unable to imagejpg.';
+	} elseif (KU_THUMBMETHOD == 'gd') {
+		$system=explode(".", $filename);
+		$system = array_reverse($system);
+		if (preg_match("/jpg|jpeg/", $system[0])) {
+			$src_img=imagecreatefromjpeg($name);
+		} else if (preg_match("/png/", $system[0])) {
+			$src_img=imagecreatefrompng($name);
+		} else if (preg_match("/gif/", $system[0])) {
+			$src_img=imagecreatefromgif($name);
+		} else {
 			return false;
 		}
-	} else if (preg_match("/gif/", $system[0])) {
-		if (!imagegif($dst_img, $filename)) { 
-			echo 'unable to imagegif.';
+		
+		if (!$src_img) {
+			echo '<br>Unable to open the uploaded image for thumbnailing.  Maybe its a different filetype, and has the wrong extension?';
 			return false;
 		}
+		$old_x = imageSX($src_img);
+		$old_y = imageSY($src_img);
+		if ($old_x > $old_y) {
+			$percent = $new_w / $old_x;
+		} else {
+			$percent = $new_h / $old_y;
+		}
+		$thumb_w = round($old_x * $percent);
+		$thumb_h = round($old_y * $percent);
+		
+		$dst_img = ImageCreateTrueColor($thumb_w, $thumb_h);
+		fastImageCopyResampled($dst_img, $src_img, 0, 0, 0, 0, $thumb_w, $thumb_h, $old_x, $old_y);
+		
+		if (preg_match("/png/", $system[0])) {
+			if (!imagepng($dst_img, $filename)) {
+				echo 'unable to imagepng.';
+				return false;
+			}
+		} else if (preg_match("/jpg|jpeg/", $system[0])) {
+			if (!imagejpeg($dst_img, $filename, 70)) {
+				echo 'unable to imagejpg.';
+				return false;
+			}
+		} else if (preg_match("/gif/", $system[0])) {
+			if (!imagegif($dst_img, $filename)) { 
+				echo 'unable to imagegif.';
+				return false;
+			}
+		}
+		
+		imagedestroy($dst_img); 
+		imagedestroy($src_img); 
+		
+		return true;
 	}
 	
-	imagedestroy($dst_img); 
-	imagedestroy($src_img); 
-	
-	return true;
+	return false;
 }
 
 /* Author: Tim Eckel - Date: 12/17/04 - Project: FreeRingers.net - Freely distributable. */

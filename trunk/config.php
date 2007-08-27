@@ -124,6 +124,7 @@ if (!$cache_loaded) {
 		$cf['KU_REPLYTHUMBHEIGHT'] = 125; /* Maximum thumbnail height (reply) */
 		$cf['KU_CATTHUMBWIDTH']    = 50; /* Maximum thumbnail width (catalog) */
 		$cf['KU_CATTHUMBHEIGHT']   = 50; /* Maximum thumbnail height (catalog) */
+		$cf['KU_THUMBMETHOD'] = 'imagemagick'; /* Method to use when thumbnailing images in jpg, gif, or png format.  Options available: gd, imagemagick */
 	
 	/* Post handling */
 		$cf['KU_NEWWINDOW']       = true; /* When a user clicks a thumbnail, whether to open the link in a new window or not */
