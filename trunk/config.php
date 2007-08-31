@@ -107,6 +107,10 @@ if (!$cache_loaded) {
 		$cf['KU_DEFAULTSTYLE']  = 'futaba'; /* If Default is selected in the style list in board options, it will use this style.  Should be lower case */
 		$cf['KU_STYLESWITCHER'] = true; /* Whether or not to display the different styles in a clickable switcher at the top of the board */
 		
+		$cf['KU_TXTSTYLES']        = 'futatxt:buritxt:yotsuba:headline:pseud0ch'; /* Styles which are available to be used for the boards, separated by colons, in lower case */
+		$cf['KU_DEFAULTTXTSTYLE']  = 'futatxt'; /* If Default is selected in the style list in board options, it will use this style.  Should be lower case */
+		$cf['KU_TXTSTYLESWITCHER'] = true; /* Whether or not to display the different styles in a clickable switcher at the top of the board */
+		
 		$cf['KU_MENUSTYLES']        = 'futaba:burichan'; /* Menu styles*/
 		$cf['KU_DEFAULTMENUSTYLE']  = 'futaba'; /* Default menu style */
 		$cf['KU_MENUSTYLESWITCHER'] = true; /* Whether or not to display the different styles in a clickable switcher in the menu */
@@ -135,6 +139,7 @@ if (!$cache_loaded) {
 	
 	/* Post display */
 		$cf['KU_THREADS']       = 10; /* Number of threads to display on a board page */
+		$cf['KU_THREADSTXT']    = 20; /* Number of threads to display on a text board front page */
 		$cf['KU_REPLIES']       = 3; /* Number of replies to display on a board page */
 		$cf['KU_REPLIESSTICKY'] = 1; /* Number of replies to display on a board page when a thread is stickied */
 		$cf['KU_THUMBMSG']      = false; /* Whether or not to display the "Thumbnail displayed, click image for full size." message on posts with images */
@@ -145,7 +150,7 @@ if (!$cache_loaded) {
 		$cf['KU_POSTBOX'] = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */
 		$cf['KU_FIRSTPAGE'] = 'board.html'; /* Filename of the first page of a board.  Only change this if you are willing to maintain the .htaccess files for each board directory (they are created with a DirectoryIndex board.html, change them if you change this) */
 		$cf['KU_DIRTITLE']  = false; /* Whether or not to place the board directory in the board's title and at the top of the page.  true would render as "/b/ - Random", false would render as "Random" */
-	
+		
 	/* File tagging */
 		$cf['KU_TAGS'] = array('Japanese' => 'J',
 		                       'Anime'    => 'A',

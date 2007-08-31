@@ -317,7 +317,7 @@ function toggleblotter(save) {
 	var arr = new Array();
 	var blotterentry;
 	for(i = 0,iarr = 0; i < elem.length; i++) {
-		att = elem[i].getAttribute("name");
+		att = elem[i].getAttribute('class');
 		if(att == 'blotterentry') {
 			blotterentry = elem[i];
 			if (blotterentry.style.display == 'none') {
@@ -451,10 +451,12 @@ function expandimg(postnum, imgurl, thumburl, imgw, imgh, thumbw, thumbh) {
 }
 
 function set_inputs(id) {
-	with(document.getElementById(id)) {
-		if(!name.value) name.value = getCookie("name");
-		if(!em.value) em.value = getCookie("email");
-		if(!postpassword.value) postpassword.value = get_password("postpassword");
+	if (document.getElementById(id)) {
+		with(document.getElementById(id)) {
+			if(!name.value) name.value = getCookie("name");
+			if(!em.value) em.value = getCookie("email");
+			if(!postpassword.value) postpassword.value = get_password("postpassword");
+		}
 	}
 }
 

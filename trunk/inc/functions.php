@@ -84,6 +84,26 @@ function printStylesheets($prefered_stylesheet = KU_DEFAULTSTYLE) {
 	return $output_stylesheets;
 }
 
+function printStylesheetsTXT($prefered_stylesheet = KU_DEFAULTTXTSTYLE) {
+	global $tc_db;
+	$output_stylesheets = '';
+	$styles = explode(':', KU_TXTSTYLES);
+	
+	if (!in_array($prefered_stylesheet, $styles)) {
+		$prefered_stylesheet = KU_DEFAULTTXTSTYLE;
+	}
+	
+	foreach ($styles as $stylesheet) {
+		$output_stylesheets .= '<link rel="';
+		if ($stylesheet != $prefered_stylesheet) {
+			$output_stylesheets .= 'alternate ';
+		}
+		$output_stylesheets .= 'stylesheet" type="text/css" href="' . KU_BOARDSPATH . '/css/txt_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
+	}
+	
+	return $output_stylesheets;
+}
+
 function printStylesheetsSite($prefered_stylesheet = KU_DEFAULTMENUSTYLE, $menu = false) {
 	global $tc_db;
 	$output_stylesheets = '';
@@ -215,7 +235,7 @@ function getBlotter($all = false) {
 			if ($all && $line['important'] == 1) {
 				$output .= '<font style="color: red;">';
 			} elseif (!$all) {
-				$output .= '<li name="blotterentry" style="display: none;">' . "\n";
+				$output .= '<li class="blotterentry" style="display: none;">' . "\n";
 				if ($line['important'] == 1) {
 					$output .= '	<span style="color: red;">' . "\n" . '	';
 				}
@@ -370,7 +390,7 @@ function boardid_to_dir($boardid) {
  */      
 function calculatenumpages($boardtype, $numposts) {
 	if ($boardtype==1) {
-		return (floor($numposts/15));
+		return (floor($numposts/KU_THREADSTXT));
 	} else {
 		return (floor($numposts/KU_THREADS));
 	}
@@ -630,7 +650,7 @@ function uploadImageboardPageRow($post, $board, $maxage, $replies) {
 	'		' . $filesize . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
-	'		<nobr>' . date("y/m/d(D)H:i", $post['postedat']) . '</nobr>' . "\n" .
+	'		<span style="white-space: nowrap;">' . date("y/m/d(D)H:i", $post['postedat']) . '</span>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td align="center">' . "\n" .
 	'		' . $replies . "\n" .

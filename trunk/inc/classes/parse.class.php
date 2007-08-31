@@ -47,8 +47,8 @@ class Parse {
 			'<i>\\1</i>', 
 			'<span style="border-bottom: 1px dotted">\\1</span>', 
 			'<strike>\\1</strike>', 
-			'<div style="font-family: monospace;">\\1</div>', 
-			'<div style="font-family: Mona,\'MS PGothic\' !important; ">\\1</div>', 
+			'<div style="font-family: monospace !important;">\\1</div>', 
+			'<div style="font-family: Mona,\'MS PGothic\' !important;">\\1</div>', 
 			'<span class="spoiler" onmouseover="this.style.color=\'white\';" onmouseout="this.style.color=\'black\'">\\1</span>', 
 			);
 		$string = preg_replace($patterns, $replaces , $string);

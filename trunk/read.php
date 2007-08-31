@@ -64,11 +64,10 @@ $board_class->InitializeSmarty();
 $board_class->CachePageHeaderData();
 $page = $board_class->PageHeader($thread, 0, -1, -1, false, true);
 $page .= threadLinks('return', $thread, $board_class->board_dir, $board_class->board_type, false, false, true, true);
-if ($board_class->board_type != 1) {
-	$page .= '<br>';
-}
 
 if ($board_class->board_type == 1) {
+	$page .= '<form id="delform" action="http://cgi.kusaba.org/board.php" method="post">' . "\n";
+	
 	$relative_id = 0;
 	$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `id` = '" . mysql_real_escape_string($thread) . "' OR `parentid` = '" . mysql_real_escape_string($thread) . "' ORDER BY `id` ASC");
 	foreach ($results as $line) {
@@ -78,19 +77,21 @@ if ($board_class->board_type == 1) {
 			$page .= $board_class->BuildPost(false, $board_class->board_dir, $board_class->board_type, $line, 0, 0, $relative_id);
 		}
 	}
+	
+	$page .= '</form>';
 } else {
+	$page .= '<br>' . "\n";
+	
 	$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (" . $postidquery . ")");
 	foreach ($results as $line) {
 		$page .= $board_class->BuildPost(false, $board_class->board_dir, $board_class->board_type, $line);
 	}
-}
-
-if ($board_class->board_type != 1) {
+	
 	$page .= '<br clear="left">' . "\n";
 }
 
-$page .= '<hr>' . "\n";
-$page .= $board_class->Footer($noboardlist, (microtime_float() - $executiontime_start), $hide_extra);
+$page .= '<hr>' . "\n" .
+$board_class->Footer($noboardlist, (microtime_float() - $executiontime_start), $hide_extra);
 
 $board_class->PrintPage('', $page, true);
 ?>
