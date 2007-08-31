@@ -9,6 +9,8 @@
   * A default style for a text board may now be set in board options
   * Forced anonymous on a text board will now hide the Name field in the reply area
   * You may now change the number of threads shown on the front page of a text board using KU_THREADSTXT.  The default is 15
+  * All post tables will now use the InnoDB engine
+  * A few structural improvements have been placed on all post tables
   
 = 1.0.0 =
   * Trevorchan has been renamed to *kusaba*!
