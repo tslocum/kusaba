@@ -4,7 +4,8 @@
 = 1.0.1 =
   * A style resembling Futaba has been added for text boards
   * Imagemagick may now be used for thumbnailing files by setting KU_THUMBMETHOD to 'imagemagick'
-
+  * Multi-quote support has been added
+  
 = 1.0.0 =
   * Trevorchan has been renamed to *kusaba*!
   * Icons will now change color to best fit the currently selected style
