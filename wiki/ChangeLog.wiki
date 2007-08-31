@@ -5,6 +5,10 @@
   * A style resembling Futaba has been added for text boards
   * Imagemagick may now be used for thumbnailing files by setting KU_THUMBMETHOD to 'imagemagick'
   * Multi-quote support has been added
+  * Text board styles may now be changed in config.php
+  * A default style for a text board may now be set in board options
+  * Forced anonymous on a text board will now hide the Name field in the reply area
+  * You may now change the number of threads shown on the front page of a text board using KU_THREADSTXT.  The default is 15
   
 = 1.0.0 =
   * Trevorchan has been renamed to *kusaba*!
