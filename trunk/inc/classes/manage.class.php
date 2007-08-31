@@ -1390,11 +1390,11 @@ class Manage {
 							$tpl_page .= _gettext('Sorry, a generic error has occurred.');
 							die();
 						}
-						$logentry = _gettext('Banned') . ' ' . $_POST['ip'] . ' until ';
+						$logentry = _gettext('Banned') . ' ' . $_POST['ip'];
 						if ($_POST['seconds'] == '0') {
-							$logentry .= _gettext('forever');
+							$logentry .= ' without expiration';
 						} else {
-							$logentry .= date('F j, Y, g:i a', time() + $_POST['seconds']);
+							$logentry .= ' until ' . date('F j, Y, g:i a', time() + $_POST['seconds']);
 						}
 						$logentry .= ' - ' . _gettext('Reason') . ': ' . $_POST['reason'] . ' - ' . _gettext('Banned from') . ': ';
 						if ($ban_globalban == '1') {
@@ -1559,7 +1559,7 @@ class Manage {
 				$hiddenbans = $hiddenbans[0][0] - 15;
 			}
 			if (count($results) > 0) {
-				$tpl_page .= '<table border="1"><tr><th>';
+				$tpl_page .= '<table border="1" width="100%"><tr><th>';
 				if ($i == 1) {
 					$tpl_page .= 'IP Range';
 				} else {
@@ -1584,7 +1584,7 @@ class Manage {
 					}
 					$tpl_page .= '</td><td>' . date("F j, Y, g:i a", $line['at']) . '</td><td>';
 					if ($line['until'] == '0') {
-						$tpl_page .= '<b>' . _gettext('forever') . '</b>';
+						$tpl_page .= '<b>' . _gettext('Does not expire') . '</b>';
 					} else {
 						$tpl_page .= date("F j, Y, g:i a", $line['until']);
 					}
@@ -1608,7 +1608,7 @@ class Manage {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['md5'] . '</td><td>' . $line['description'] . '</td><td>';
 				if ($line['bantime'] == 0) {
-					$tpl_page .= 'forever';
+					$tpl_page .= '<b>' . _gettext('Does not expire') . '</b>';
 				} else {
 					$tpl_page .= $line['bantime'] . ' seconds';
 				}
@@ -1786,7 +1786,7 @@ class Manage {
 					$bans_class->BanUser($ban_ip, mysql_real_escape_string($_SESSION['manageusername']), $ban_globalban, 0, $ban_boards, mysql_real_escape_string($_POST['reason']), 0, 0, 1);
 					$logentry = _gettext('Banned') . ' ' . $ban_ip . ' until ';
 					if ($_POST['seconds'] == '0') {
-						$logentry .= _gettext('forever');
+						$logentry .= '<b>' . _gettext('Does not expire') . '</b>';
 					} else {
 						$logentry .= date('F j, Y, g:i a', time() + $_POST['seconds']);
 					}
@@ -2029,7 +2029,7 @@ class Manage {
 							UNIQUE KEY `id` (`id`), 
 							KEY `parentid` (`parentid`), 
 							KEY `lastbumped` (`lastbumped`)
-							) ENGINE=MyISAM AUTO_INCREMENT=" . mysql_real_escape_string($_POST['firstpostid']) . " ;");
+							) ENGINE=INNODB AUTO_INCREMENT=" . mysql_real_escape_string($_POST['firstpostid']) . " ;");
 							$filetypes = $tc_db->GetAll("SELECT " . KU_DBPREFIX . "filetypes.id FROM " . KU_DBPREFIX . "filetypes WHERE " . KU_DBPREFIX . "filetypes.filetype = 'JPG' OR " . KU_DBPREFIX . "filetypes.filetype = 'GIF' OR " . KU_DBPREFIX . "filetypes.filetype = 'PNG';");
 							foreach ($filetypes AS $filetype) {
 								$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid` , `typeid` ) VALUES ( " . $boardid . " , " . $filetype['id'] . " );");
@@ -2256,7 +2256,7 @@ class Manage {
 						}
 						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `boards` = '" . mysql_real_escape_string(implode('|', $staff_new_boards)) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 						$tpl_page .= _gettext('Staff successfully updated') . '<hr>';
-						if ($_POST['type'] == 3) {
+						if ($_POST['type'] != '3') {
 							$logentry = _gettext('Updated staff member') . ' - ';
 							if ($_POST['type'] == '1') {
 								$logentry .= _gettext('Administrator');
@@ -2264,8 +2264,6 @@ class Manage {
 								$logentry .= _gettext('Moderator');
 							} elseif ($_POST['type'] == '0') {
 								$logentry .= _gettext('Janitor');
-							} elseif ($_POST['type'] == '3') {
-								$logentry .= 'VIP';
 							} else {
 								die('Something went wrong.');
 							}

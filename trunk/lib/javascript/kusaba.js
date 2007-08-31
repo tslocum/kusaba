@@ -274,9 +274,9 @@ function delandbanlinks() {
 	var dnbinfo;
 	for(var i=0;i<dnbelements.length;i++){
 		dnbelement = dnbelements[i];
-		if (dnbelement.getAttribute('name')) {
-			if (dnbelement.getAttribute('name').substr(0, 3) == 'dnb') {
-				dnbinfo = dnbelement.getAttribute('name').split('|');
+		if (dnbelement.getAttribute('class')) {
+			if (dnbelement.getAttribute('class').substr(0, 3) == 'dnb') {
+				dnbinfo = dnbelement.getAttribute('class').split('|');
 				var newhtml = '&#91;<a href="' + ku_cgipath + '/manage_page.php?action=delposts&boarddir=' + dnbinfo[1] + '&del';
 				if (dnbinfo[3] == 'y') {
 					newhtml += 'thread';

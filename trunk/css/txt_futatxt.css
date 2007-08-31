@@ -87,6 +87,7 @@ textarea {
 	color: #800000;
 	padding: 4px;
 	clear: both;
+	-moz-border-radius: 4px;
 }
 
 .topbar {
@@ -94,26 +95,26 @@ textarea {
 	text-align: right
 }
 
+.fullhead {
+	background: #EEAA88;
+	-moz-border-radius: 6px;
+	padding: 0.25em;
+}
+
 .head {
 	-moz-border-radius: 6px;
-	margin-bottom: 0.5em;
 }
 
 .hborder .head {
-	-moz-border-radius: 0 0 6px 6px;
+	-moz-border-radius: 6px;
 }
 
 .midhead {
 	margin-left: 1em;
 }
 
-.threadlinks {
-	margin-top: -1em;
-	float: right;
-}
-
 .newthread {
-	margin-top: 0.5em;
+	margin-top: 2em;
 	margin-bottom: 2em;
 }
 
@@ -148,9 +149,10 @@ textarea {
     color:#DD0000;
 }
 
-.threads {
-	margin-bottom: 1em;
-	-moz-border-radius: 0 0 6px 6px;
+.threadldiv {
+	background: #F0E0D6;
+	/*margin-bottom: 1em;*/
+	-moz-border-radius: 6px;
 }
 
 .hidden {
@@ -167,9 +169,6 @@ textarea {
 .postertrip {
 	color: #228854;
 }
-
-
-
 
 .legal {
 	text-align: center;

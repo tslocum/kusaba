@@ -69,13 +69,6 @@ h2 a {
 .threadlistflat {
     margin-bottom:0
 }
-.threadlinks {
-    text-align: right;
-    display: block;
-}
-.threadlinks a {
-    font-weight: bold;
-}
 
 .postheader * {
     clear: none;
@@ -208,7 +201,7 @@ body.read h2 {
 }
 
 .threads a {
-    display: block;
+    /*display: block;*/
 }
 .threads a:hover {
     text-decoration: none;

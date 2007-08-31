@@ -139,6 +139,7 @@ if (!$cache_loaded) {
 		$cf['KU_REPLIESSTICKY'] = 1; /* Number of replies to display on a board page when a thread is stickied */
 		$cf['KU_THUMBMSG']      = false; /* Whether or not to display the "Thumbnail displayed, click image for full size." message on posts with images */
 		$cf['KU_BANMSG']        = '<br><font color="#FF0000"><b>(USER WAS BANNED FOR THIS POST)</b></font>'; /* The text to add at the end of a post if a ban is placed and "Add ban message" is checked */
+		$cf['KU_TRADITIONALREAD'] = true; /* Whether or not to use the traditional style for multi-quote urls.  Traditional: read.php/board/thread/posts, Non-traditional: read.php?b=board&t=thread&p=posts */
 		
 	/* Pages */
 		$cf['KU_POSTBOX'] = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */
