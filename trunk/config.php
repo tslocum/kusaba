@@ -86,12 +86,14 @@ if (!$cache_loaded) {
 			$cf['KU_ROOTDIR']   = dirname($_SERVER['SCRIPT_FILENAME']) . '/'; /* Full system path of the folder containing kusaba.php, with trailing slash */
 			$cf['KU_WEBFOLDER'] = dirname($_SERVER['PHP_SELF']) . '/'; /* The path from the domain of the board to the folder which kusaba is in, including the trailing slash.  Example: "http://www.yoursite.com/misc/kusaba/" would have a $cf['KU_WEBFOLDER'] of "/misc/kusaba/" */
 			$cf['KU_WEBPATH']   = 'http://' . $_SERVER['HTTP_HOST'] . $cf['KU_WEBFOLDER']; /* The path to the index folder of kusaba, without trailing slash */
+			$cf['KU_WEBCORAL'] = 'http://www.kusaba.org.nyud.net'; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
 			$cf['KU_DOMAIN']    = '.' . $_SERVER['HTTP_HOST']; /* Used in cookies for the domain parameter.  Should be a period and then the top level domain, which will allow the cookies to be set for all subdomains.  For http://www.randomchan.org, the domain would be .randomchan.org; http://zachchan.freehost.com would be zach.freehost.com */
 		
 		/* Board subdomain/alternate directory (optional, change to enable) */
 			$cf['KU_BOARDSDIR']    = $cf['KU_ROOTDIR'];
 			$cf['KU_BOARDSFOLDER'] = $cf['KU_WEBFOLDER'];
 			$cf['KU_BOARDSPATH']   = $cf['KU_WEBPATH'];
+			$cf['KU_BOARDSPATH']   = 'http://img.kusaba.org';
 		
 		/* CGI subdomain/alternate directory (optional, change to enable) */
 			$cf['KU_CGIDIR']    = $cf['KU_BOARDSDIR'];
