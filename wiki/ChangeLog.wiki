@@ -1,6 +1,10 @@
 #summary kusaba changelog
 #labels Featured
 
+= 1.0.2 =
+  * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
+  * Numerous actions have been taken to make pages load faster, including javascript compression and reduction of external requests per page.  The uncompressed version of the javascript is still included in case of a need for modification
+
 = 1.0.1 =
   * A style resembling Futaba has been added for text boards
   * Imagemagick may now be used for thumbnailing files by setting KU_THUMBMETHOD to 'imagemagick'
