@@ -479,7 +479,7 @@ class Board {
 						$catalog_page .= '>';
 						if ($line['filename'] != '' && $line['filename'] != 'removed') {
 							if ($line['filetype'] == 'jpg' || $line['filetype'] == 'png' || $line['filetype'] == 'gif') {
-								$file_path = ($this->board_loadbalanceurl == '') ? (KU_BOARDSFOLDER . $this->board_dir) : $this->board_loadbalanceurl_formatted;
+								$file_path = getCLBoardPath($this->board_dir, $this->board_loadbalanceurl_formatted, $this->archive_dir);
 								$catalog_page .= '<img src="' . $file_path . '/thumb/' . $line['filename'] . 'c.' . $line['filetype'] . '" alt="' . $line['id'] . '" border="0">';
 							} else {
 								$catalog_page .= 'File';
@@ -687,7 +687,7 @@ class Board {
 		$query_idsegment = substr($query_idsegment, 0, -4);
 		$results = $tc_db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE ('.$query_idsegment.') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
 		if (count($results) == 0) {
-			die('buildthread(): error.  No posts in thread to build from.');
+			exitWithErrorPage('buildthread(): error.  No posts in thread to build from.');
 		}
 		
 		// }}}
@@ -1015,7 +1015,7 @@ class Board {
 			$info_image = '';
 			$post_is_standard = true;
 			$post_is_nofile = true;
-			$file_path = ($this->board_loadbalanceurl == '') ? (KU_BOARDSFOLDER . $post_board . $this->archive_dir) : $this->board_loadbalanceurl_formatted;
+			$file_path = getCLBoardPath($this->board_dir, $this->board_loadbalanceurl_formatted, $this->archive_dir);
 			$post_thumb = $file_path . '/thumb/' . $post['filename'] . 's.' . $post['filetype'];
 			if ($post['filename'] != '' || $post['filetype'] != '' || $post_is_thread != '') {
 				$post_is_nofile = false;
@@ -1145,23 +1145,23 @@ class Board {
 			}*/
 			$info_post .= '<span class="extrabtns">' . "\n";
 			if ($post['locked']==1) {
-				$info_post .= '	 <img style="border: 0;" src="' . KU_BOARDSPATH . '/css/locked.gif" alt="'._gettext('Locked').'">' . "\n";
+				$info_post .= '	 <img style="border: 0;" src="' . getCLBoardPath() . 'css/locked.gif" alt="'._gettext('Locked').'">' . "\n";
 			}
 			if ($post['stickied']==1) {
-				$info_post .= '	<img style="border: 0;" src="' . KU_BOARDSPATH . '/css/sticky.gif" alt="'._gettext('Stickied').'">' . "\n";
+				$info_post .= '	<img style="border: 0;" src="' . getCLBoardPath() . 'css/sticky.gif" alt="'._gettext('Stickied').'">' . "\n";
 			}
 			if ($page && $post_is_thread) {
-				$info_post .= '	 <span id="hide' . $post['id'] . '"><a href="#" onclick="javascript:togglethread(\'' . $post_thread_start_id . $this->board_dir . '\');return false;" title="Hide Thread"><img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="hidethread" alt="hide"></a></span>' . "\n";
+				$info_post .= '	 <span id="hide' . $post['id'] . '"><a href="#" onclick="javascript:togglethread(\'' . $post_thread_start_id . $this->board_dir . '\');return false;" title="Hide Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidethread" alt="hide"></a></span>' . "\n";
 			}
 			if (KU_WATCHTHREADS && $post_is_thread) {
-				$info_post .= '	 <a href="#" onclick="javascript:addtowatchedthreads(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Watch Thread"><img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="watchthread" alt="watch"></a>' . "\n";
+				$info_post .= '	 <a href="#" onclick="javascript:addtowatchedthreads(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Watch Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="watchthread" alt="watch"></a>' . "\n";
 			}
 			if ($page && $post_is_thread) {
 				if (KU_EXPAND && $thread_replies > KU_REPLIES && $thread_replies < 300) {
-					$info_post .= '	 <a href="#" onclick="javascript:expandthread(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Expand Thread"><img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="expandthread" alt="expand"></a>' . "\n";
+					$info_post .= '	 <a href="#" onclick="javascript:expandthread(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Expand Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="expandthread" alt="expand"></a>' . "\n";
 				}
 				if (KU_QUICKREPLY) {
-					$info_post .= '	 <a href="#postbox" onclick="javascript:quickreply(\'' . $post_thread_start_id . '\');" title="' . _gettext('Quick Reply') . '"><img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="quickreply" alt="quickreply"></a>' . "\n";
+					$info_post .= '	 <a href="#postbox" onclick="javascript:quickreply(\'' . $post_thread_start_id . '\');" title="' . _gettext('Quick Reply') . '"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="quickreply" alt="quickreply"></a>' . "\n";
 				}
 			}
 			$info_post .= '</span>' . "\n" .
@@ -1337,14 +1337,17 @@ class Board {
 			$tpl['title'] .= '/' . $this->board_dir . '/ - ';
 		}
 		$tpl['title'] .= $this->board_desc;
-		$tpl['head'] = '';
+		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/prototype.js"></script>' . "\n" .
+		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/scriptaculous/scriptaculous.js"></script>' . "\n" .
+		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/scriptaculous/resize.js"></script>' . "\n" .
+		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/kusaba.js"></script>' . "\n";
 		$tpl['head2'] = '';
 		$output = '';
 		
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
-			$tpl['head'] .= '<link rel="stylesheet" href="' . KU_BOARDSPATH . '/css/img_global.css">' . "\n" . $this->pageheader_css;
+			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/img_global.css">' . "\n" . $this->pageheader_css;
 		} else {
-			$tpl['head'] .= '<link rel="stylesheet" href="' . KU_BOARDSPATH . '/css/txt_global.css">' . "\n" . 
+			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/txt_global.css">' . "\n" . 
 			printStylesheetsTXT($this->board_defaultstyle);
 		}
 		if (KU_RSS) {
@@ -1435,10 +1438,10 @@ class Board {
 			'<span id="watchedthreadlist"></span>' . "\n" .
 			'<div id="watchedthreadsbuttons">' . "\n" .
 			'<a href="#" onclick="javascript:hidewatchedthreads();return false;" title="Hide the watched threads box">' . "\n" .
-			'<img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="hidewatchedthreads" alt="hide">' . "\n" .
+			'<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidewatchedthreads" alt="hide">' . "\n" .
 			'</a>&nbsp;' . "\n" .
 			'<a href="#" onclick="javascript:getwatchedthreads(\'0\', \'' . $this->board_dir . '\');return false;" title="Refresh watched threads">' . "\n" .
-			'<img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="refreshwatchedthreads" alt="refresh">' . "\n" .
+			'<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="refreshwatchedthreads" alt="refresh">' . "\n" .
 			'</a>' . "\n" .
 			'</div>' . "\n" .
 			'<script type="text/javascript"><!--' . "\n" .
@@ -1450,7 +1453,7 @@ class Board {
 			'	watchedthreadselement.style.height = Math.max(75,getCookie(\'watchedthreadsheight\')) + \'px\';' . "\n" .
 			'	getwatchedthreads(\'' . $replythread . '\', \'' . $this->board_dir . '\');' . "\n" .
 			'} else {' . "\n" .
-			'	watchedthreadselement.innerHTML = \'<a href="#" onclick="javascript:showwatchedthreads();return false"><img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="restorewatchedthreads" title="Restore watched threads"><\/a>\';' . "\n" .
+			'	watchedthreadselement.innerHTML = \'<a href="#" onclick="javascript:showwatchedthreads();return false"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="restorewatchedthreads" title="Restore watched threads"><\/a>\';' . "\n" .
 			'	watchedthreadselement.style.width = \'16px\';' . "\n" .
 			'	watchedthreadselement.style.height = \'16px\';' . "\n" .
 			'}' . "\n" .
@@ -2117,7 +2120,7 @@ class Post extends Board {
 		
 		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".$board."` WHERE `id` = ".mysql_real_escape_string($postid)." LIMIT 1");
 		if (count($results)==0&&!$is_inserting) {
-			die('Invalid post ID.');
+			exitWithErrorPage('Invalid post ID.');
 		} elseif ($is_inserting) {
 			$this->Board($board);
 		} else {

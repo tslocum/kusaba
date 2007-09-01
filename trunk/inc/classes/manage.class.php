@@ -55,7 +55,7 @@ class Manage {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' AND `password` = '" . mysql_real_escape_string($_SESSION['managepassword']) . "' LIMIT 1");
 			if (count($results) == 0) {
 				session_destroy();
-				die(_gettext('Invalid session.') . "<br><br><a href=\"manage_page.php\">" . _gettext('Log in again.') . "</a>");
+				exitWithErrorPage(_gettext('Invalid session.'), '<a href="manage_page.php">' . _gettext('Log in again.') . '</a>');
 			}
 			return true;
 		} else {
@@ -84,7 +84,7 @@ class Manage {
 		$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "loginattempts` WHERE `timestamp` < '" . (time() - 1200) . "'");
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `ip` FROM `" . KU_DBPREFIX . "loginattempts` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' LIMIT 6");
 		if (count($results) > 5) {
-			die(_gettext('Sorry, because of your numerous failed logins, you have been locked out from logging in for 20 minutes.  Please wait and then try again.'));
+			exitWithErrorPage(_gettext('System lockout'), _gettext('Sorry, because of your numerous failed logins, you have been locked out from logging in for 20 minutes.  Please wait and then try again.'));
 		} else {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['username']) . "' AND `password` = '" . md5($_POST['password']) . "' AND `type` != 3 LIMIT 1");
 			if (count($results) > 0) {
@@ -97,7 +97,7 @@ class Manage {
 				die('<script type="text/javascript">top.location.href = \'' . KU_CGIPATH . '/manage.php\';</script>');
 			} else {
 				$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "loginattempts` ( `username` , `ip` , `timestamp` ) VALUES ( '" . mysql_real_escape_string($_POST['username']) . "' , '" . $_SERVER['REMOTE_ADDR'] . "' , '" . time() . "' )");
-				die(_gettext('Incorrect username/password.'));
+				exitWithErrorPage(_gettext('Incorrect username/password.'));
 			}
 		}
 	}
@@ -139,8 +139,6 @@ class Manage {
 		unset($_SESSION['manageusername']);
 		unset($_SESSION['managepassword']);
 		die('<script type="text/javascript">top.location.href = \'' . KU_CGIPATH . '/manage.php\';</script>');
-		
-		die($tpl_page);
 	}
 	
 	/*
@@ -579,7 +577,7 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		if (!KU_BLOTTER) {
-			die('Blotter is disabled.');
+			exitWithErrorPage('Blotter is disabled.');
 		}
 		$tpl_page .= '<h1>Blotter</h1>';
 		
@@ -666,7 +664,7 @@ class Manage {
 		$tpl_page .= '<h2>' . ucwords(_gettext('Board options')) . '</h2><br>';
 		if (isset($_GET['updateboard']) && isset($_POST['order']) && isset($_POST['maxpages']) && isset($_POST['maxage']) && isset($_POST['messagelength'])) {
 			if (!$this->CurrentUserIsModeratorOfBoard($_GET['updateboard'], $_SESSION['manageusername'])) {
-				die(_gettext('You are not a moderator of this board.'));
+				exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 			}
 			$boardid = $tc_db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "' LIMIT 1");
 			if ($boardid != '') {
@@ -719,7 +717,7 @@ class Manage {
 			}
 		} elseif (isset($_POST['board'])) {
 			if (!$this->CurrentUserIsModeratorOfBoard($_POST['board'], $_SESSION['manageusername'])) {
-				die(_gettext('You are not a moderator of this board.'));
+				exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 			}
 			$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
 			if (count($resultsboard) > 0) {
@@ -1026,13 +1024,13 @@ class Manage {
 						}
 					}
 					if ($deletion_new_boards == array()) {
-						die(_gettext('Please select a board.'));
+						exitWithErrorPage(_gettext('Please select a board.'));
 					}
 				}
 				$delete_boards = implode('|', $deletion_new_boards);
 				foreach ($deletion_new_boards as $board) {
 					if (!$this->CurrentUserIsModeratorOfBoard($board, $_SESSION['manageusername'])) {
-						die('/' . $board . '/: ' . _gettext('You can only delete posts from boards you moderate.'));
+						exitWithErrorPage('/' . $board . '/: ' . _gettext('You can only delete posts from boards you moderate.'));
 					}
 				}
 				$i = 0;
@@ -1086,7 +1084,7 @@ class Manage {
 				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
-						die(_gettext('You are not a moderator of this board.'));
+						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 					}
 					foreach ($results as $line) {
 						$sticky_board_name = $line['name'];
@@ -1120,7 +1118,7 @@ class Manage {
 				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . $_GET['board'] . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
-						die(_gettext('You are not a moderator of this board.'));
+						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 					}
 					foreach ($results as $line) {
 						$sticky_board_name = $line['name'];
@@ -1191,7 +1189,7 @@ class Manage {
 				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
-						die(_gettext('You are not a moderator of this board.'));
+						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 					}
 					foreach ($results as $line) {
 						$lock_board_name = $line['name'];
@@ -1223,7 +1221,7 @@ class Manage {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 			if (count($results) > 0) {
 				if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
-					die(_gettext('You are not a moderator of this board.'));
+					exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 				}
 				foreach ($results as $line) {
 					$lock_board_name = $line['name'];
@@ -1338,7 +1336,7 @@ class Manage {
 							}
 						}
 						if ($banning_new_boards == array() && $_POST['banfromall'] != 'on') {
-							die(_gettext('Please select a board.'));
+							exitWithErrorPage(_gettext('Please select a board.'));
 						}
 						$ban_globalban = (isset($_POST['banfromall'])) ? '1' : '0';
 						if ($_POST['allowread'] == '1' || $_POST['allowread'] == '0') {
@@ -1350,7 +1348,7 @@ class Manage {
 							$ban_boards = implode('|', $banning_new_boards);
 							foreach (explode('|', $ban_boards) as $board) {
 								if (!$this->CurrentUserIsModeratorOfBoard($board, $_SESSION['manageusername'])) {
-									die(_gettext('You can only make board specific bans to boards which you moderate.'));
+									exitWithErrorPage(_gettext('You can only make board specific bans to boards which you moderate.'));
 								}
 							}
 						} else {
@@ -1395,8 +1393,7 @@ class Manage {
 							}
 							$tpl_page .= _gettext('Ban successfully placed.');
 						} else {
-							$tpl_page .= _gettext('Sorry, a generic error has occurred.');
-							die();
+							exitWithErrorPage(_gettext('Sorry, a generic error has occurred.'));
 						}
 						$logentry = _gettext('Banned') . ' ' . $_POST['ip'];
 						if ($_POST['seconds'] == '0') {
@@ -1645,7 +1642,7 @@ class Manage {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['boarddir']) . "'");
 			if (count($results) > 0) {
 				if (!$this->CurrentUserIsModeratorOfBoard($_POST['boarddir'], $_SESSION['manageusername'])) {
-					die(_gettext('You are not a moderator of this board.'));
+					exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 				}
 				foreach ($results as $line) {
 					$board_id = $line['id'];
@@ -2190,7 +2187,7 @@ class Manage {
 					if ($_POST['type'] == '0' || $_POST['type'] == '1' || $_POST['type'] == '2' || $_POST['type'] == '3') {
 						$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "staff` ( `username` , `password` , `type` , `addedon` ) VALUES ( '" . mysql_real_escape_string($_POST['staffusername']) . "' , '" . md5($_POST['staffpassword']) . "' , '" . $_POST['type'] . "' , '" . time() . "' )");
 					} else {
-						die('Invalid type.');
+						exitWithErrorPage('Invalid type.');
 					}
 					$tpl_page .= _gettext('Staff member successfully added.');
 					if ($_POST['type'] != 3) {
@@ -2275,7 +2272,7 @@ class Manage {
 							} elseif ($_POST['type'] == '0') {
 								$logentry .= _gettext('Janitor');
 							} else {
-								die('Something went wrong.');
+								exitWithErrorPage('Something went wrong.');
 							}
 							$logentry .= ': ' . $staff_username;
 							if ($_POST['type'] != '1') {
@@ -2495,7 +2492,7 @@ class Manage {
 		$this->AdministratorsOnly();
 		
 		//Devnote: fix searching
-		die("Broken for now due to the new table system.");
+		exitWithErrorPage("Broken for now due to the new table system.");
 		if (isset($_GET['query'])) {
 			$search_query = $_GET['query'];
 			if (isset($_GET['s'])) {
@@ -2685,7 +2682,7 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		
 		if (!$this->CurrentUserIsAdministrator()) {
-			die('That page is for admins only.');
+			exitWithErrorPage('That page is for admins only.');
 		}
 	}
 	
@@ -2699,7 +2696,7 @@ class Manage {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
 			foreach ($results as $line) {
 				if ($line['type'] != 2) {
-					die('That page is for moderators and administrators only.');
+					exitWithErrorPage('That page is for moderators and administrators only.');
 				}
 			}
 		}
@@ -2726,7 +2723,7 @@ class Manage {
 		
 		/* If the function reaches this point, something is fishy.  Kill their session */
 		session_destroy();
-		die('Invalid session, please log in again.');
+		exitWithErrorPage('Invalid session, please log in again.');
 	}
 	
 	/* See if the user logged in is a moderator */
@@ -2750,7 +2747,7 @@ class Manage {
 		
 		/* If the function reaches this point, something is fishy.  Kill their session */
 		session_destroy();
-		die('Invalid session, please log in again.');
+		exitWithErrorPage('Invalid session, please log in again.');
 	}
 	
 	/* See if the user logged in is a moderator of a specified board */

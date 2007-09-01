@@ -180,10 +180,13 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-msgid "Error: please wait a moment before posting again."
+msgid "Please wait a moment before posting again."
 msgstr ""
 
-msgid "Error: Incorrect captcha entered."
+msgid "You are currently posting faster than the configured minimum post delay allows."
+msgstr ""
+
+msgid "Incorrect captcha entered."
 msgstr ""
 
 msgid "Sorry, your message is too long.  Message length: %d, maxmimum allowed length: %d"
@@ -195,10 +198,16 @@ msgstr ""
 msgid "Invalid thread ID.  This may have been caused by the thread recently being deleted."
 msgstr ""
 
+msgid "Invalid thread ID."
+msgstr ""
+
+msgid "That thread may have been recently deleted."
+msgstr ""
+
 msgid "An image, or message, is required for a reply."
 msgstr ""
 
-msgid "An image is required for a new thread."
+msgid "A file is required for a new thread.  If embedding is allowed, either a file or embed ID is required."
 msgstr ""
 
 msgid "Please select only one image to upload."
@@ -208,6 +217,9 @@ msgid "Error, it appears your file did not transfer properly.  Please go back an
 msgstr ""
 
 msgid "Duplicate file entry detected."
+msgstr ""
+
+msgid "Your post contains one or more illegal characters."
 msgstr ""
 
 msgid "Please make sure your file is smaller than %dB"
@@ -268,6 +280,9 @@ msgid "Module settings"
 msgstr ""
 
 msgid "Welcome"
+msgstr ""
+
+msgid "System lockout"
 msgstr ""
 
 msgid "Sorry, because of your numerous failed logins, you have been locked out from logging in for 20 minutes.  Please wait and then try again."

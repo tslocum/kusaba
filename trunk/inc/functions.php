@@ -78,7 +78,7 @@ function printStylesheets($prefered_stylesheet = KU_DEFAULTSTYLE) {
 		if ($stylesheet != $prefered_stylesheet) {
 			$output_stylesheets .= 'alternate ';
 		}
-		$output_stylesheets .= 'stylesheet" type="text/css" href="' . KU_BOARDSPATH . '/css/' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
+		$output_stylesheets .= 'stylesheet" type="text/css" href="' . getCLBoardPath() . 'css/' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
 	}
 	
 	return $output_stylesheets;
@@ -131,9 +131,29 @@ function printStylesheetsSite($prefered_stylesheet = KU_DEFAULTMENUSTYLE, $menu 
 	$output_stylesheets .= '<script type="text/javascript"><!--' . "\n" .
 	'	var style_cookie_site = "kustyle_site";' . "\n" .
 	'//--></script>' . "\n" .
-	'<script type="text/javascript" src="' . KU_WEBPATH . '/lib/javascript/kusaba.js"></script>' . "\n";
+	'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/kusaba.js"></script>' . "\n";
 	
 	return $output_stylesheets;
+}
+
+function getCWebPath() {
+	if (KU_WEBCORAL != '') {
+		return KU_WEBCORAL . '/';
+	} else {
+		return KU_WEBPATH . '/';
+	}
+}
+
+function getCLBoardPath($board = '', $loadbalanceurl = '', $archivedir = '') {
+	if ($loadbalanceurl == '') {
+		if (KU_BOARDSCORAL != '' && $archivedir == '') {
+			return KU_BOARDSCORAL . '/' . $board;
+		} else {
+			return KU_BOARDSPATH . '/' . $board . $archivedir;
+		}
+	} elseif ($board != '') {
+		return $this->board_loadbalanceurl_formatted;
+	}
 }
 
 /**
@@ -150,6 +170,32 @@ function checkMd5($md5, $board) {
 	} else {
 		return false;
 	}
+}
+
+function exitWithErrorPage($errormsg, $extended = '') {
+	global $smarty, $board_class;
+	if (!isset($smarty)) {
+		require_once KU_ROOTDIR . 'lib/smarty.php';
+	}
+	if (!isset($board_class)) {
+		require_once KU_ROOTDIR . 'inc/classes/board-post.class.php';
+		$board_class = new Board('');
+	}
+	
+	$smarty->assign('head', printStylesheetsSite());
+	$smarty->assign('errormsg', $errormsg);
+	
+	if ($extended != '') {
+		$smarty->assign('errormsgext', '<br><div style="text-align: center;font-size: 1.25em;">' . $extended . '</div>');
+	} else {
+		$smarty->assign('errormsgext', $extended);
+	}
+	
+	$smarty->assign('footer', $board_class->Footer(true));
+	
+	echo $smarty->fetch('error.tpl');
+	
+	die();
 }
 
 function cleanBoardName($board) {
@@ -473,7 +519,7 @@ function unHideThreadSpan($id, $board) {
 	return '<span id="unhidethread' . $id . $board . '" style="display: none;">' . "\n" .
 	'	Thread <a href="' . KU_BOARDSFOLDER . $board . '/res/' . $id . '.html">' . $id . '</a> hidden. ' . "\n" .
 	'	<a href="#" onclick="javascript:togglethread(\'' . $id . $board . '\');return false;" title="Un-Hide Thread">' . "\n" .
-	'		<img src="' . KU_BOARDSPATH . '/css/icons/blank.gif" border="0" class="unhidethread" alt="unhide">' . "\n" .
+	'		<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="unhidethread" alt="unhide">' . "\n" .
 	'	</a>' . "\n" .
 	'</span>' . "\n";
 }
@@ -1073,7 +1119,19 @@ function removeBoard($dir){
  */ 
 function createThumbnail($name, $filename, $new_w, $new_h) {
 	if (KU_THUMBMETHOD == 'imagemagick') {
-		exec('convert ' . escapeshellarg($name) . ' -resize ' . $new_w . 'x' . $new_h . ' -quality 70 ' . escapeshellarg($filename) . '');
+		$convert = 'convert ' . escapeshellarg($name) . ' ';
+		if (!KU_ANIMATEDTHUMBS) {
+			$convert .= '-coalesce ';
+		}
+		$convert .= '-resize ' . $new_w . 'x' . $new_h . ' -quality ';
+		if (substr($filename, 0, -3) != 'gif') {
+			$convert .= '70';
+		} else {
+			$convert .= '90';
+		}
+		$convert .= ' ' . escapeshellarg($filename);
+		exec($convert);
+		
 		if (is_file($filename)) {
 			return true;
 		} else {

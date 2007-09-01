@@ -57,7 +57,7 @@ modules_load_all();
 
 if (isset($_POST['email'])) {
 	if ($_POST['email']!= '') {
-		die('Spam bot detected');
+		exitWithErrorPage('Spam bot detected');
 	}
 }
 
@@ -121,11 +121,11 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			if (isset($_POST['embed'])) {
 				if ($_POST['embed'] == '') {
 					if (($board_class->board_uploadtype == '1' && $imagefile_name == '') || $board_class->board_uploadtype == '2') {
-						die('Please enter an embed ID.');
+						exitWithErrorPage('Please enter an embed ID.');
 					}
 				}
 			} else {
-				die('Please enter an embed ID.');
+				exitWithErrorPage('Please enter an embed ID.');
 			}
 		}
 		
@@ -150,7 +150,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		/* If the thread is locked */
 		if ($thread_locked == 1) {
 			/* Don't let the user post */
-			die(_gettext('Sorry, this thread is locked and can not be replied to.'));
+			exitWithErrorPage(_gettext('Sorry, this thread is locked and can not be replied to.'));
 		}
 		
 		require_once(KU_ROOTDIR . 'inc/classes/parse.class.php');
@@ -196,24 +196,24 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	
 	if ($post_isreply) {
 		if ($imagefile_name == '' && !$is_oekaki && $post_message == '') {
-			die(_gettext('An image, or message, is required for a reply.'));
+			exitWithErrorPage(_gettext('An image, or message, is required for a reply.'));
 		}
 	} else {
 		if ($imagefile_name == '' && !$is_oekaki && ((!isset($_POST['nofile'])&&$board_class->board_enablenofile==1) || $board_class->board_enablenofile==0) && ($board_class->board_type == 0 || $board_class->board_type == 2 || $board_class->board_type == 3)) {
 			if (!isset($_POST['embed']) && $board_class->board_uploadtype != 1) {
-				die(_gettext('An image is required for a new thread.') . '<br>Or, if supported, an embed ID.');
+				exitWithErrorPage(_gettext('A file is required for a new thread.  If embedding is allowed, either a file or embed ID is required.'));
 			}
 		}
 	}
 	
 	if (isset($_POST['nofile'])&&$board_class->board_enablenofile==1) {
 		if ($post_message == '') {
-			die('A message is required to post without a file.');
+			exitWithErrorPage('A message is required to post without a file.');
 		}
 	}
 	
 	if ($board_class->board_type == 1 && !$post_isreply && $post_subject == '') {
-		die('A subject is required to make a new thread.');
+		exitWithErrorPage('A subject is required to make a new thread.');
 	}
 	
 	if ($board_class->board_locked == 0 || ($user_authority > 0 && $user_authority != 3)) {
@@ -336,7 +336,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			
 			setcookie('postpassword', urldecode($_POST['postpassword']), time() + 31556926, '/');
 		} else {
-			die(_gettext('Could not copy uploaded image.'));
+			exitWithErrorPage(_gettext('Could not copy uploaded image.'));
 		}
 		
 		/* If the user replied to a thread, and they weren't sage-ing it... */
@@ -388,7 +388,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		}
 		
 	} else {
-		die(_gettext('Sorry, this board is locked and can not be posted in.'));
+		exitWithErrorPage(_gettext('Sorry, this board is locked and can not be posted in.'));
 	}
 } elseif (isset($_POST['delete']) || isset($_POST['reportpost'])) {
 	/* Initialize the post class */

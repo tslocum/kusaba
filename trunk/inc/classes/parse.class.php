@@ -95,7 +95,7 @@ class Parse {
 	
 	function InterthreadQuoteCheck($matches) {
 		global $tc_db, $ispage, $thread_board_return;
-		print_r($matches);
+		
 		if (strpos($matches[1], ',') !== false || strpos($matches[1], '-') !== false) {
 			$postids = getQuoteIds($matches[1]);
 			if (count($postids) > 0) {
@@ -124,9 +124,6 @@ class Parse {
 			} else {
 				return $matches[0];
 			}
-			print_r($postids);
-			echo $return;
-			//die();
 			
 			return $return;
 		}

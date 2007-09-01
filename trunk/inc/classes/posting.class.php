@@ -25,7 +25,6 @@ class Posting {
 		
 		/* If oekaki seems to be in the url... */
 		if (isset($_POST['oekaki'])) {
-			echo KU_CGIDIR . 'kusabaoek/' . $_POST['oekaki'] . '.png';
 			/* See if it checks out and is a valid oekaki id */
 			if ($_POST['oekaki'] != '' && is_file(KU_CGIDIR . 'kusabaoek/' . $_POST['oekaki'] . '.png') && $board_class->board_type == '2') {
 				/* Set the variable to tell the script it is handling an oekaki posting, and the oekaki file which will be posted */
@@ -45,7 +44,7 @@ class Posting {
 		foreach ($results as $line) {
 		/* If the time was shorter than the minimum time distance */
 			if (time() - $line['postedat'] <= KU_REPLYDELAY) {
-				die(_gettext('Error: please wait a moment before posting again.'));
+				exitWithErrorPage(_gettext('Please wait a moment before posting again.'), _gettext('You are currently posting faster than the configured minimum post delay allows.'));
 			}
 		}
 	}
@@ -59,13 +58,13 @@ class Posting {
 		foreach ($results as $line) {
 			/* If the time was shorter than the minimum time distance */
 			if (time() - $line['postedat'] <= KU_NEWTHREADDELAY) {
-				die(_gettext('Error: please wait a moment before posting again.'));
+				exitWithErrorPage(_gettext('Please wait a moment before posting again.'), _gettext('You are currently posting faster than the configured minimum post delay allows.'));
 			}
 		}
 	}
 	
 	function UTF8Strings() {
-		if (function_exists('mb_convert_encoding')) {
+		if (function_exists('mb_convert_encoding') && function_exists('mb_check_encoding')) {
 			if (isset($_POST['name']) && !mb_check_encoding($_POST['name'], 'UTF-8')) {
 				$_POST['name'] = mb_convert_encoding($_POST['name'], 'UTF-8');
 			}
@@ -97,8 +96,7 @@ class Posting {
 		/* If the length of the message is greater than the board's maximum message length... */
 		if (strlen($_POST['message']) > $board_class->board_messagelength) {
 			/* Kill the script, stopping the posting process */
-			printf(_gettext('Sorry, your message is too long.  Message length: %d, maximum allowed length: %d'), strlen($_POST['message']), $board_class->board_messagelength);
-			die();
+			exitWithErrorPage(printf(_gettext('Sorry, your message is too long.  Message length: %d, maximum allowed length: %d'), strlen($_POST['message']), $board_class->board_messagelength));
 		}
 	}
 	
@@ -110,7 +108,7 @@ class Posting {
 			/* Check if they entered the correct code.  If not... */
 			if ($_SESSION['security_code'] != strtolower($_POST['captcha']) || empty($_SESSION['security_code'])) {
 				/* Kill the script, stopping the posting process */
-				die(_gettext('Error: Incorrect captcha entered.'));
+				exitWithErrorPage(_gettext('Incorrect captcha entered.'));
 			}
 		}
 	}
@@ -147,7 +145,7 @@ class Posting {
 				/* If it doesn't... */
 				} else {
 					/* Kill the script, stopping the posting process */
-					die(_gettext('Invalid thread ID.  This may have been caused by the thread recently being deleted'));
+					exitWithErrorPage(_gettext('Invalid thread ID.'), _gettext('That thread may have been recently deleted.'));
 				}
 			}
 		}
@@ -174,7 +172,7 @@ class Posting {
 			return array($thread_replies, $thread_locked, $thread_replyto);
 		} else {
 			/* Kill the script, stopping the posting process */
-			die(_gettext('Invalid thread ID.  This may have been caused by the thread recently being deleted'));
+			exitWithErrorPage(_gettext('Invalid thread ID.'), _gettext('That thread may have been recently deleted.'));
 		}
 	}
 	
@@ -236,27 +234,27 @@ class Posting {
 		foreach ($bad_ords as $bad_ord) {
 			if ($ords_name != '') {
 				if (in_array($bad_ord, $ords_name)) { 
-					die('An illegal character was sent to the script.');
+					exitWithErrorPage(_gettext('Your post contains one or more illegal characters.'));
 				}
 			}
 			if ($ords_email != '') {
 				if (in_array($bad_ord, $ords_email)) {
-					die('An illegal character was sent to the script.');
+					exitWithErrorPage(_gettext('Your post contains one or more illegal characters.'));
 				}
 			}
 			if ($ords_subject != '') {
 				if (in_array($bad_ord, $ords_subject)) {
-					die('An illegal character was sent to the script.');
+					exitWithErrorPage(_gettext('Your post contains one or more illegal characters.'));
 				}
 			}
 			if ($ords_message != '') {
 				if (in_array($bad_ord, $ords_message)) {
-					die('An illegal character was sent to the script.');
+					exitWithErrorPage(_gettext('Your post contains one or more illegal characters.'));
 				}
 			}
 			if ($ords_filename != '') {
 				if (in_array($bad_ord, $ords_filename)) {
-					die('An illegal character was sent to the script.');
+					exitWithErrorPage(_gettext('Your post contains one or more illegal characters.'));
 				}
 			}
 		}
@@ -284,13 +282,14 @@ class Posting {
 	}
 	
 	function CheckBlacklistedText() {
+		global $bans_class;
 		$badlinks = file(KU_ROOTDIR . 'spam.txt');
 		
 		foreach ($badlinks as $badlink) {
 			if (strpos($_POST['message'], substr($badlink, 0, -1)) !== false) {
 				/* They included a blacklisted link in their post.  Ban them for an hour */
 				$bans_class->BanUser($_SERVER['REMOTE_ADDR'], 'board.php', 1, 3600, '', _gettext('Posting a blacklisted link.') . ' (' . substr($badlink, 0, -1) . ')');
-				die('Blacklisted link ('.substr($badlink, 0, -1).') detected.');
+				exitWithErrorPage('Blacklisted link ('.substr($badlink, 0, -1).') detected.');
 			}
 		}
 	}
