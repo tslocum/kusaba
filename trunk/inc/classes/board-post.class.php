@@ -1337,9 +1337,7 @@ class Board {
 			$tpl['title'] .= '/' . $this->board_dir . '/ - ';
 		}
 		$tpl['title'] .= $this->board_desc;
-		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/prototype.js"></script>' . "\n" .
-		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/scriptaculous/scriptaculous.js"></script>' . "\n" .
-		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/scriptaculous/resize.js"></script>' . "\n" .
+		$tpl['head'] = '<script type="text/javascript" src="http://kusaba.org/lib/javascript/protoaculous-compressed.js"></script>' . "\n" .
 		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/kusaba.js"></script>' . "\n";
 		$tpl['head2'] = '';
 		$output = '';
