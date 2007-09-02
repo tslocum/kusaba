@@ -996,14 +996,6 @@ class Board {
 	 * @return string The built post	 	 	 	 	 	 
 	 */	 
 	function BuildPost($page, $post_board, $post_board_type, $post, $thread_replies=0, $thread_relative_id='', $reply_relative_id=0, $threads_on_front_page=0) {
-		/* If caching is enabled, and this post has already been cached, skip the process and fetch the cached version */
-		if (KU_APC && !$page && $post['parentid'] != 0) {
-			$cache_post = apc_fetch('post|' . $post_board . '|' . $post['id']);
-			if ($cache_post !== false) {
-				return $cache_post;
-			}
-		}
-		
 		$buildpost_output = '';
 		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
 		$post_is_thread = ($post['parentid']==0) ? true : false;
@@ -1313,10 +1305,6 @@ class Board {
 			formatLongMessage($post['message'], $this->board_dir, $post_thread_start_id, $page) .
 			'</blockquote>' . "\n" .
 			'</div>' . "\n";
-		}
-		
-		if (KU_APC && !$page) {
-			apc_store('post|' . $post_board . '|' . $post['id'], $buildpost_output);
 		}
 		
 		return $buildpost_output;
