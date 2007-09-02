@@ -98,7 +98,7 @@ function printStylesheetsTXT($prefered_stylesheet = KU_DEFAULTTXTSTYLE) {
 		if ($stylesheet != $prefered_stylesheet) {
 			$output_stylesheets .= 'alternate ';
 		}
-		$output_stylesheets .= 'stylesheet" type="text/css" href="' . KU_BOARDSPATH . '/css/txt_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
+		$output_stylesheets .= 'stylesheet" type="text/css" href="' . getCLBoardPath() . 'css/txt_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
 	}
 	
 	return $output_stylesheets;
@@ -118,13 +118,13 @@ function printStylesheetsSite($prefered_stylesheet = KU_DEFAULTMENUSTYLE, $menu 
 		if ($stylesheet != $prefered_stylesheet) {
 			$output_stylesheets .= 'alternate ';
 		}
-		$output_stylesheets .= 'stylesheet" type="text/css" href="' . KU_BOARDSPATH . '/css/site_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
+		$output_stylesheets .= 'stylesheet" type="text/css" href="' . getCLBoardPath() . 'css/site_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
 		if ($menu) {
 			$output_stylesheets .= '<link rel="';
 			if ($stylesheet != $prefered_stylesheet) {
 				$output_stylesheets .= 'alternate ';
 			}
-			$output_stylesheets .= 'stylesheet" type="text/css" href="' . KU_BOARDSPATH . '/css/sitemenu_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
+			$output_stylesheets .= 'stylesheet" type="text/css" href="' . getCLBoardPath() . 'css/sitemenu_' . $stylesheet . '.css" title="' . ucfirst($stylesheet) . '">' . "\n";
 		}
 	}
 	
@@ -986,15 +986,20 @@ function calculateNameAndTripcode($post_name) {
 }
 
 /* Depending on the configuration, use either a meta refresh or a direct header */
-function do_redirect($url) {
+function do_redirect($url, $ispost = false, $file = '') {
 	global $board_class;
 	
-	if (KU_INSTANTREDIRECT) {
-		header('Location: ' . $url);
-		die();
+	if ($ispost && $file != '') {
+		echo $file . ' uploaded. Upating pages.';
+	} elseif ($ispost) {
+		echo 'Post added. Upating pages.';
 	} else {
-		echo '---> ---> ---><meta http-equiv="refresh" content="1;url=' . $url . '/">';
+		echo '---> ---> --->';
 	}
+	
+	echo '<meta http-equiv="refresh" content="1;url=' . $url . '">';
+	
+	die();
 }
 
 /* Thanks milianw - php.net */

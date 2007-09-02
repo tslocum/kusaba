@@ -38,7 +38,6 @@ class Parse {
 			'`\[i\](.+?)\[/i\]`is', 
 			'`\[u\](.+?)\[/u\]`is', 
 			'`\[s\](.+?)\[/s\]`is', 
-			'`\[code\](.+?)\[/code\]`is', 
 			'`\[aa\](.+?)\[/aa\]`is', 
 			'`\[spoiler\](.+?)\[/spoiler\]`is', 
 			);
@@ -47,13 +46,21 @@ class Parse {
 			'<i>\\1</i>', 
 			'<span style="border-bottom: 1px dotted">\\1</span>', 
 			'<strike>\\1</strike>', 
-			'<div style="font-family: monospace !important;">\\1</div>', 
 			'<div style="font-family: Mona,\'MS PGothic\' !important;">\\1</div>', 
 			'<span class="spoiler" onmouseover="this.style.color=\'white\';" onmouseout="this.style.color=\'black\'">\\1</span>', 
 			);
 		$string = preg_replace($patterns, $replaces , $string);
+		$string = preg_replace_callback('`\[code\](.+?)\[/code\]`is', array(&$this, 'code_callback'), $string);
 		
 		return $string;
+	}
+	
+	function code_callback($matches) {
+		$return = '<div style="white-space: pre !important;font-family: monospace !important;">'
+		. str_replace('<br>', '', $matches[1]) .
+		'</div>';
+		
+		return $return;
 	}
 	
 	function ColoredQuote($buffer, $boardtype) {
@@ -152,16 +159,23 @@ class Parse {
 	function InterboardQuoteCheck($matches) {
 		global $tc_db;
 
-		$result = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($matches[1])."'");
-		if ($result==1) {
+		$result = $tc_db->GetOne("SELECT `type` FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($matches[1])."'");
+		if ($result != '') {
 			$result2 = $tc_db->GetOne("SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($matches[1])."` WHERE `id` = '".mysql_real_escape_string($matches[2])."'");
-			if ($result2!='') {
-				if ($result2==0) {
+			if ($result2 != '') {
+				if ($result2 == 0) {
 					$realid = $matches[2];
 				} else {
-					$realid = $result2;
+					if ($result != 1) {
+						$realid = $result2;
+					}
 				}
-				return '<a href="'.KU_BOARDSFOLDER.$matches[1].'/res/'.$realid.'.html#'.$matches[2].'">'.$matches[0].'</a>';
+				
+				if ($result != 1) {
+					return '<a href="'.KU_BOARDSFOLDER.$matches[1].'/res/'.$realid.'.html#'.$matches[2].'">'.$matches[0].'</a>';
+				} else {
+					return '<a href="'.KU_BOARDSFOLDER.$matches[1].'/res/'.$realid.'.html">'.$matches[0].'</a>';
+				}
 			}
 		}
 		
@@ -257,7 +271,6 @@ class Parse {
 		$message = trim($message);
 		$message = $this->CutWord($message, KU_MAXCHAR, "\n");
 		$message = htmlspecialchars($message, ENT_QUOTES);
-		$message = str_replace('	', '&nbsp;&nbsp;&nbsp;&nbsp;', $message);
 		if (KU_MAKELINKS) {
 			$message = $this->MakeClickable($message);
 		}

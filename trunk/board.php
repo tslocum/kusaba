@@ -78,11 +78,11 @@ if (isset($_POST['board'])) {
 			changeLocale($board_class->board_locale);
 		}
 	} else {
-		die('<meta http-equiv="refresh" content="0;url=' . KU_WEBPATH . '">');
+		do_redirect(KU_WEBPATH);
 	}
 } else {
 	/* A board being supplied is required for this script to function */
-	die('<meta http-equiv="refresh" content="0;url=' . KU_WEBPATH . '">');
+	do_redirect(KU_WEBPATH);
 }
 
 // {{{ Expired ban removal, and then existing ban check on the current user
@@ -326,7 +326,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 				management_addlogentry($modpost_message, 1, md5_decrypt($_POST['modpassword'], KU_RANDOMSEED));
 			}
 			
-			if ($post['name_save']) {
+			if ($post['name_save'] && isset($_POST['name'])) {
 				setcookie('name', urldecode($_POST['name']), time() + 31556926, '/', KU_DOMAIN);
 			}
 			
@@ -405,8 +405,8 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 				echo _gettext('That post is already in the report list.');
 			} else {
 				if ($post_class->Report()) {
-					echo _gettext('Post successfully reported.') .
-					'<meta http-equiv="refresh" content="1;url=' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/'.KU_FIRSTPAGE.'">';
+					echo _gettext('Post successfully reported.') . '<br>';
+					do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
 				} else {
 					echo _gettext('Unable to report post.  Please go back and try again.');
 				}
@@ -426,8 +426,8 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 						if ($post_class->post_parentid != 0) {
 							$board_class->RegenerateThread($post_class->post_parentid);
 						}
-						echo _gettext('Image successfully deleted from your post.').'
-						<meta http-equiv="refresh" content="1;url=' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/'.KU_FIRSTPAGE.'">';
+						echo _gettext('Image successfully deleted from your post.') . '<br>';
+						do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
 					} else {
 						echo _gettext('Your post already doesn\'t have an image!');
 					}
@@ -437,8 +437,8 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 							$board_class->RegenerateThread($post_class->post_parentid);
 						}
 						$board_class->RegeneratePages();
-						echo _gettext('Post successfully deleted.').'
-						<meta http-equiv="refresh" content="1;url=' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/'.KU_FIRSTPAGE.'">';
+						echo _gettext('Post successfully deleted.') . '<br>';
+						do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
 					} else {
 						echo _gettext('There was an error in trying to delete your post');
 					}
@@ -447,7 +447,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 				echo _gettext('Incorrect password.');
 			}
 		} else {
-			echo '<meta http-equiv="refresh" content="0;url=' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/'.KU_FIRSTPAGE.'">';
+			do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
 		}
 	}
 	die();
@@ -456,7 +456,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	
 	die();
 } else {
-	die('<meta http-equiv="refresh" content="0;url=' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/'.KU_FIRSTPAGE.'">');
+	do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
 }
 
 if (KU_RSS) {
@@ -466,21 +466,13 @@ if (KU_RSS) {
 	print_page(KU_BOARDSDIR.$_POST['board'].'/rss.xml',$rss_class->GenerateRSS($_POST['board']),$_POST['board']);
 }
 
-if (!KU_INSTANTREDIRECT) {
-	if ($thread_replyto == '0') {
-		print(_gettext('Thread successfully posted.  You are now being redirected.'));
-	} else {
-		print(_gettext('Reply successfully posted.  You are now being redirected.'));
-	}
-}
-
 if ($board_class->board_redirecttothread == 1 || $_POST['em'] == 'return' || $_POST['em'] == 'noko') {
 	if ($thread_replyto == "0") {
-		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $post_id . '.html');
+		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $post_id . '.html', true, $imagefile_name);
 	} else {
-		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $thread_replyto . '.html');
+		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $thread_replyto . '.html', true, $imagefile_name);
 	}
 } else {
-	do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
+	do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/', true, $imagefile_name);
 }
 ?>

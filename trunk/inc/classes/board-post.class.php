@@ -1288,7 +1288,10 @@ class Board {
 			if (!$page) {
 				$buildpost_output .= ' name="'.$reply_relative_id.'"';
 			}
-			$buildpost_output .= '>'.$reply_relative_id.'</a>' . "\n" .
+			$buildpost_output .= '>'.$reply_relative_id.'</a>' . "\n"
+			. '<a href="' . KU_BOARDSPATH . '/' . $this->board_dir . '/res/' . $post_thread_start_id . '.html#' . $reply_relative_id . '">' . "\n"
+			. '. ' . "\n"
+			. '</a>' . "\n" .
 			'</span>' . "\n" .
 			'<span class="postinfo">' . "\n" .
 			'Name: ';
@@ -1337,9 +1340,8 @@ class Board {
 			$tpl['title'] .= '/' . $this->board_dir . '/ - ';
 		}
 		$tpl['title'] .= $this->board_desc;
-		$tpl['head'] = '<script type="text/javascript" src="http://kusaba.org/lib/javascript/protoaculous-compressed.js"></script>' . "\n" .
+		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>' . "\n" .
 		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/kusaba.js"></script>' . "\n";
-		$tpl['head2'] = '';
 		$output = '';
 		
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
@@ -1352,6 +1354,9 @@ class Board {
 			$tpl['head'] .= '<link rel="alternate" type="application/rss+xml" title="RSS" href="' . KU_BOARDSPATH . '/' . $this->board_dir . '/rss.xml">' . "\n";
 		}
 		$tpl['head'] .= '<script type="text/javascript"><!--' . "\n" .
+		'	var ku_boardspath = \'' . KU_BOARDSPATH . '\';' . "\n" .
+		'	var ku_cgipath = \'' . KU_CGIPATH . '\'' . "\n" .
+		'	var hiddenthreads = getCookie(\'hiddenthreads\').split(\'!\');' . "\n" .
 		'	var style_cookie';
 		if ($this->board_type==1) {
 			$tpl['head'] .= '_txt';
@@ -1361,15 +1366,13 @@ class Board {
 			$tpl['head'] .= '_txt';
 		}
 		$tpl['head'] .= '";' . "\n" .
-		'//--></script>' . "\n";
-		$tpl['head2'] .= '<script type="text/javascript"><!--' . "\n" .
 		'	var ispage = ';
 		if ($replythread > 0) {
-			$tpl['head2'] .= 'false';
+			$tpl['head'] .= 'false';
 		} else {
-			$tpl['head2'] .= 'true';
+			$tpl['head'] .= 'true';
 		}
-		$tpl['head2'] .= ';' . "\n" .
+		$tpl['head'] .= ';' . "\n" .
 		'//--></script>' . "\n";
 		if ($this->board_type == 1) {
 			if ($replythread == 0) {
@@ -1411,24 +1414,24 @@ class Board {
 			$ad_top += 40;
 		}
 		if (isset($kusabaorg) && $this->board_type != 1) {
-			$output .=  '<div id="ad" style="position: absolute;top:'.$ad_top.'px;right:'.$ad_right.'px">
-			<script type="text/javascript"><!--
-			google_ad_client = "pub-6158454562572132";
-			google_ad_width = 120;
-			google_ad_height = 240;
-			google_ad_format = "120x240_as";
-			google_ad_type = "text_image";
-			google_ad_channel = "7008956366";
-			google_color_border = "FFFFEE";
-			google_color_bg = "FFFFEE";
-			google_color_link = "800000";
-			google_color_text = "CB7E46";
-			google_color_url = "800000";
-			--></script>
-			<script type="text/javascript"
-			src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-			</script>
-			</div>';
+			$output .=  '<div id="ad" style="position: absolute;top:'.$ad_top.'px;right:'.$ad_right.'px">' . "\n" .
+			'<script type="text/javascript"><!--' . "\n" .
+			'google_ad_client = "pub-6158454562572132";' . "\n" .
+			'google_ad_width = 120;' . "\n" .
+			'google_ad_height = 240;' . "\n" .
+			'google_ad_format = "120x240_as";' . "\n" .
+			'google_ad_type = "text_image";' . "\n" .
+			'google_ad_channel = "7008956366";' . "\n" .
+			'google_color_border = "FFFFEE";' . "\n" .
+			'google_color_bg = "FFFFEE";' . "\n" .
+			'google_color_link = "800000";' . "\n" .
+			'google_color_text = "CB7E46";' . "\n" .
+			'google_color_url = "800000";' . "\n" .
+			'--></script>' . "\n" .
+			'<script type="text/javascript"' . "\n" .
+			'src="http://pagead2.googlesyndication.com/pagead/show_ads.js">' . "\n" .
+			'</script>' . "\n" .
+			'</div>' . "\n";
 		}
 		if (KU_WATCHTHREADS && !$isoekaki && ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) && !$hidewatchedthreads) {
 			$output .= '<div id="watchedthreads" style="top: ' . $ad_top . 'px; left: 25px;" class="watchedthreads">' . "\n" .
@@ -1866,7 +1869,7 @@ class Board {
 					$output .= '<tr id="passwordbox"><td></td><td></td></tr>' . "\n" .
 					'<tr>' . "\n" .
 					'	<td colspan="2" class="rules">' . "\n" .
-					'			' . $postboxnotice . "\n";
+					'		' . $postboxnotice . "\n";
 					if (KU_BLOTTER) {
 						$blotter = getBlotter();
 						if ($blotter != '') {
@@ -2045,7 +2048,6 @@ class Board {
 		
 		$this->smarty->assign('title', $tpl['title']);
 		$this->smarty->assign('head', $tpl['head']);
-		$this->smarty->assign('head2', $tpl['head2']);
 		$this->smarty->assign('page', $contents);
 		
 		$contents = $this->smarty->fetch('board.tpl');

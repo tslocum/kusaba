@@ -2,11 +2,7 @@
 <html>
 <head>
 <title>{$title}</title>
-<script type="text/javascript">var ku_boardspath = '{$ku_boardspath}';var ku_cgipath = '{$ku_cgipath}';</script>
-{$head}
-<script type="text/javascript">var hiddenthreads = getCookie('hiddenthreads').split('!');</script>
-{$head2}
-<link rel="shortcut icon" href="{$ku_webpath}/favicon.ico">
+{$head}<link rel="shortcut icon" href="{$ku_webpath}/favicon.ico">
 <meta http-equiv="cache-control" content="no-cache">
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="expires" content="-1">
