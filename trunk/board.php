@@ -47,9 +47,8 @@ require_once KU_ROOTDIR . 'inc/classes/posting.class.php';
 $bans_class = new Bans();
 $posting_class = new Posting();
 
-// {{{ Module inclusion and loading
+// {{{ Module loading
 
-require_once(KU_ROOTDIR . 'inc/module.php');
 modules_load_all();
 
 // }}}

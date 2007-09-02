@@ -236,8 +236,6 @@ class Upload {
 					}
 				} elseif (isset($_POST['embed'])) {
 					if ($_POST['embed'] != '') {
-						require_once KU_ROOTDIR . 'inc/checklink.php';
-						
 						$video_id = $_POST['embed'];
 						$this->file_name = $video_id;
 						

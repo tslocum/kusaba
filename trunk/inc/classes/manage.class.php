@@ -378,7 +378,7 @@ class Manage {
 			$tpl_page .= '<li>Hits: <b>' . $apc_info_system['num_hits'] . '</b></li>';
 			$tpl_page .= '<li>Misses: <b>' . $apc_info_system['num_misses'] . '</b></li>';
 			$tpl_page .= '<li>Entries: <b>' . $apc_info_system['num_entries'] . '</b></li>';
-			$tpl_page .= '</ul><br><h3>User (kusaba configuration, posts)</h3><ul>';
+			$tpl_page .= '</ul><br><h3>User (kusaba)</h3><ul>';
 			$tpl_page .= '<li>Start time: <b>' . date("y/m/d(D)H:i", $apc_info_user['start_time']) . '</b></li>';
 			$tpl_page .= '<li>Hits: <b>' . $apc_info_user['num_hits'] . '</b></li>';
 			$tpl_page .= '<li>Misses: <b>' . $apc_info_user['num_misses'] . '</b></li>';
