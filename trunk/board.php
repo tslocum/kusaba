@@ -363,30 +363,15 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		/* Trim any threads which have been pushed past the limit, or exceed the maximum age limit */
 		$board_class->TrimToPageLimit();
 		
-		if (KU_INSTANTREDIRECT && ($board_class->board_redirecttothread == 1 || $_POST['em'] == 'return' || $_POST['em'] == 'noko')) {
-			if ($thread_replyto == '0') {
-				/* If they started a new thread, regenerate it (Technically it isn't regeneration, as this is the first time it is being built) */
-				$board_class->RegenerateThread($post_id);
-				header('Location: ' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $post_id . '.html');
-			} else {
-				/* Regenerate the thread */
-				$board_class->RegenerateThread($thread_replyto);
-				header('Location: ' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $thread_replyto . '.html');
-			}
-			/* Regenerate board pages */
-			$board_class->RegeneratePages();
+		/* Regenerate board pages */
+		$board_class->RegeneratePages();
+		if ($thread_replyto == '0') {
+			/* Regenerate the thread */
+			$board_class->RegenerateThread($post_id);
 		} else {
-			/* Regenerate board pages */
-			$board_class->RegeneratePages();
-			if ($thread_replyto == '0') {
-				/* Regenerate the thread */
-				$board_class->RegenerateThread($post_id);
-			} else {
-				/* Regenerate the thread */
-				$board_class->RegenerateThread($thread_replyto);
-			}
+			/* Regenerate the thread */
+			$board_class->RegenerateThread($thread_replyto);
 		}
-		
 	} else {
 		exitWithErrorPage(_gettext('Sorry, this board is locked and can not be posted in.'));
 	}

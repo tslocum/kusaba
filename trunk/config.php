@@ -27,7 +27,7 @@
 To enable a feature, change the value to true:
 	define('KU_INSTANTREDIRECT', true);
 To disable a feature, change the value to false:
-	define('KU_INSTANTREDIRECT'] = false;
+	define('KU_INSTANTREDIRECT', false;
 
 To change the text value of a configuration, edit the text in the single quotes:
 	define('KU_NAME', 'kusaba');
@@ -86,7 +86,7 @@ if (!$cache_loaded) {
 			$cf['KU_ROOTDIR']   = dirname($_SERVER['SCRIPT_FILENAME']) . '/'; /* Full system path of the folder containing kusaba.php, with trailing slash */
 			$cf['KU_WEBFOLDER'] = dirname($_SERVER['PHP_SELF']) . '/'; /* The path from the domain of the board to the folder which kusaba is in, including the trailing slash.  Example: "http://www.yoursite.com/misc/kusaba/" would have a $cf['KU_WEBFOLDER'] of "/misc/kusaba/" */
 			$cf['KU_WEBPATH']   = 'http://' . $_SERVER['HTTP_HOST'] . $cf['KU_WEBFOLDER']; /* The path to the index folder of kusaba, without trailing slash */
-			$cf['KU_WEBCORAL'] = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
+			$cf['KU_WEBCORAL']  = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
 			$cf['KU_DOMAIN']    = '.' . $_SERVER['HTTP_HOST']; /* Used in cookies for the domain parameter.  Should be a period and then the top level domain, which will allow the cookies to be set for all subdomains.  For http://www.randomchan.org, the domain would be .randomchan.org; http://zachchan.freehost.com would be zach.freehost.com */
 		
 		/* Board subdomain/alternate directory (optional, change to enable) */
@@ -150,7 +150,7 @@ if (!$cache_loaded) {
 		$cf['KU_TRADITIONALREAD'] = true; /* Whether or not to use the traditional style for multi-quote urls.  Traditional: read.php/board/thread/posts, Non-traditional: read.php?b=board&t=thread&p=posts */
 		
 	/* Pages */
-		$cf['KU_POSTBOX'] = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */
+		$cf['KU_POSTBOX']   = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */
 		$cf['KU_FIRSTPAGE'] = 'board.html'; /* Filename of the first page of a board.  Only change this if you are willing to maintain the .htaccess files for each board directory (they are created with a DirectoryIndex board.html, change them if you change this) */
 		$cf['KU_DIRTITLE']  = false; /* Whether or not to place the board directory in the board's title and at the top of the page.  true would render as "/b/ - Random", false would render as "Random" */
 		
@@ -166,7 +166,6 @@ if (!$cache_loaded) {
 		                        '#changeme2' => 'changeme2'); /* Special tripcodes which can have a predefined output.  Do not include the initial ! in the output.  Maximum length for the output is 30 characters.  Set to array(); to disable */
 	
 	/* Extra features */
-		$cf['KU_INSTANTREDIRECT'] = true; /* Whether or not to instantly redirect the user when posting.  If set to false, the user will be redirected after seeing a notification page */
 		$cf['KU_RSS']             = true; /* Whether or not to enable the generation of rss for each board and modlog */
 		$cf['KU_EXPAND']          = true; /* Whether or not to add the expand button to threads viewed on board pages */
 		$cf['KU_QUICKREPLY']      = true; /* Whether or not to add quick reply links on posts */
