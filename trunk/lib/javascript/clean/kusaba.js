@@ -291,7 +291,7 @@ function delandbanlinks() {
 				}
 				newhtml +='id=' + dnbinfo[2] + '&postid=' + dnbinfo[2] + '" title="Delete &amp; Ban" onclick="return confirm(\'Are you sure you want to delete and ban the poster of this post/thread?\');">&amp;<\/a>&nbsp;<a href="' + ku_cgipath + '/manage_page.php?action=bans&banboard=' + dnbinfo[1] + '&banpost=' + dnbinfo[2] + '" title="Ban">B<\/a>&#93;';
 				
-				dnbelements[i].innerHTML += newhtml;
+				dnbelements[i].innerHTML = newhtml;
 			}
 		}
 	}
@@ -346,6 +346,7 @@ function expandthread(threadid, board) {
 			onSuccess: function(transport){
 				var response = transport.responseText || "something went wrong (blank response)";
 				repliesblock.innerHTML = response;
+				delandbanlinks();
 			},
 			onFailure: function(){ alert('Something went wrong...') }
 		});
@@ -447,6 +448,20 @@ function expandimg(postnum, imgurl, thumburl, imgw, imgh, thumbw, thumbh) {
 		element.innerHTML = thumbhtml;
 	} else{
 		element.innerHTML = '<img src="' + imgurl + '" alt="' + postnum + '" class="thumb" height="' + imgh + '" width="' + imgw + '">';
+	}
+}
+
+function postpreview(divid, board, parentid, message) {
+	if (document.getElementById(divid)) {
+		new Ajax.Request(ku_boardspath + '/expand.php?preview&board=' + board + '&parentid=' + parentid + '&message=' + escape(message),
+		{
+			method:'get',
+			onSuccess: function(transport){
+				var response = transport.responseText || "something went wrong (blank response)";
+				document.getElementById(divid).innerHTML = response;
+			},
+			onFailure: function(){ alert('Something went wrong...') }
+		});
 	}
 }
 

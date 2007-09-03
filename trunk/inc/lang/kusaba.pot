@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Kusaba v0.9.0\n"
+"Project-Id-Version: kusaba\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2007-04-10 20:02-0800\n"
+"PO-Revision-Date: 2007-09-03 03:27-0800\n"
 "Last-Translator: Trevor Slocum <tslocum@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -75,6 +75,12 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
+msgid "Preview"
+msgstr ""
+
+msgid "Post preview"
+msgstr ""
+
 msgid "Quick Reply"
 msgstr ""
 
@@ -103,6 +109,18 @@ msgid "Name"
 msgstr ""
 
 msgid "Subject"
+msgstr ""
+
+msgid "Tag"
+msgstr ""
+
+msgid "Embed"
+msgstr ""
+
+msgid "Size"
+msgstr ""
+
+msgid "Date"
 msgstr ""
 
 msgid "Email"
@@ -153,6 +171,12 @@ msgstr ""
 msgid "Go"
 msgstr ""
 
+msgid "Cancel"
+msgstr ""
+
+msgid "At"
+msgstr ""
+
 msgid "Continue"
 msgstr ""
 
@@ -180,6 +204,9 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
+msgid "Logo"
+msgstr ""
+
 msgid "Please wait a moment before posting again."
 msgstr ""
 
@@ -196,6 +223,9 @@ msgid "Invalid MIME type for this filetype."
 msgstr ""
 
 msgid "Invalid thread ID.  This may have been caused by the thread recently being deleted."
+msgstr ""
+
+msgid "ID"
 msgstr ""
 
 msgid "Invalid thread ID."
@@ -217,6 +247,12 @@ msgid "Error, it appears your file did not transfer properly.  Please go back an
 msgstr ""
 
 msgid "Duplicate file entry detected."
+msgstr ""
+
+msgid "Duplicate thread subject"
+msgstr ""
+
+msgid "Text boards may have only one thread with a unique subject.  Please pick another."
 msgstr ""
 
 msgid "Your post contains one or more illegal characters."
@@ -267,6 +303,15 @@ msgstr ""
 msgid "Watched Threads"
 msgstr ""
 
+msgid "Hide the watched threads box"
+msgstr ""
+
+msgid "Refresh watched threads"
+msgstr ""
+
+msgid "Restore watched threads"
+msgstr ""
+
 msgid "Manage"
 msgstr ""
 
@@ -300,6 +345,42 @@ msgstr ""
 msgid "Query executed successfully"
 msgstr ""
 
+msgid "Blotter"
+msgstr ""
+
+msgid "Blotter updated"
+msgstr ""
+
+msgid "Show/Hide"
+msgstr ""
+
+msgid "Show All"
+msgstr ""
+
+msgid "Blotter is disabled."
+msgstr ""
+
+msgid "Blotter entry updated."
+msgstr ""
+
+msgid "Blotter entry added."
+msgstr ""
+
+msgid "Blotter entry deleted."
+msgstr ""
+
+msgid "Add new blotter entry"
+msgstr ""
+
+msgid "Important"
+msgstr ""
+
+msgid "No blotter entries."
+msgstr ""
+
+msgid "File<br>Removed"
+msgstr ""
+
 msgid "<h2>Add News Post</h2>This message will be displayed as it is written, so make sure you add the proper HTML."
 msgstr ""
 
@@ -307,6 +388,12 @@ msgid "News entry successfully added."
 msgstr ""
 
 msgid "You must enter a subject."
+msgstr ""
+
+msgid "Width"
+msgstr ""
+
+msgid "Height"
 msgstr ""
 
 msgid "Maxmimum thumbnail width"
@@ -330,6 +417,9 @@ msgstr ""
 msgid "Integer values must be entered correctly."
 msgstr ""
 
+msgid "Paint with"
+msgstr ""
+
 msgid "Unable to locate a board named"
 msgstr ""
 
@@ -346,6 +436,9 @@ msgid "Inject"
 msgstr ""
 
 msgid "Delete"
+msgstr ""
+
+msgid "Deleted"
 msgstr ""
 
 msgid "Marked for deletion (old)."
@@ -439,6 +532,9 @@ msgid "Locked"
 msgstr ""
 
 msgid "Stickied"
+msgstr ""
+
+msgid "Pages"
 msgstr ""
 
 msgid "Allowed filetypes"
@@ -834,6 +930,9 @@ msgstr ""
 msgid "Show Posting Password"
 msgstr ""
 
+msgid "Front"
+msgstr ""
+
 msgid "Front Page"
 msgstr ""
 
@@ -911,7 +1010,28 @@ msgstr ""
 msgid "This post has been deleted."
 msgstr ""
 
-msgid "Your Image:"
+msgid "Your image"
+msgstr ""
+
+msgid "Use animation?"
+msgstr ""
+
+msgid "View animation"
+msgstr ""
+
+msgid "Choose one"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "New image"
+msgstr ""
+
+msgid "Modify"
+msgstr ""
+
+msgid "Paint!"
 msgstr ""
 
 msgid "This board does not allow post reporting."
@@ -1029,7 +1149,13 @@ msgstr ""
 msgid "First 100 posts"
 msgstr ""
 
+msgid "First 100 posts shown."
+msgstr ""
+
 msgid "Last 50 posts"
+msgstr ""
+
+msgid "Last 50 posts shown."
 msgstr ""
 
 msgid "All Threads"
@@ -1039,6 +1165,9 @@ msgid "New Thread"
 msgstr ""
 
 msgid "Last Post"
+msgstr ""
+
+msgid "No threads."
 msgstr ""
 
 msgid "There are currently no threads to display."
@@ -1133,3 +1262,4 @@ msgstr ""
 
 msgid "Proxy list"
 msgstr ""
+

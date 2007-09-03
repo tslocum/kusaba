@@ -51,7 +51,6 @@ form .trap {
 
 .reflink a:hover{
 	color: #800000;
-	font-weight: bold;
 }
 
 .reply .filesize {
@@ -121,7 +120,7 @@ form .trap {
 }
 
 .hidethread {
-	background: transparent url('icons/blue/icons.gif') -48px -16px no-repeat;
+	background: transparent url('icons/blue/icons.gif') -32px -16px no-repeat;
 }
 
 .unhidethread {

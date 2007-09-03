@@ -153,6 +153,15 @@ class Posting {
 		return false;
 	}
 	
+	function CheckNotDuplicateSubject($subject) {
+		global $tc_db, $board_class;
+		
+		$results = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `subject` = '" . mysql_real_escape_string($subject) . "' AND `parentid` = '0' LIMIT 1");
+		if ($results > 0) {
+			exitWithErrorPage(_gettext('Duplicate thread subject'), _gettext('Text boards may have only one thread with a unique subject.  Please pick another.'));
+		}
+	}
+	
 	function GetThreadInfo($id) {
 		global $tc_db, $board_class;
 		
@@ -194,7 +203,6 @@ class Posting {
 		$flags = '';
 		
 		if (isset($_POST['modpassword'])) {
-			require KU_ROOTDIR . 'inc/encryption.php';
 			
 			$results = $tc_db->GetAll("SELECT `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . "' LIMIT 1");
 			

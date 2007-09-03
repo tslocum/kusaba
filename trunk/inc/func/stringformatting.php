@@ -206,6 +206,9 @@ function closeOpenTags($html){
  * @return string String
  */ 
 function ords_to_unistr($ords, $encoding = 'UTF-8'){
+	if (!function_exists('mb_convert_encoding')) {
+		return false;
+	}
 	/*  Turns an array of ordinal values into a string of unicode characters */
 	$str = '';
 	for($i = 0; $i < sizeof($ords); $i++){
@@ -225,7 +228,10 @@ function ords_to_unistr($ords, $encoding = 'UTF-8'){
  * @param string $encoding Encoding  
  * @return array Ords
  */ 
-function unistr_to_ords($str, $encoding = 'UTF-8'){       
+function unistr_to_ords($str, $encoding = 'UTF-8'){
+	if (!function_exists('mb_convert_encoding')) {
+		return false;
+	}
 	/* Turns a string of unicode characters into an array of ordinal values,
 	Even if some of those characters are multibyte. */
 	$str = mb_convert_encoding($str,"UCS-4BE",$encoding);

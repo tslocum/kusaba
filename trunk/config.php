@@ -219,11 +219,10 @@ require KU_ROOTDIR . 'lib/gettext/gettext.inc.php';
 require KU_ROOTDIR . 'lib/adodb/adodb.inc.php';
 
 /* Gettext */
-$supported_locales = array('en', 'de', 'no', 'es');
 _textdomain('kusaba');
 _setlocale(LC_ALL, KU_LOCALE);
 _bindtextdomain('kusaba', KU_ROOTDIR . 'inc/lang');
-_bind_textdomain_codeset('kusaba', 'UTF-8');
+_bind_textdomain_codeset('kusaba', KU_CHARSET);
 
 /* MySQL database */
 if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {

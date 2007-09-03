@@ -40,11 +40,13 @@ session_start();
  */ 
 require 'config.php';
 require KU_ROOTDIR . 'inc/functions.php';
-require_once KU_ROOTDIR . 'inc/classes/board-post.class.php';
-require_once KU_ROOTDIR . 'inc/classes/bans.class.php';
-require_once KU_ROOTDIR . 'inc/classes/posting.class.php';
-
+require KU_ROOTDIR . 'inc/classes/board-post.class.php';
+require KU_ROOTDIR . 'inc/classes/bans.class.php';
+require KU_ROOTDIR . 'inc/classes/posting.class.php';
+require KU_ROOTDIR . 'inc/classes/parse.class.php';
+		
 $bans_class = new Bans();
+$parse_class = new Parse();
 $posting_class = new Posting();
 
 // {{{ Module loading
@@ -100,7 +102,7 @@ if ($oekaki == '') {
 
 /* Ensure that UTF-8 is used on some of the post variables */
 $posting_class->UTF8Strings();
-//$tc_db->debug = true;
+
 /* Check if the user sent a valid post (image for thread, image/message for reply, etc) */
 if ($posting_class->CheckValidPost($is_oekaki)) {
 	$tc_db->Execute("START TRANSACTION");
@@ -116,7 +118,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	if ($post_isreply) {
 		list($thread_replies, $thread_locked, $thread_replyto) = $posting_class->GetThreadInfo($_POST['replythread']);
 	} else {
-		if ($board_class->board_uploadtype == '1' || $board_class->board_uploadtype == '2') {
+		if ($board_class->board_type != 1 && ($board_class->board_uploadtype == '1' || $board_class->board_uploadtype == '2')) {
 			if (isset($_POST['embed'])) {
 				if ($_POST['embed'] == '') {
 					if (($board_class->board_uploadtype == '1' && $imagefile_name == '') || $board_class->board_uploadtype == '2') {
@@ -136,6 +138,14 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	list($post_name, $post_email, $post_subject) = $posting_class->GetFields();
 	$post_password = isset($_POST['postpassword']) ? $_POST['postpassword'] : '';
 	
+	if ($board_class->board_type == 1) {
+		if ($post_isreply) {
+			$post_subject = '';
+		} else {
+			$posting_class->CheckNotDuplicateSubject($post_subject);
+		}
+	}
+	
 	list($user_authority, $flags) = $posting_class->GetUserAuthority();
 	
 	$post_fileused = false;
@@ -152,9 +162,6 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			exitWithErrorPage(_gettext('Sorry, this thread is locked and can not be replied to.'));
 		}
 		
-		require_once(KU_ROOTDIR . 'inc/classes/parse.class.php');
-		$parse_class = new Parse();
-		
 		$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $thread_replyto);
 	/* Or, if they are a moderator/administrator... */
 	} elseif ($user_authority == 1 || $user_authority == 2) {
@@ -168,9 +175,6 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			$post_message = $_POST['message'];
 		/* Otherwise, parse it as usual... */
 		} else {
-			require_once(KU_ROOTDIR . 'inc/classes/parse.class.php');
-			$parse_class = new Parse();
-			
 			$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $thread_replyto);
 		}
 		
@@ -297,7 +301,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			
 			if ($is_oekaki) {
 				if (file_exists(KU_BOARDSDIR . $board_class->board_dir . '/src/' . $upload_class->file_name . '.pch')) {
-					$post['message'] .= '<br><small><a href="' . KU_CGIPATH . '/animation.php?board=' . $board_class->board_dir . '&nbsp;id=' . $upload_class->file_name . '">View animation</a></small>';
+					$post['message'] .= '<br><small><a href="' . KU_CGIPATH . '/animation.php?board=' . $board_class->board_dir . '&id=' . $upload_class->file_name . '">' . _gettext('View animation') . '</a></small>';
 				}
 			}
 			

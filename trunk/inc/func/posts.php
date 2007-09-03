@@ -179,6 +179,125 @@ function checkMarkedForDeletion($post, $maxage) {
 	}
 }
 
+function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = false, $threadid = false, $formid = '') {
+	if ($threadid === false) {
+		$threadid = '0';
+	}
+	$output = '<table class="postform">' . "\n";
+	if ($numreplies === false) {
+		$output .= textBoardReplyBoxSubject();
+	}
+	$output .= '<tr>' . "\n";
+	if ($forcedanon != 1) {
+		$output .= textBoardReplyBoxName() .
+		textBoardReplyBoxEmail() .
+		textBoardReplyBoxSubmit($board, $numreplies, $threadid, $formid) .
+		'</tr>' . "\n" .
+		'<tr>' . "\n";
+		if ($enablecaptcha == 1) {
+			$output .= textBoardReplyBoxCaptcha();
+		}
+		$output .= textBoardReplyBoxPassword();
+	} else {
+		$output .= textBoardReplyBoxEmail();
+		if ($enablecaptcha == 1) {
+			$output .= textBoardReplyBoxCaptcha();
+		} else {
+			$output .= textBoardReplyBoxPassword();
+		}
+		$output .= textBoardReplyBoxSubmit($board, $numreplies, $threadid, $formid);
+		if ($enablecaptcha == 1) {
+			$output .= '</tr>' . "\n" .
+			'<tr>' . "\n" .
+			textBoardReplyBoxPassword();
+		}
+	}
+	$output .= '</tr>' . "\n" .
+	'<tr>' . "\n" .
+	'	<td class="';
+	if ($numreplies !== false) {
+		$output .= 'postfieldleft">' . "\n" .
+		'		<span class="postnum">' . "\n" .
+		'			' . ($numreplies + 2) . "\n" .
+		'		</span>' . "\n";
+	} else {
+		$output .= 'label">' . "\n" .
+		'		' . _gettext('Message') . ':' . "\n";
+	}
+	$output .= '	</td>' . "\n" .
+	'	<td colspan="4">' . "\n" .
+	'		<textarea name="message" rows="8" cols="64"></textarea>' . "\n" .
+	'	</td>' . "\n" .
+	'</tr>' . "\n" .
+	'</table>' . "\n" .
+	'<div id="preview' . $threadid . '"></div>' . "\n";
+	
+	return $output;
+}
+
+function textBoardReplyBoxSubject() {
+	return '<tr>' . "\n" .
+	'	<td class="label">' . "\n" .
+	'		' . _gettext('Subject').':' . "\n" .
+	'	</td>' . "\n" .
+	'	<td colspan="4">' . "\n" .
+	'		<input name="subject" size="50" maxlength="75">' . "\n" .
+	'	</td>' . "\n" .
+	'</tr>' . "\n";
+}
+
+function textBoardReplyBoxName() {
+	return '	<td class="label">' . "\n" .
+	'		' . _gettext('Name').':' . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		<input name="name" size="25" maxlength="75">' . "\n" .
+	'	</td>' . "\n";
+}
+
+function textBoardReplyBoxEmail() {
+	return '	<td class="label">' . "\n" .
+	'		' . _gettext('Email') . ':' . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		<input name="em" size="25" maxlength="75">' . "\n" .
+	'	</td>' . "\n";
+}
+
+function textBoardReplyBoxCaptcha() {
+	return '<td class="label">'._gettext('Captcha').':</td>' . "\n" .
+	'<td>' . "\n" .
+	'	<a href="#" onclick="javascript:document.getElementById(\'captchaimage\').src = \'' . KU_CGIPATH . '/captcha.php?\' + Math.random();return false;">' . "\n" .
+	'	<img id="captchaimage" src="' . KU_CGIPATH .'/captcha.php" border="0" width="90" height="30" alt="Captcha image">' . "\n" .
+	'	</a>&nbsp;' . "\n" .
+	'	<input type="text" id="captcha" name="captcha" size="8" maxlength="6">' . "\n" .
+	'</td>' . "\n";
+}
+
+function textBoardReplyBoxPassword() {
+	return  '	<td class="label">' . "\n" .
+	'		' . _gettext('Password') . ':' . "\n" .
+	'	</td>' . "\n" .
+	'	<td>' . "\n" .
+	'		<input type="password" name="postpassword" size="8" accesskey="p" maxlength="75">' . "\n" .
+	'	</td>' . "\n";
+}
+
+function textBoardReplyBoxSubmit($board, $numreplies, $threadid, $formid) {
+	$return = '	<td>' . "\n";
+	if ($formid != '') {
+		$return .= '		<input type="button" value="' . _gettext('Preview') . '" class="submit" onclick="javascript:postpreview(\'preview' . $threadid . '\', \'' . $board . '\', \'' . $threadid . '\', document.' . $formid . '.message.value);">' . "\n";
+	}
+	if ($numreplies !== false) {
+		$return .= '		<input type="submit" name="submit" value="' . _gettext('Reply') . '" class="submit">' . "\n";
+	} else {
+		$return .= '		<input type="submit" name="submit" value="' . _gettext('Submit') . '" class="submit">' . "\n";
+	}
+	$return .= '	</td>' . "\n";
+	
+	return $return;
+}
+
 /*
 Link validator
 

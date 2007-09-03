@@ -577,25 +577,25 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		if (!KU_BLOTTER) {
-			exitWithErrorPage('Blotter is disabled.');
+			exitWithErrorPage(_gettext('Blotter is disabled.'));
 		}
-		$tpl_page .= '<h1>Blotter</h1>';
+		$tpl_page .= '<h1>' . _gettext('Blotter') . '</h1>';
 		
 		if (isset($_POST['message'])) {
 			$save_important = (isset($_POST['important'])) ? '1' : '0';
 			
 			if (isset($_POST['edit'])) {
 				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "blotter` SET `message` = '" . mysql_real_escape_string($_POST['message']) . "', `important` = '" . $save_important . "' WHERE `id` = '" . mysql_real_escape_string($_POST['edit']) . "'");
-				$tpl_page .= '<h3>Blotter entry updated.</h3>';
+				$tpl_page .= '<h3>' . _gettext('Blotter entry updated.') . '</h3>';
 			} else {
 				$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "blotter` (`at`, `message`, `important`) VALUES ('" . time() . "', '" . mysql_real_escape_string($_POST['message']) . "', '" . $save_important . "')");
-				$tpl_page .= '<h3>Blotter entry added.</h3>';
+				$tpl_page .= '<h3>' . _gettext('Blotter entry added.') . '</h3>';
 			}
 			clearBlotterCache();
 		} elseif (isset($_GET['delete'])) {
 			$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "blotter` WHERE `id` =  '" . mysql_real_escape_string($_GET['delete']) . "'");
 			clearBlotterCache();
-			$tpl_page .= '<h3>Blotter entry deleted.</h3>';
+			$tpl_page .= '<h3>' . _gettext('Blotter entry deleted.') . '</h3>';
 		}
 		
 		$edit_id = '';
@@ -614,10 +614,10 @@ class Manage {
 		if ($edit_id != '') {
 			$tpl_page .= '<input type="hidden" name="edit" value="' . $edit_id . '">';
 		}
-		$tpl_page .= '<label for="message">Message:</label>
+		$tpl_page .= '<label for="message">' . _gettext('Message') . ':</label>
 		<input type="text" name="message" value="' . $edit_message . '" size="75"><br>
 		
-		<label for="important">Important:</label>
+		<label for="important">' . _gettext('Important') . ':</label>
 		<input type="checkbox" name="important"';
 		if ($edit_important == 1) {
 			$tpl_page .= ' checked';
@@ -626,13 +626,13 @@ class Manage {
 		
 		<input type="submit" value="';
 		if ($edit_id != '') {
-			$tpl_page .= 'Edit';
+			$tpl_page .= _gettext('Edit');
 		} else {
-			$tpl_page .= 'Add new blotter entry';
+			$tpl_page .= _gettext('Add new blotter entry');
 		}
 		$tpl_page .= '">';
 		if ($edit_id != '') {
-			$tpl_page .= '&nbsp;&nbsp;<a href="?action=blotter">Cancel</a>';
+			$tpl_page .= '&nbsp;&nbsp;<a href="?action=blotter">' . _gettext('Cancel') . '</a>';
 		}
 		$tpl_page .= '<br>
 		
@@ -640,7 +640,7 @@ class Manage {
 		
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC");
 		if (count($results) > 0) {
-			$tpl_page .= '<table border="1" width="100%"><tr><th>At</th><th>Message</th><th>Important</th><th>&nbsp;</th></tr>';
+			$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('At') . '</th><th>' . _gettext('Message') . '</th><th>' . _gettext('Important') . '</th><th>&nbsp;</th></tr>';
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . date('m/d/y', $line['at']) . '</td><td>' . $line['message'] . '</td><td>';
 				if ($line['important'] == 1) {
@@ -651,7 +651,7 @@ class Manage {
 				$tpl_page .= '</td><td><a href="?action=blotter&edit=' . $line['id'] . '">Edit</a>/<a href="?action=blotter&delete=' . $line['id'] . '">Delete</a></td></tr>';
 			}
 		} else {
-			$tpl_page .= '<tr><td colspan="4">No blotter entries.</td></tr>';
+			$tpl_page .= '<tr><td colspan="4">' . _gettext('No blotter entries.') . '</td></tr>';
 		}
 		$tpl_page .= '</table>';
 	}
