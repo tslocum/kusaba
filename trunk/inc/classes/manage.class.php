@@ -229,7 +229,7 @@ class Manage {
 		$tpl_page .= '<a href="?action=editsections&do=addsection">Add section</a><br><br>';
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "sections` ORDER BY `order` ASC");
 		if (count($results) > 0) {
-			$tpl_page .= '<table border="1"><tr><th>'.('ID').'</th><th>'.('Order').'</th><th>Abbreviation</th><th>Name</th><th>Edit/Delete</th></tr>';
+			$tpl_page .= '<table border="1" width="100%"><tr><th>'.('ID').'</th><th>'.('Order').'</th><th>Abbreviation</th><th>Name</th><th>Edit/Delete</th></tr>';
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['id'] . '</td><td>' . $line['order'] . '</td><td>' . $line['abbreviation'] . '</td><td>' . $line['name'] . '</td><td><a href="?action=editsections&do=editsection&sectionid=' . $line['id'] . '">Edit</a> <a href="?action=editsections&do=deletesection&sectionid=' . $line['id'] . '">Delete</a></td></tr>';
 			}
@@ -331,7 +331,7 @@ class Manage {
 		$tpl_page .= '<a href="?action=editfiletypes&do=addfiletype">Add filetype</a><br><br>';
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
 		if (count($results) > 0) {
-			$tpl_page .= '<table border="1"><tr><th>ID</th><th>Filetype</th><th>Image</th><th>Edit/Delete</th></tr>';
+			$tpl_page .= '<table border="1" width="100%"><tr><th>ID</th><th>Filetype</th><th>Image</th><th>Edit/Delete</th></tr>';
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['id'] . '</td><td>' . $line['filetype'] . '</td><td>' . $line['image'] . '</td><td><a href="?action=editfiletypes&do=editfiletype&filetypeid=' . $line['id'] . '">Edit</a> <a href="?action=editfiletypes&do=deletefiletype&filetypeid=' . $line['id'] . '">Delete</a></td></tr>';
 			}
@@ -468,7 +468,7 @@ class Manage {
 		$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "modlog` WHERE `timestamp` < '" . (time() - KU_MODLOGDAYS * 86400) . "'");
 		
 		$tpl_page .= '<h2>' . ('ModLog') . '</h2><br>
-		<table cellspacing="2" cellpadding="1" border="1"><tr><th>Time</th><th>User</th><th width="100%">Action</th></tr>';
+		<table cellspacing="2" cellpadding="1" border="1" width="100%"><tr><th>Time</th><th>User</th><th width="100%">Action</th></tr>';
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "modlog` ORDER BY `timestamp` DESC");
 		foreach ($results as $line) {
 			$tpl_page .= "<tr><td>" . date("y/m/d(D)H:i", $line['timestamp']) . "</td><td>" . $line['user'] . "</td><td>" . $line['entry'] . "</td></tr>";
@@ -562,7 +562,7 @@ class Manage {
 			$tpl_page .= '<br><hr><h1>Edit/Delete News</h1>';
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` ORDER BY `id` DESC");
 			if (count($results) > 0) {
-				$tpl_page .= '<table border="1"><tr><th>Date Added</th><th>Subject</th><th>Message</th><th>Edit/Delete</th></tr>';
+				$tpl_page .= '<table border="1" width="100%"><tr><th>Date Added</th><th>Subject</th><th>Message</th><th>Edit/Delete</th></tr>';
 				foreach ($results as $line) {
 					$tpl_page .= '<tr><td>' . date('F j, Y, g:i a', $line['postedat']) . '</td><td>' . $line['subject'] . '</td><td>' . $line['message'] . '</td><td><a href="?action=news&edit=' . $line['id'] . '">Edit</a>/<a href="?action=news&delete=' . $line['id'] . '">Delete</a></td></tr>';
 				}
@@ -1973,14 +1973,18 @@ class Manage {
 		$tpl_page .= '<br>';
 		
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter`");
-		foreach ($results as $line) {
-			$tpl_page .= 'Word: ' . $line['word'] . ' - Replaced by: ' . $line['replacedby'] . ' - Boards: ';
-			if (explode('|', $line['boards']) != '') {
-				$tpl_page .= '<b>/' . implode('/</b>, <b>/', explode('|', $line['boards'])) . '/</b>&nbsp;';
-			} else {
-				$tpl_page .= _gettext('No boards');
+		if ($results > 0) {
+			$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('Word') . '</th><th>' . _gettext('Replacement') . '</th><th>' . _gettext('Boards') . '</th><th>&nbsp;</th></tr>' . "\n";
+			foreach ($results as $line) {
+				$tpl_page .= '<tr><td>' . $line['word'] . '</td><td>' . $line['replacedby'] . '</td><td>';
+				if (explode('|', $line['boards']) != '') {
+					$tpl_page .= '<b>/' . implode('/</b>, <b>/', explode('|', $line['boards'])) . '/</b>&nbsp;';
+				} else {
+					$tpl_page .= _gettext('No boards');
+				}
+				$tpl_page .= '</td><td>[<a href="manage_page.php?action=wordfilter&editword=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="manage_page.php?action=wordfilter&delword=' . $line['id'] . '">del</a>]</td></tr>' . "\n";
 			}
-			$tpl_page .= '[<a href="manage_page.php?action=wordfilter&editword=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="manage_page.php?action=wordfilter&delword=' . $line['id'] . '">del</a>]<br>';
+			$tpl_page .= '</table>';
 		}
 	}
 	
@@ -2650,7 +2654,7 @@ class Manage {
 		$tpl_page .= '<h2>' . _gettext('Posting rates (past hour)') . '</h2><br>';
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `order` ASC");
 		if (count($results) > 0) {
-			$tpl_page .= '<table border="1" cellspacing="2" cellpadding="2"><tr><th>' . _gettext('Board') . '</th><th>' . _gettext('Threads') . '</th><th>' . _gettext('Replies') . '</th><th>' . _gettext('Posts') . '</th></tr>';
+			$tpl_page .= '<table border="1" cellspacing="2" cellpadding="2" width="100%"><tr><th>' . _gettext('Board') . '</th><th>' . _gettext('Threads') . '</th><th>' . _gettext('Replies') . '</th><th>' . _gettext('Posts') . '</th></tr>';
 			foreach ($results as $line) {
 				$rows_threads = $tc_db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `postedat` >= " . (time() - 3600));
 				$rows_replies = $tc_db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` != 0 AND `postedat` >= " . (time() - 3600));

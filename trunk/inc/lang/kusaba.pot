@@ -630,6 +630,9 @@ msgstr ""
 msgid "Word"
 msgstr ""
 
+msgid "Replacement"
+msgstr ""
+
 msgid "Is replaced by"
 msgstr ""
 
