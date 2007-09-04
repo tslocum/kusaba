@@ -240,8 +240,8 @@ function textBoardReplyBoxSubject() {
 	'	<td class="label">' . "\n" .
 	'		' . _gettext('Subject').':' . "\n" .
 	'	</td>' . "\n" .
-	'	<td colspan="4">' . "\n" .
-	'		<input name="subject" size="50" maxlength="75">' . "\n" .
+	'	<td colspan="4">' . "\n" .//
+	'		<input name="subject" maxlength="75" size="50" style="width: 70%;">' . "\n" .
 	'	</td>' . "\n" .
 	'</tr>' . "\n";
 }
