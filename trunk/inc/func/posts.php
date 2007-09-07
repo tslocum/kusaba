@@ -197,7 +197,9 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 		if ($enablecaptcha == 1) {
 			$output .= textBoardReplyBoxCaptcha();
 		}
-		$output .= textBoardReplyBoxPassword();
+		$output .= textBoardReplyBoxPassword() .
+		'</tr>' . "\n" .
+		'<tr style="display: none;" id="opt' . $threadid . '">';
 	} else {
 		$output .= textBoardReplyBoxEmail();
 		if ($enablecaptcha == 1) {
@@ -211,20 +213,20 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 			'<tr>' . "\n" .
 			textBoardReplyBoxPassword();
 		}
+		$output .= '</tr>' . "\n" .
+		'<tr style="display: none;" id="opt' . $threadid . '">';
 	}
 	$output .= '</tr>' . "\n" .
 	'<tr>' . "\n" .
-	'	<td class="';
+	'	<td class="postfieldleft">' . "\n" .
+	'		<span class="postnum">' . "\n";
 	if ($numreplies !== false) {
-		$output .= 'postfieldleft">' . "\n" .
-		'		<span class="postnum">' . "\n" .
-		'			' . ($numreplies + 2) . "\n" .
-		'		</span>' . "\n";
+		$output .= '			' . ($numreplies + 2) . "\n";
 	} else {
-		$output .= 'label">' . "\n" .
-		'		' . _gettext('Message') . ':' . "\n";
+		$output .= '			1' . "\n";
 	}
-	$output .= '	</td>' . "\n" .
+	$output .= '		</span>' . "\n" .
+	'	</td>' . "\n" .
 	'	<td colspan="4">' . "\n" .
 	'		<textarea name="message" rows="8" cols="64"></textarea>' . "\n" .
 	'	</td>' . "\n" .
@@ -238,7 +240,7 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 function textBoardReplyBoxSubject() {
 	return '<tr>' . "\n" .
 	'	<td class="label">' . "\n" .
-	'		' . _gettext('Subject').':' . "\n" .
+	'		<label for="subject">' . _gettext('Subject').':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td colspan="4">' . "\n" .//
 	'		<input name="subject" maxlength="75" size="50" style="width: 70%;">' . "\n" .
@@ -248,7 +250,7 @@ function textBoardReplyBoxSubject() {
 
 function textBoardReplyBoxName() {
 	return '	<td class="label">' . "\n" .
-	'		' . _gettext('Name').':' . "\n" .
+	'		<label for="name">' . _gettext('Name').':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input name="name" size="25" maxlength="75">' . "\n" .
@@ -257,7 +259,7 @@ function textBoardReplyBoxName() {
 
 function textBoardReplyBoxEmail() {
 	return '	<td class="label">' . "\n" .
-	'		' . _gettext('Email') . ':' . "\n" .
+	'		<label for="em">' . _gettext('Email') . ':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input name="em" size="25" maxlength="75">' . "\n" .
@@ -265,7 +267,7 @@ function textBoardReplyBoxEmail() {
 }
 
 function textBoardReplyBoxCaptcha() {
-	return '<td class="label">'._gettext('Captcha').':</td>' . "\n" .
+	return '<td class="label"><label for="captcha">'._gettext('Captcha').':</label></td>' . "\n" .
 	'<td>' . "\n" .
 	'	<a href="#" onclick="javascript:document.getElementById(\'captchaimage\').src = \'' . KU_CGIPATH . '/captcha.php?\' + Math.random();return false;">' . "\n" .
 	'	<img id="captchaimage" src="' . KU_CGIPATH .'/captcha.php" border="0" width="90" height="30" alt="Captcha image">' . "\n" .
@@ -276,7 +278,7 @@ function textBoardReplyBoxCaptcha() {
 
 function textBoardReplyBoxPassword() {
 	return  '	<td class="label">' . "\n" .
-	'		' . _gettext('Password') . ':' . "\n" .
+	'		<label for="postpassword">' . _gettext('Password') . ':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input type="password" name="postpassword" size="8" accesskey="p" maxlength="75">' . "\n" .
@@ -285,15 +287,13 @@ function textBoardReplyBoxPassword() {
 
 function textBoardReplyBoxSubmit($board, $numreplies, $threadid, $formid) {
 	$return = '	<td>' . "\n";
-	if ($formid != '') {
-		$return .= '		<input type="button" value="' . _gettext('Preview') . '" class="submit" onclick="javascript:postpreview(\'preview' . $threadid . '\', \'' . $board . '\', \'' . $threadid . '\', document.' . $formid . '.message.value);">' . "\n";
-	}
 	if ($numreplies !== false) {
 		$return .= '		<input type="submit" name="submit" value="' . _gettext('Reply') . '" class="submit">' . "\n";
 	} else {
 		$return .= '		<input type="submit" name="submit" value="' . _gettext('Submit') . '" class="submit">' . "\n";
 	}
-	$return .= '	</td>' . "\n";
+	$return .= '		<a href="#" onclick="toggleOptions(\'' . $threadid . '\', \'' . $formid . '\', \'' . $board . '\');return false;">' . _gettext('More') . '...</a>' . "\n" .
+	'	</td>' . "\n";
 	
 	return $return;
 }

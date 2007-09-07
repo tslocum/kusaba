@@ -92,49 +92,17 @@ class Parse {
 		$thread_board_return = $board;
 		
 		/* Add html for links to posts in the board the post was made */
-		$buffer = preg_replace_callback('/&gt;&gt;([0-9,\-,\,]+)/', array(&$this, 'InterthreadQuoteCheck'), $buffer);
+		$buffer = preg_replace_callback('/&gt;&gt;([r]?[l]?[f]?[q]?[0-9,\-,\,]+)/', array(&$this, 'InterthreadQuoteCheck'), $buffer);
 		
 		/* Add html for links to posts made in a different board */
 		$buffer = preg_replace_callback('/&gt;&gt;\/([a-z]+)\/([0-9]+)/', array(&$this, 'InterboardQuoteCheck'), $buffer);
-	
+		
 		return $buffer;
 	}
 	
 	function InterthreadQuoteCheck($matches) {
 		global $tc_db, $ispage, $thread_board_return;
-		
-		if (strpos($matches[1], ',') !== false || strpos($matches[1], '-') !== false) {
-			$postids = getQuoteIds($matches[1]);
-			if (count($postids) > 0) {
-				if ($this->boardtype != 1) {
-					foreach ($postids as $postid) {
-						$result = $tc_db->GetOne("SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($thread_board_return)."` WHERE `id` = '".mysql_real_escape_string($postid)."'");
-						if ($result === 0) {
-							$realid = $postid;
-						} else {
-							$realid = $result;
-						}
-					}
-				} else {
-					$realid = $this->parentid;
-				}
-				
-				if ($realid != '') {
-					$return = '<a href="' . KU_BOARDSFOLDER . 'read.php';
-					if (KU_TRADITIONALREAD) {
-						$return .= '/' . $thread_board_return . '/' . $realid.'/' . $matches[1];
-					} else {
-						$return .= '?b=' . $thread_board_return . '&nbsp;t=' . $realid.'&nbsp;p=' . $matches[1];
-					}
-					$return .= '">' . $matches[0] . '</a>';
-				}
-			} else {
-				return $matches[0];
-			}
-			
-			return $return;
-		}
-		
+
 		if ($this->boardtype != 1) {
 			$query = "SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($thread_board_return)."` WHERE `id` = '".mysql_real_escape_string($matches[1])."'";
 			$result = $tc_db->GetOne($query);
@@ -147,13 +115,26 @@ class Parse {
 			} else {
 				return $matches[0];
 			}
+			$return = '<a href="'.KU_BOARDSFOLDER.$thread_board_return.'/res/'.$realid.'.html#'.$matches[1].'" onclick="javascript:highlight(\'' . $matches[1] . '\', true);">'.$matches[0].'</a>';
 		} else {
-			$realid = $this->parentid;
+			$return = $matches[0];
+			
+			$postids = getQuoteIds($matches[1]);
+			if (count($postids) > 0) {
+				$realid = $this->parentid;
+				if ($realid != '') {
+					$return = '<a href="' . KU_BOARDSFOLDER . 'read.php';
+					if (KU_TRADITIONALREAD) {
+						$return .= '/' . $thread_board_return . '/' . $realid.'/' . $matches[1];
+					} else {
+						$return .= '?b=' . $thread_board_return . '&nbsp;t=' . $realid.'&nbsp;p=' . $matches[1];
+					}
+					$return .= '">' . $matches[0] . '</a>';
+				}
+			}
+			
+			return $return;
 		}
-		
-		$return = '<a href="'.KU_BOARDSFOLDER.$thread_board_return.'/res/'.$realid.'.html#'.$matches[1].'" onclick="javascript:highlight(\'' . $matches[1] . '\', true);">'.$matches[0].'</a>';
-		
-		return $return;
 	}
 	
 	function InterboardQuoteCheck($matches) {
@@ -280,7 +261,7 @@ class Parse {
 		$message = $this->BBCode($message);
 		$message = $this->Wordfilter($message, $board);
 		$message = $this->CheckNotEmpty($message);
-	
+		
 		return $message;
 	}
 }

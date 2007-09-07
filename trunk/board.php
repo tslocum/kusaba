@@ -154,6 +154,16 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	$post_displaystaffstatus = false;
 	$file_is_special = false;
 	
+	if (isset($_POST['formatting'])) {
+		if ($_POST['formatting'] == 'aa') {
+			$_POST['message'] = '[aa]' . $_POST['message'] . '[/aa]';
+		}
+		
+		if (isset($_POST['rememberformatting'])) {
+			setcookie('kuformatting', urldecode($_POST['formatting']), time() + 31556926, '/', KU_DOMAIN);
+		}
+	}
+	
 	/* If they are just a normal user, or vip... */
 	if ($user_authority == 0 || $user_authority == 3) {
 		/* If the thread is locked */

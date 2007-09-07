@@ -76,6 +76,12 @@ class Board {
 	 */	 
 	var $board_includeheader;
 	/**	 	
+	 * Name to display when no name is entered
+	 * 	 	 	
+	 * @var string Anonymous
+	 */	 
+	var $board_anonymous;
+	/**	 	
 	 * Sets whether users are allowed to post with names or not
 	 * 	 	 	
 	 * @var integer Forced anonymous
@@ -260,6 +266,7 @@ class Board {
 				$this->board_enablereporting          = $line['enablereporting'];
 				$this->board_image                    = $line['image'];
 				$this->board_includeheader            = $line['includeheader'];
+				$this->board_anonymous                = $line['anonymous'];
 				$this->board_forcedanon               = $line['forcedanon'];
 				$this->board_maximagesize             = $line['maximagesize'];
 				$this->board_maxage                   = $line['maxage'];
@@ -746,6 +753,9 @@ class Board {
 				// }}}
 				// {{{ Thread-starting post
 				
+				if ($this->board_type == 1 && $page) {
+					$buildthread_output .= '<hr>';
+				}
 				$buildthread_output .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line, $numReplies, $thread_relative_id);
 				
 				// }}}
@@ -1044,7 +1054,7 @@ class Board {
 				'</span> ' . "\n";
 			}
 			
-			$info_post .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode']);
+			$info_post .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode'], $this->board_anonymous);
 			
 			if ($post['posterauthority'] == 1) {
 				$info_post .= ' <span class="admin">' . "\n" .
@@ -1171,8 +1181,6 @@ class Board {
 			if ($post_is_thread) {
 				if ($page) {
 					$buildpost_output .= '<div class="border">' . "\n" . '<div class="thread">' . "\n";
-				} else {
-					$buildpost_output .= '<hr>' . "\n";
 				}
 			}
 			$buildpost_output .= '<a name="'.$thread_relative_id.'"></a>' . "\n";
@@ -1235,7 +1243,7 @@ class Board {
 			'<span class="postinfo">' .
 			_gettext('Name') . ': ';
 			
-			$buildpost_output .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode']);
+			$buildpost_output .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode'], $this->board_anonymous);
 			
 			$buildpost_output .= ' @ ' . date('Y-m-d H:i', $post['postedat']);
 			if ($this->board_showid) {
@@ -1658,7 +1666,7 @@ class Board {
 				'	<option value="shipainter_selfy">Shi-Painter+Selfy</option>' . "\n" .
 				'	<option value="shipainterpro_selfy">Shi-Painter Pro+Selfy</option>' . "\n" .
 				'</select>&nbsp;' . "\n" .
-				'<label for="width">' . _gettext('Width:&nbsp;</label><input type="text" name="width" id="width" size="3" value="300">&nbsp;' . "\n" .
+				'<label for="width">' . _gettext('Width') . ':&nbsp;</label><input type="text" name="width" id="width" size="3" value="300">&nbsp;' . "\n" .
 				'<label for="height">' . _gettext('Height') . ':&nbsp;</label><input type="text" name="height" id="height" size="3" value="300">&nbsp;' . "\n" .
 				'<label for="useanim">' . _gettext('Use animation?') . '&nbsp;</label><input type="checkbox" name="useanim" id="useanim" checked>&nbsp;' . "\n";
 				if ($replythread != 0) {

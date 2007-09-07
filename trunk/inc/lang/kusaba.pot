@@ -207,6 +207,9 @@ msgstr ""
 msgid "Logo"
 msgstr ""
 
+msgid "More"
+msgstr ""
+
 msgid "Please wait a moment before posting again."
 msgstr ""
 
@@ -618,6 +621,9 @@ msgstr ""
 msgid "Password successfully changed."
 msgstr ""
 
+msgid "Unable to find records of any posts matching that quote syntax."
+msgstr ""
+
 msgid "That ID does not exist."
 msgstr ""
 
@@ -790,6 +796,9 @@ msgid "Overrides the header set in the config file.  Leave blank to use configur
 msgstr ""
 
 msgid "Raw HTML which will be inserted at the top of each page of the board."
+msgstr ""
+
+msgid "Name to display when a name is not attached to a post."
 msgstr ""
 
 msgid "If set to yes, users will be redirected to the thread they replied to/posted after posting.  If set to no, users will be redirected to the first page of the board."
