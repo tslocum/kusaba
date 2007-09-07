@@ -6,7 +6,9 @@
   * Numerous actions have been taken to make pages load faster, including javascript compression and reduction of external requests per page.  The uncompressed version of all javascript files are still included in case of a need for modification]
   * The code tag has been improved, and will now render multiple spaces and tabs properly
   * *mbstring is no longer required for english-only sites!* (any language other than english may have problems, which can be fixed by installing mbstring into php like normal)
+  * Message formatting selection has been added.  This allows you to save usage of the text art font, or keep the normal formatting
   * Message preview for adding a post on text boards has been added.  This may be extended to normal imageboards
+  * A "More..." link has been added, which will reveal an extra row in the post area to pick post formatting and use message preview
 
 = 1.0.1 =
   * A style resembling Futaba has been added for text boards
