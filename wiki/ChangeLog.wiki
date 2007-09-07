@@ -9,6 +9,7 @@
   * Message formatting selection has been added.  This allows you to save usage of the text art font, or keep the normal formatting
   * Message preview for adding a post on text boards has been added.  This may be extended to normal imageboards
   * A "More..." link has been added, which will reveal an extra row in the post area to pick message formatting and use message preview
+  * The name displayed when a user does not enter a name is now configurable on a per-board basis by changing the Anonymous value in board options
 
 = 1.0.1 =
   * A style resembling Futaba has been added for text boards
