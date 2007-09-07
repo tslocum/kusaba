@@ -1,0 +1,12 @@
+#summary Things you should know from the very beginning
+#labels Featured
+
+= Mod Posting =
+
+Mod posting is the act of using your staff account to make a modified post, which can do quite a few things.
+
+To make a mod post, log in to the manage panel and click on the link in the menu labeled "Show Posting Password".  It will change into a string of text;  copy this.
+
+Go back to the board you want to make a mod post in and scroll to the post form.  Click the space to the right of the e in File, and the Mod box will open.
+
+Paste your posting password in the Mod box and change any options in the Mod box if you desire, and click post.
