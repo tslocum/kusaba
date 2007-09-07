@@ -27,7 +27,6 @@ $new_id = $to_next_id;
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
 
 $tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
-$insert_id = $tc_db->Insert_Id();
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $new_id . " WHERE `id` = " . $temp_id . "");
 $tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 
