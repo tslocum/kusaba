@@ -18,5 +18,8 @@ You can speed things up for page generation by using the following SQL queries. 
 {{{
 ALTER TABLE `posts_boarddirhere` DROP INDEX `IS_DELETED`;
 
-ALTER TABLE `posts_boarddirhere` ADD INDEX `IS_DELETED-parentid` ( `IS_DELETED` , `parentid` );
+ALTER TABLE `posts_boarddirhere` ADD INDEX `IS_DELETED-parentid` ( `IS_DELETED` , `parentid` 
+
+ALTER TABLE `posts_boarddirhere` ADD INDEX `parentid-stickied-lastbumped` ( `parentid` , `sticked` , `lastbumped` );
+);
 }}}
