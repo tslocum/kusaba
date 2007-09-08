@@ -53,14 +53,14 @@ if (KU_SLOGAN != '') {
 
 echo '<div class="menu">';
 
-echo ($_GET['p']=='') ? 'News' : '<a href="news.php">News</a>';
+echo ($_GET['p']=='') ? _gettext('News') : '<a href="news.php">' . _gettext('News') . '</a>';
 echo ' | ';
 if (isset($kusabaorg)) {
 	echo '<a href="download.html">Download</a> | ';
 }
-echo ($_GET['p']=='faq') ? 'FAQ' : '<a href="news.php?p=faq">FAQ</a>';
+echo ($_GET['p']=='faq') ? _gettext('FAQ') : '<a href="news.php?p=faq">' . _gettext('FAQ') . '</a>';
 echo ' | ';
-echo ($_GET['p']=='rules') ? 'Rules' : '<a href="news.php?p=rules">Rules</a>';
+echo ($_GET['p']=='rules') ? _gettext('Rules') : '<a href="news.php?p=rules">' . _gettext('Rules') . '</a>';
 
 /* Don't worry about this, it only applies to my personal installation of kusaba */
 if (isset($kusabaorg)) {

@@ -79,8 +79,7 @@ function createThumbnail($name, $filename, $new_w, $new_h) {
 		}
 		
 		if (!$src_img) {
-			echo '<br>Unable to open the uploaded image for thumbnailing.  Maybe its a different filetype, and has the wrong extension?';
-			return false;
+			exitWithErrorPage(_gettext('Unable to read uploaded file during thumbnailing.'), _gettext('A common cause for this is an incorrect extension when the file is actually of a different type.'));
 		}
 		$old_x = imageSX($src_img);
 		$old_y = imageSY($src_img);

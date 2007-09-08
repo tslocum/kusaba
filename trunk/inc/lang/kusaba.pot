@@ -93,6 +93,18 @@ msgstr ""
 msgid "Posts"
 msgstr ""
 
+msgid "and"
+msgstr ""
+
+msgid "Image"
+msgstr ""
+
+msgid "Images"
+msgstr ""
+
+msgid "omitted"
+msgstr ""
+
 msgid "Invalid session."
 msgstr ""
 
@@ -279,6 +291,12 @@ msgstr ""
 msgid "Sorry, that filetype is not allowed on this board."
 msgstr ""
 
+msgid "Unable to read uploaded file during thumbnailing."
+msgstr ""
+
+msgid "A common cause for this is an incorrect extension when the file is actually of a different type."
+msgstr ""
+
 msgid "Image successfully deleted from your post."
 msgstr ""
 
@@ -297,10 +315,13 @@ msgstr ""
 msgid "Sorry, this thread is locked and can not be replied to."
 msgstr ""
 
-msgid "Thread successfully posted.  You are now being redirected."
+msgid "%s uploaded."
 msgstr ""
 
-msgid "Reply successfully posted.  You are now being redirected."
+msgid "Post added."
+msgstr ""
+
+msgid "Upating pages."
 msgstr ""
 
 msgid "Watched Threads"
@@ -1088,7 +1109,13 @@ msgstr ""
 msgid "%s not implemented."
 msgstr ""
 
+msgid "Rules"
+msgstr ""
+
 msgid "News"
+msgstr ""
+
+msgid "FAQ"
 msgstr ""
 
 msgid "Home"
@@ -1206,7 +1233,13 @@ msgstr ""
 msgid "Style"
 msgstr ""
 
+msgid "Styles"
+msgstr ""
+
 msgid "Default style:"
+msgstr ""
+
+msgid "Site Styles"
 msgstr ""
 
 msgid "The style which will be set when the user first visits the board."

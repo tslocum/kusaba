@@ -194,6 +194,30 @@ function togglePassword() {
 	return false;
 }
 
+function toggleOptions(threadid, formid, board) {
+	if (document.getElementById('opt' + threadid)) {
+		if (document.getElementById('opt' + threadid).style.display == '') {
+			document.getElementById('opt' + threadid).style.display = 'none';
+			document.getElementById('opt' + threadid).innerHTML = '';
+		} else {
+			var newhtml = '<td class="label"><label for="formatting">Formatting:</label></td><td colspan="3"><select name="formatting"><option value="" onclick="javascript:document.getElementById(\'formattinginfo' + threadid + '\').innerHTML = \'All formatting is performed by the user.\';">Normal</option><option value="aa" onclick="javascript:document.getElementById(\'formattinginfo' + threadid + '\').innerHTML = \'[aa] and [/aa] will surround your message.\';"';
+			if (getCookie('kuformatting') == 'aa') {
+				newhtml += ' selected';
+			}
+			newhtml += '>Text Art</option></select> <input type="checkbox" name="rememberformatting"><label for="rememberformatting">Remember</label> <span id="formattinginfo' + threadid + '">';
+			if (getCookie('kuformatting') == 'aa') {
+				newhtml += '[aa] and [/aa] will surround your message.';
+			} else {
+				newhtml += 'All formatting is performed by the user.';
+			}
+			newhtml += '</span></td><td><input type="button" value="Preview" class="submit" onclick="javascript:postpreview(\'preview' + threadid + '\', \'' + board + '\', \'' + threadid + '\', document.' + formid + '.message.value);"></td>';
+			
+			document.getElementById('opt' + threadid).innerHTML = newhtml;
+			document.getElementById('opt' + threadid).style.display = '';
+		}
+	}
+}
+
 function getCookie(name) {
 	with(document.cookie) {
 		var regexp=new RegExp("(^|;\\s+)"+name+"=(.*?)(;|$)");

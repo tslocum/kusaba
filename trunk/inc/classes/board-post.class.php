@@ -697,7 +697,7 @@ class Board {
 		$query_idsegment = substr($query_idsegment, 0, -4);
 		$results = $tc_db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE ('.$query_idsegment.') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
 		if (count($results) == 0) {
-			exitWithErrorPage('buildthread(): error.  No posts in thread to build from.');
+			exitWithErrorPage('BuildThread(): error.  No posts in thread to build from.');
 		}
 		
 		// }}}
@@ -730,6 +730,7 @@ class Board {
 					if ($query != '') {
 						$numImageReplies = $tc_db->GetOne($query);
 					}
+					
 				}
 				
 				// }}}				
@@ -770,9 +771,9 @@ class Board {
 						case 'last50':
 							$query .= 'DESC LIMIT 50';
 							$buildthread_output .= '<span class="omittedposts">' . "\n" .
-							'	 ' . ($numReplies - 50).' post';
-							$buildthread_output .= (($numReplies - 50) != 1) ? 's' : '';
-							$buildthread_output .= ' omitted.  Last 50 posts shown.' . "\n" .
+							'	 ' . ($numReplies - 50) . ' ';
+							$buildthread_output .= (($numReplies - 50) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+							$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('Last 50 posts shown.') . "\n" .
 							'</span>' . "\n";
 							break;
 							
@@ -802,13 +803,13 @@ class Board {
 						}
 						if ($numReplies > $numrepliesdisplayed) {
 							$buildthread_output .= '<span class="omittedposts">' . "\n" .
-							'	 ' . ($numReplies-$numrepliesdisplayed).' post';
-							$buildthread_output .= ($numReplies-$numrepliesdisplayed != 1) ? 's' : '';
+							'	 ' . ($numReplies-$numrepliesdisplayed) . ' ';
+							$buildthread_output .= ($numReplies-$numrepliesdisplayed != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
 							if ($numImageReplies > 0) {
-								$buildthread_output .= ' and ' . $numImageReplies . ' image';
-								$buildthread_output .= ($numImageReplies != 1) ? 's' : '';
+								$buildthread_output .= ' ' . _gettext('and') . ' ' . $numImageReplies . ' ';
+								$buildthread_output .= ($numImageReplies != 1) ? strtolower(_gettext('Images')) : strtolower(_gettext('Image'));
 							}
-							$buildthread_output .= ' omitted. '._gettext('Click Reply to view.') . "\n" .
+							$buildthread_output .= ' ' . _gettext('omitted') . '. '._gettext('Click Reply to view.') . "\n" .
 							'</span>' . "\n";
 						}
 						/* Retrieves the three newest posts from the thread in descending order, which is backwards for what we want, so we apply array_reverse on the result */
@@ -828,9 +829,9 @@ class Board {
 					if (!$page) {
 						if ($modifier == 'first100') {
 							$buildthread_output .= '<span class="omittedposts" style="float: left">' . "\n" .
-							'	 ' . ($numReplies - 100).' post';
-							$buildthread_output .= (($numReplies - 100) != 1) ? 's' : '';
-							$buildthread_output .= ' omitted.  ' . _gettext('First 100 posts shown.') . "\n" .
+							'	 ' . ($numReplies - 100) . ' ';
+							$buildthread_output .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+							$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
 							'</span>' . "\n";
 						}
 						
@@ -877,9 +878,9 @@ class Board {
 					case 'last50':
 						$query .= 'DESC LIMIT 50';
 						$buildthread_output .= '<span class="abbrev">' . "\n" .
-						'	 ' . ($numReplies - 50).' post';
-						$buildthread_output .= (($numReplies - 50) != 1) ? 's' : '';
-						$buildthread_output .= ' omitted.  ' . _gettext('Last 50 posts shown.') . "\n" .
+						'	 ' . ($numReplies - 50).' ';
+						$buildthread_output .= (($numReplies - 50) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+						$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('Last 50 posts shown.') . "\n" .
 						'</span>' . "\n";
 						$reply_relative_id = $numReplies - 49;
 						break;
@@ -1180,7 +1181,8 @@ class Board {
 			}
 			if ($post_is_thread) {
 				if ($page) {
-					$buildpost_output .= '<div class="border">' . "\n" . '<div class="thread">' . "\n";
+					$buildpost_output .= '<div class="border">' . "\n" .
+					'<div class="thread">' . "\n";
 				}
 			}
 			$buildpost_output .= '<a name="'.$thread_relative_id.'"></a>' . "\n";
@@ -1283,12 +1285,12 @@ class Board {
 			$tpl['title'] .= '/' . $this->board_dir . '/ - ';
 		}
 		$tpl['title'] .= $this->board_desc;
-		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>' . "\n" .
-		'<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/kusaba.js"></script>' . "\n";
+		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>';
 		$output = '';
 		
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
-			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/img_global.css">' . "\n" . $this->pageheader_css;
+			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/img_global.css">' . "\n" .
+			$this->pageheader_css;
 		} else {
 			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/txt_global.css">' . "\n" . 
 			printStylesheetsTXT($this->board_defaultstyle);
@@ -1299,7 +1301,6 @@ class Board {
 		$tpl['head'] .= '<script type="text/javascript"><!--' . "\n" .
 		'	var ku_boardspath = \'' . KU_BOARDSPATH . '\';' . "\n" .
 		'	var ku_cgipath = \'' . KU_CGIPATH . '\'' . "\n" .
-		'	var hiddenthreads = getCookie(\'hiddenthreads\').split(\'!\');' . "\n" .
 		'	var style_cookie';
 		if ($this->board_type==1) {
 			$tpl['head'] .= '_txt';

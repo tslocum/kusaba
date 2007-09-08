@@ -63,9 +63,9 @@ function do_redirect($url, $ispost = false, $file = '') {
 	global $board_class;
 	
 	if ($ispost && $file != '') {
-		echo $file . ' uploaded. Upating pages.';
+		echo sprintf(_gettext('%s uploaded.', $file) . ' ' . _gettext('Upating pages.');
 	} elseif ($ispost) {
-		echo 'Post added. Upating pages.';
+		echo _gettext('Post added.') . ' ' . _gettext('Upating pages.');
 	} else {
 		echo '---> ---> --->';
 	}

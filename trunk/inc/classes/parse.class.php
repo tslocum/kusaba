@@ -127,7 +127,7 @@ class Parse {
 					if (KU_TRADITIONALREAD) {
 						$return .= '/' . $thread_board_return . '/' . $realid.'/' . $matches[1];
 					} else {
-						$return .= '?b=' . $thread_board_return . '&nbsp;t=' . $realid.'&nbsp;p=' . $matches[1];
+						$return .= '?b=' . $thread_board_return . '&t=' . $realid.'&p=' . $matches[1];
 					}
 					$return .= '">' . $matches[0] . '</a>';
 				}

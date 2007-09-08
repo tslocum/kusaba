@@ -1,5 +1,7 @@
 <?php
 header('Content-type: text/html; charset=utf-8');
+
+require 'config.php';
 if (KU_TRADITIONALREAD) {
 	$pairs = explode('/', $_SERVER['PATH_INFO']);
 	if (count($pairs) < 4) {
@@ -23,7 +25,6 @@ if ($board == '' || $thread == '' || $posts == '') {
 	die();
 }
 
-require 'config.php';
 require KU_ROOTDIR . 'inc/functions.php';
 require KU_ROOTDIR . 'inc/classes/board-post.class.php';
 
