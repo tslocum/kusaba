@@ -10,3 +10,13 @@ To make a mod post, log in to the manage panel and click on the link in the menu
 Go back to the board you want to make a mod post in and scroll to the post form.  Click the space to the right of the e in File, and the Mod box will open.
 
 Paste your posting password in the Mod box and change any options in the Mod box if you desire, and click post.
+
+= Optimization for High Post Counts =
+
+You can speed things up for page generation by using the following SQL queries.  However, these should only be used when you have enough posts that you believe it is slowing down the script, as using this on low post count boards will most likely have a negative effect.
+
+{{{
+ALTER TABLE `posts_boarddirhere` DROP INDEX `IS_DELETED`;
+
+ALTER TABLE `posts_boarddirhere` ADD INDEX `IS_DELETED-parentid` ( `IS_DELETED` , `parentid` );
+}}}
