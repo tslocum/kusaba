@@ -38,7 +38,6 @@ map { push(@threads, read_thread($_)) } grep { /\.html$/ && -f DIR . "/$_" } rea
 close(RES);
 
 
-
 print "INSERT INTO `posts_" . BOARD_NAME . "` (
   `id` ,
   `parentid` ,
@@ -52,6 +51,7 @@ print "INSERT INTO `posts_" . BOARD_NAME . "` (
   `locked`
 )
 VALUES\n";
+
 
 our $board_name = BOARD_NAME;
 
@@ -134,8 +134,8 @@ sub read_thread($) {
         chomp $line;
 
         my $post;
-
-
+        
+        # thread "meta" info
         if ( $line =~ /^\<!--(.*)--\>$/ ) {
             %{$thread->{meta}} =  %{eval $1};
             
@@ -144,10 +144,7 @@ sub read_thread($) {
             }
         }
         
-        elsif ( $line =~ /^\<\!DOCTYPE/ ) {
-            next;
-        }
-        
+        # reply
         elsif ( $line =~ /^\<div class=\"reply\"/ ) {
             # name email
             if ( $line =~ /\<span class=\"postername\"\>((\<a href=\"mailto\:(.*?)\"(( rel=\"nofollow\")?)\>)?)(.*?)((\<\/a\>)?)\<\/span\>/ ) {  
@@ -170,9 +167,6 @@ sub read_thread($) {
                 $post->{trip} = '';
             }
 
-            # timestamp
-            
-
             # post message
             if ( $line =~ /\<div class=\"aa\"\>(.*?)\<\/div\>/ ) {
                 $post->{message} = '<div class="aa">' . $1 . '</div>';
@@ -186,26 +180,25 @@ sub read_thread($) {
 
             $post->{message} =~ s/\<p\>//g;
             $post->{message} =~ s/\<\/p\>//g;
-
-			foreach ( keys (%{$post}) ) {
-				$post->{$_} = filter($post->{$_});
-			}
+            
+            
+            foreach ( keys (%{$post}) ) {
+            	$post->{$_} = filter($post->{$_});
+            }
 			 
             push(@{$thread->{posts}}, \$post);
             
         } # end of <div class="reply">
-        
-        elsif ( $line =~ /^\<\/div\> \<\/div\>/ ) {
-            next;
-        }
-        
+       
     } # end of line loop
-
 
     close(FILE);
 
     return $thread;
+    
 } # end of get_thread
+
+
 
 sub filter($) {
 	my $text = shift;
