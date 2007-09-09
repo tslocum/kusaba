@@ -1,5 +1,7 @@
 #summary kusaba changelog
 #labels Featured
+= 1.0.3=
+  * The number of images omitted will now display with the proper number
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
