@@ -319,11 +319,6 @@ class Board {
 			changeLocale($this->board_locale);
 		}
 		
-		$this->InitializeSmarty();
-		
-		$numpostsleft = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
-		$boardpage = 0;
-		
 		$hide_extra = false;
 		switch ($this->board_type) {
 		case 1:
@@ -339,9 +334,32 @@ class Board {
 			$numthreadsdisplayed = KU_THREADS;
 		}
 		
+		$results = $tc_db->GetAll("SELECT `id` , `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+		$numpostsleft = count($results);
+		
+		$this->InitializeSmarty();
 		$boardstooutput = calculatenumpages($this->board_type, ($numpostsleft-1));
 		$this->CachePageHeaderData();
 		
+		$master_thread_ids = array();
+		$threadcount = 0;
+		$threadpage = 0;
+		foreach($results AS $line) {
+			$threadcount++;
+			if ($threadcount > $numthreadsdisplayed) {
+				$threadcount = 0;
+				$threadpage++;
+			}
+			
+			/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
+			if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $threadpage >= $this->board_markpage) {
+				$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `deletedat` = '" . (time() + 7200) . "' WHERE `id` = '" . $line['id'] . "' LIMIT 1");
+				$this->RegenerateThread($line['id']);
+			}
+			$master_thread_ids[$threadpage][] = $line[0];
+		}
+		
+		$boardpage = 0;
 		if ($numpostsleft>0) {
 			$cached_postbox = $this->Postbox(0, '', $this->board_postboxnotice);
 			while ($numpostsleft>0) {
@@ -353,18 +371,9 @@ class Board {
 					$page .= deletionForm($this->board_dir);
 				}
 				
-				$results = $tc_db->GetAll("SELECT `id` , `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC LIMIT " . ($boardpage * $numthreadsdisplayed) . ', ' . $numthreadsdisplayed);
-				
+				$thread_ids = $master_thread_ids[$boardpage];
 				$thread_relative_id = 0;
-				$thread_ids = array();
-				foreach($results AS $line) {
-					/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
-					if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $boardpage >= $this->board_markpage) {
-						$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `deletedat` = '" . (time() + 7200) . "' WHERE `id` = '" . $line['id'] . "' LIMIT 1");
-						$this->RegenerateThread($line['id']);
-					}
-					$thread_ids[] = $line[0];
-				}
+				
 				
 				if ($this->board_type == 3) {
 					$page .= '<center>' . "\n" .
