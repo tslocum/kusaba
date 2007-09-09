@@ -29,18 +29,20 @@ $new_id = $to_next_id;
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
 
 $tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+processPost($temp_id, $new_id, $id);
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $new_id . " WHERE `id` = " . $temp_id . "");
 $tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 
-$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
+$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` DESC");
 foreach ($results as $line) {
 	$postid = $line['id'];
-	$next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_to . " ORDER BY `id` DESC LIMIT 1");
+	$next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_to . " ORDER BY `id` ASC LIMIT 1");
 	$next_id++;
 	$temp_id = getTempID();
 	
 	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = '" . $postid . "'");
 	$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id . "");
+	processPost($temp_id, $new_id, $id);
 	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $next_id . ", `parentid` = " . $new_id . " WHERE `id` = " . $temp_id. "");
 	$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id . "");
 }
@@ -71,6 +73,16 @@ function getNextID($where) {
 		
 		return $to_next_id;
 	}
+}
+
+function processPost($id, $newthreadid, $oldthreadid) {
+	global $tc_db, $board_from, $board_to;
+	
+	$message = $tc_db->GetOne("SELECT `message` FROM " . KU_DBPREFIX . "posts_" . $board_to . " WHERE `id` = " . $id . " LIMIT 1");
+	
+	$message = str_replace('/read.php/' . $board_from . '/' . $oldthreadid, '/read.php/' . $board_to . '/' . $newthreadid, $message);
+	
+	$tc_db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
 }
 
 ?>
