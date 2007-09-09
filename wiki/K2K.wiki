@@ -6,6 +6,8 @@ This script was created by meltingwax.
 
 = Instructions =
 
+*This will only work if kareha is in text mode*
+
 Like W2K, K2K works on each board individually.  First create a file using the code below.
 
 Edit the file, changing BOARD_NAME to the directory of the board which is currently being converted.  You will most likely not need to change DIR, unless you have also change it in the kareha config.
