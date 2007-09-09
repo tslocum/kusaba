@@ -70,6 +70,7 @@ class Menu {
 			<li><a href="http://code.google.com/p/kusaba/wiki/ModuleList" target="_top">&nbsp;-&nbsp;Modules</a></li>
 			<li><a href="http://code.google.com/p/kusaba/wiki/KusaMove" target="_top">&nbsp;-&nbsp;KusaMove</a></li>
 			<li><a href="http://code.google.com/p/kusaba/wiki/W2K" target="_top">&nbsp;-&nbsp;W2K</a></li>
+			<li><a href="http://code.google.com/p/kusaba/wiki/K2K" target="_top">&nbsp;-&nbsp;K2K</a></li>
 			<li><a href="http://code.google.com/p/kusaba/" target="_top">Project page</a></li>
 			<li><a href="http://kusaba.org/doc/index.html" target="main">Code Documentation</a></li>
 			</ul>

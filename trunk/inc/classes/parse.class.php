@@ -24,6 +24,7 @@
 class Parse {
 	var $boardtype;
 	var $parentid;
+	var $id;
 	
 	function MakeClickable($txt) {
 		/* Make http:// urls in posts clickable */
@@ -106,7 +107,7 @@ class Parse {
 		if ($this->boardtype != 1) {
 			$query = "SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($thread_board_return)."` WHERE `id` = '".mysql_real_escape_string($matches[1])."'";
 			$result = $tc_db->GetOne($query);
-			if ($result != '') {
+			if ($result !== '') {
 				if ($result == 0) {
 					$realid = $matches[1];
 				} else {
@@ -115,6 +116,7 @@ class Parse {
 			} else {
 				return $matches[0];
 			}
+			
 			$return = '<a href="'.KU_BOARDSFOLDER.$thread_board_return.'/res/'.$realid.'.html#'.$matches[1].'" onclick="javascript:highlight(\'' . $matches[1] . '\', true);">'.$matches[0].'</a>';
 		} else {
 			$return = $matches[0];
@@ -122,7 +124,12 @@ class Parse {
 			$postids = getQuoteIds($matches[1]);
 			if (count($postids) > 0) {
 				$realid = $this->parentid;
-				if ($realid != '') {
+				if ($realid === 0) {
+					if ($this->id > 0) {
+						$realid = $this->id;
+					}
+				}
+				if ($realid !== '') {
 					$return = '<a href="' . KU_BOARDSFOLDER . 'read.php';
 					if (KU_TRADITIONALREAD) {
 						$return .= '/' . $thread_board_return . '/' . $realid.'/' . $matches[1];
@@ -132,9 +139,9 @@ class Parse {
 					$return .= '">' . $matches[0] . '</a>';
 				}
 			}
-			
-			return $return;
 		}
+		
+		return $return;
 	}
 	
 	function InterboardQuoteCheck($matches) {

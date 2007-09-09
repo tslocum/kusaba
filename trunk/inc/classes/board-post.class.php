@@ -1285,7 +1285,7 @@ class Board {
 			$tpl['title'] .= '/' . $this->board_dir . '/ - ';
 		}
 		$tpl['title'] .= $this->board_desc;
-		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>';
+		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>' . "\n";
 		$output = '';
 		
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {

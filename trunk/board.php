@@ -164,6 +164,10 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		}
 	}
 	
+	$results = $tc_db->GetAll("SHOW TABLE STATUS LIKE '" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "'");
+	$nextid = $results[0]['Auto_increment'];
+	$parse_class->id = $nextid;
+	
 	/* If they are just a normal user, or vip... */
 	if ($user_authority == 0 || $user_authority == 3) {
 		/* If the thread is locked */

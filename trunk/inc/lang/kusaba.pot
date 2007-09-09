@@ -39,9 +39,6 @@ msgstr ""
 msgid "Moderation"
 msgstr ""
 
-msgid "translator-credits"
-msgstr ""
-
 msgid "Moderates"
 msgstr ""
 
@@ -1305,3 +1302,5 @@ msgstr ""
 msgid "Proxy list"
 msgstr ""
 
+msgid "translator-credits"
+msgstr ""
