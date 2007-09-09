@@ -1,5 +1,9 @@
 #summary Kareha to kusaba board conversion
 
+= Credit =
+
+This script was created by meltingwax.
+
 = Instructions =
 
 Like W2K, K2K works on each board individually.  First create a file using the code below.
