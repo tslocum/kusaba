@@ -365,75 +365,80 @@ class Board {
 			while ($numpostsleft>0) {
 				$executiontime_start_regeneratepages = microtime_float();
 				
-				$page = $this->pageheader_noreply . $cached_postbox;
+				if (isset($master_thread_ids[$boardpage])) {
+					$thread_ids = $master_thread_ids[$boardpage];
+					$page = $this->pageheader_noreply . $cached_postbox;
 				
-				if ($this->board_type != 1) {
-					$page .= deletionForm($this->board_dir);
-				}
-				
-				$thread_ids = $master_thread_ids[$boardpage];
-				$thread_relative_id = 0;
-				
-				
-				if ($this->board_type == 3) {
-					$page .= '<center>' . "\n" .
-					'<table width="98%">' . "\n" .
-					'<tr>' . "\n" .
-					'	<td class="postblock" align="center" width="1%">' . "\n" .
-					'		No.' . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" style="text-align:center;width:25%;">' . "\n" .
-					'		' . _gettext('Name') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" align="center" width="1%">' . "\n" .
-					'		' . _gettext('File') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" align="center" width="1%">' . "\n" .
-					'		' . _gettext('Tag') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" style="text-align:center;width:40%;">' . "\n" .
-					'		' . _gettext('Subject') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" align="center" width="1%">' . "\n" .
-					'		' . _gettext('Size') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" align="center" width="1%">' . "\n" .
-					'		' . _gettext('Date') . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" style="text-align:center;width:1px;">' . "\n" .
-					'		Rep.' . "\n" .
-					'	</td>' . "\n" .
-					'	<td class="postblock" style="width:1px;">' . "\n" .
-					'		&nbsp;' . "\n" .
-					'	</td>' . "\n" .
-					'</tr>' . "\n";
-				}
-				$page .= $this->BuildThread($thread_ids, ($boardpage + 1), false, $thread_relative_id);
-				if ($this->board_type == 3) {
-					$page .= '</table></center><br>';
-				}
-				
-				if ($this->board_type != 1) {
-					$page .= deletePostBox($this->board_type, $this->board_enablereporting);
-					$page .= setDelPassJavascript();
-					$page .= pageList($boardpage, $boardstooutput, $this->board_dir);
-				}
-				
-				$page .= $this->Footer(false, (microtime_float()-$executiontime_start_regeneratepages), $hide_extra);
-				
-				if ($boardpage == 0) {
-					$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.KU_FIRSTPAGE, $page, $this->board_dir);
+					if ($this->board_type != 1) {
+						$page .= deletionForm($this->board_dir);
+					}
+					
+					$thread_relative_id = 0;
+					
+					
+					if ($this->board_type == 3) {
+						$page .= '<center>' . "\n" .
+						'<table width="98%">' . "\n" .
+						'<tr>' . "\n" .
+						'	<td class="postblock" align="center" width="1%">' . "\n" .
+						'		No.' . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" style="text-align:center;width:25%;">' . "\n" .
+						'		' . _gettext('Name') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" align="center" width="1%">' . "\n" .
+						'		' . _gettext('File') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" align="center" width="1%">' . "\n" .
+						'		' . _gettext('Tag') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" style="text-align:center;width:40%;">' . "\n" .
+						'		' . _gettext('Subject') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" align="center" width="1%">' . "\n" .
+						'		' . _gettext('Size') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" align="center" width="1%">' . "\n" .
+						'		' . _gettext('Date') . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" style="text-align:center;width:1px;">' . "\n" .
+						'		Rep.' . "\n" .
+						'	</td>' . "\n" .
+						'	<td class="postblock" style="width:1px;">' . "\n" .
+						'		&nbsp;' . "\n" .
+						'	</td>' . "\n" .
+						'</tr>' . "\n";
+					}
+					$page .= $this->BuildThread($thread_ids, ($boardpage + 1), false, $thread_relative_id);
+					if ($this->board_type == 3) {
+						$page .= '</table></center><br>';
+					}
+					
+					if ($this->board_type != 1) {
+						$page .= deletePostBox($this->board_type, $this->board_enablereporting);
+						$page .= setDelPassJavascript();
+						$page .= pageList($boardpage, $boardstooutput, $this->board_dir);
+					}
+					
+					$page .= $this->Footer(false, (microtime_float()-$executiontime_start_regeneratepages), $hide_extra);
+					
+					if ($boardpage == 0) {
+						$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.KU_FIRSTPAGE, $page, $this->board_dir);
+					} else {
+						$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.$boardpage.'.html', $page, $this->board_dir);
+					}
+					
+					$page = '';
+					$boardpage++;
+					if ($this->board_type==1) {
+						$numpostsleft = 0;
+					} else {
+						$numpostsleft -= $numthreadsdisplayed;
+					}
 				} else {
-					$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.$boardpage.'.html', $page, $this->board_dir);
-				}
-				
-				$page = '';
-				$boardpage++;
-				if ($this->board_type==1) {
 					$numpostsleft = 0;
-				} else {
-					$numpostsleft -= $numthreadsdisplayed;
 				}
+				
 			}
 		} else {
 			/* Make a blank index page */
@@ -594,12 +599,12 @@ class Board {
 		
 		$this->InitializeSmarty();
 		$this->CachePageHeaderData();
-
-		$thread_exists = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `id` = ".mysql_real_escape_string($thread_op_id)." AND `IS_DELETED` = 0 AND `parentid` = 0 LIMIT 1");
-		if ($thread_exists == 1) {
+		
+		$numreplies = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE (`id` = " . mysql_real_escape_string($thread_op_id) . " OR `parentid` = " . mysql_real_escape_string($thread_op_id) . ") AND `IS_DELETED` = 0");
+		if (count($numreplies) > 0) {
 			$executiontime_start_regeneratethread = microtime_float();
+			$numreplies--;
 			
-			$numreplies = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = ".mysql_real_escape_string($thread_op_id)." AND `IS_DELETED` = 0");
 			$modifier_last50 = false;
 			$modifier_first100 = false;
 			if (KU_FIRSTLAST && $numreplies > 49) {
@@ -673,6 +678,7 @@ class Board {
 		if (!is_array($parentid)) {
 			$parentid = array($parentid);
 		}
+		$parentid_strfriendly = implode('|', $parentid);
 		
 		// }}}
 		// {{{ Validate each ID being a number greater than zero
@@ -692,7 +698,7 @@ class Board {
 		if ($this->board_type == 1) {
 			// {{{ Calculate the number of threads which will be displayed on the front page
 			
-			$num_threads_onfrontpage = min(KU_THREADSTXT, $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = 0'));
+			$num_threads_onfrontpage = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = 0 LIMIT 15');
 			$isdeleted_check = '';
 			
 			// }}}
@@ -704,7 +710,7 @@ class Board {
 			$query_idsegment .= '`id` = ' . mysql_real_escape_string($this_parentid) . ' OR ';
 		}
 		$query_idsegment = substr($query_idsegment, 0, -4);
-		$results = $tc_db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE ('.$query_idsegment.') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
+		$results = $tc_db->GetAll('SELECT * FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE (' . $query_idsegment . ') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
 		if (count($results) == 0) {
 			exitWithErrorPage('BuildThread(): error.  No posts in thread to build from.');
 		}
@@ -723,21 +729,26 @@ class Board {
 			
 			$numReplies = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id) . ' ' . $isdeleted_check);
 			if (($this->board_type == 0 ||$this->board_type == 2) || ($this->board_type == 3 && !$page)) {
-				$numImageReplies = 0;
-				
+				$buildthread_gotcache = false;
 				// {{{ Calculate the number of image replies to the thread being generated
 				
+				$numImageReplies = 0;
 				if ($page) {
-					$query = 'SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'AND `filename` != \'\' AND `filename` != \'removed\' ORDER BY `id` DESC LIMIT 0, ';
+					$query = 'SELECT `filename` FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` ASC';
 					if ($line['stickied'] == 0 && $numReplies > KU_REPLIES) {
-						$query .= ($numReplies - KU_REPLIES);
+						$query .= ' LIMIT ' . ($numReplies - KU_REPLIES);
 					} elseif ($numReplies > KU_REPLIESSTICKY) {
-						$query .= ($numReplies - KU_REPLIESSTICKY);
+						$query .= ' LIMIT ' . ($numReplies - KU_REPLIESSTICKY);
 					} else {
 						$query = '';
 					}
 					if ($query != '') {
-						$numImageReplies = $tc_db->GetOne($query);
+						$numImageReplies_result = $tc_db->GetAll($query);
+						foreach ($numImageReplies_result as $numImageReplies_line) {
+							if ($numImageReplies_line['filename'] != '' && $numImageReplies_line['filename'] != 'removed') {
+								$numImageReplies++;
+							}
+						}
 					}
 					
 				}
@@ -795,12 +806,27 @@ class Board {
 							break;
 							
 						}
-						$results = $tc_db->GetAll($query);
+						$results_replies = $tc_db->GetAll($query);
 						if ($modifier == 'last50') {
-							$results = array_reverse($results);
+							$results_replies = array_reverse($results_replies);
 						}
 						
 						// }}}
+						
+						if (KU_APC) {
+							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|op') == serialize($results)) {
+								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|replies') == serialize($results_replies)) {
+									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread');
+									if ($buildthread_cached != false) {
+										if (function_exists('gzcompress')) {
+											$buildthread_cached = gzuncompress($buildthread_cached);
+										}
+										$buildthread_output .= $buildthread_cached;
+										$buildthread_gotcache = true;
+									}
+								}
+							}
+						}
 					} else {
 						// {{{ Page reply fetch
 						
@@ -823,31 +849,71 @@ class Board {
 						}
 						/* Retrieves the three newest posts from the thread in descending order, which is backwards for what we want, so we apply array_reverse on the result */
 						$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` DESC LIMIT '.$numrepliesdisplayed;
-						$results = array_reverse($tc_db->GetAll($query));
+						$results_replies = array_reverse($tc_db->GetAll($query));
 						
 						// }}}
+						
+						if (KU_APC) {
+							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|op') == serialize($results)) {
+								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|replies') == serialize($results_replies)) {
+									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|thread');
+									if ($buildthread_cached != false) {
+										if (function_exists('gzcompress')) {
+											$buildthread_cached = gzuncompress($buildthread_cached);
+										}
+										$buildthread_output .= $buildthread_cached;
+										$buildthread_gotcache = true;
+									}
+								}
+							}
+						}
 					}
-					foreach($results AS $line_reply) {
-						$buildthread_output .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
-					}
-					if (!$page) {
-						$buildthread_output .= '</span>' . "\n";
-					}
-					$buildthread_output .= '</div>' . "\n";
 					
-					if (!$page) {
-						if ($modifier == 'first100') {
-							$buildthread_output .= '<span class="omittedposts" style="float: left">' . "\n" .
-							'	 ' . ($numReplies - 100) . ' ';
-							$buildthread_output .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
-							$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
-							'</span>' . "\n";
+					if (!$buildthread_gotcache) {
+						foreach($results_replies AS $line_reply) {
+							$buildthread_output .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
+						}
+						if (!$page) {
+							$buildthread_output .= '</span>' . "\n";
+						}
+						$buildthread_output .= '</div>' . "\n";
+						
+						if (!$page) {
+							if ($modifier == 'first100') {
+								$buildthread_output .= '<span class="omittedposts" style="float: left">' . "\n" .
+								'	 ' . ($numReplies - 100) . ' ';
+								$buildthread_output .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+								$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
+								'</span>' . "\n";
+							}
+							
+							if ($numReplies > 2) {
+								$buildthread_output .= '<span style="float: right;">' . "\n" .
+								'	' . threadLinks('return', $thread_id, $this->board_dir, $this->board_type, ($numReplies > 49), ($numReplies > 99), true) .
+								'</span>' . "\n";
+							}
 						}
 						
-						if ($numReplies > 2) {
-							$buildthread_output .= '<span style="float: right;">' . "\n" .
-							'	' . threadLinks('return', $thread_id, $this->board_dir, $this->board_type, ($numReplies > 49), ($numReplies > 99), true) .
-							'</span>' . "\n";
+						if (KU_APC) {
+							if (($page && $page < 5) || !$page) {
+								$results_apc = serialize($results);
+								$results_replies_apc = serialize($results_replies);
+								$buildthread_output_apc = $buildthread_output;
+								
+								if (function_exists('gzcompress')) {
+									$buildthread_output_apc = gzcompress($buildthread_output_apc, 9);
+								}
+								
+								if ($page) {
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|op', $results_apc, 600);
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|replies', $results_replies_apc, 600);
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|thread', $buildthread_output_apc, 600);
+								} else {
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|op', $results_apc, 600);
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|replies', $results_replies_apc, 600);
+									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread', $buildthread_output_apc, 600);
+								}
+							}
 						}
 					}
 				}
