@@ -1,6 +1,26 @@
 #summary Things you should know from the very beginning
 #labels Featured
 
+= Upgrading =
+
+Download the upgrade zip of the next version in line from what you are currently running.  *You can not skip upgrades!*
+
+If there is no upgrade zip of the next version, that means the upgrade and install are packaged together.  Download the dual zip.
+
+Make a backup of your current config.php somewhere and open it in a text editor.
+
+Extract the upgrade zip's contents and open up config.php
+
+Replace the values in the new config.php with your old values.  *KU_RANDOMSEED must stay the exact same for each upgrade!*
+
+Upload all of the files except the OTHER folder.
+
+Open the OTHER folder and look for an upgrade.php.  If there isn't one, you do not need to take any further actions to finish upgrading.
+
+If there is, upload it to the server and run it from your browser.
+
+Delete upgrade.php, and you're finished.
+
 = Mod Posting =
 
 Mod posting is the act of using your staff account to make a modified post, which can do quite a few things.
