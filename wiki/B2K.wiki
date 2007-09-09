@@ -16,20 +16,12 @@ Run from your browser and delete the file.
 
 {{{
 <?php
-/*
-  more like
-    <?gayhp  
-  amirite lol
-*/
-
 
 // allow these banned users to read the boards (will only apply to bans being imported right now)
 $allow_read = 0; 
 
 // random seed value found in your config.php
 $random_seed = "Find this in your kusaba's config.php";
-
-
 
 // --------------------------------------
 
