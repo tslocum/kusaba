@@ -21,6 +21,14 @@ If there is, upload it to the server and run it from your browser.
 
 Delete upgrade.php, and you're finished.
 
+= Blank, white pages with no errors =
+
+This is most likely due to display_errors set to Off in your php.ini
+
+You have two choices:  set display_errors to On, or locate your error log file and read from there.
+
+If you don't have access to your php.ini, ask your host to set this directive for you.
+
 = Mod Posting =
 
 Mod posting is the act of using your staff account to make a modified post, which can do quite a few things.
