@@ -21,6 +21,10 @@ If there is, upload it to the server and run it from your browser.
 
 Delete upgrade.php, and you're finished.
 
+= I'm using WAMP and having problems with... =
+
+XAMPP has been tested and works fully with kusaba.  Please use XAMPP instead.
+
 = Blank, white pages with no errors =
 
 This is most likely due to display_errors set to Off in your php.ini
