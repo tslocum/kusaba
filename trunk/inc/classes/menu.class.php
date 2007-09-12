@@ -29,9 +29,13 @@ class Menu {
 		
 		$smarty->assign('lang_frontpage', _gettext('Front Page'));
 		
-		$smarty->assign('styles', printStylesheetsSite(KU_DEFAULTMENUSTYLE, true));
+		if (KU_MENUTYPE == 'normal') {
+			$smarty->assign('styles', printStylesheetsSite(KU_DEFAULTMENUSTYLE, true));
+		} else {
+			$smarty->assign('styles', '<style type="text/css">body { margin: 0px; } h1 { font-size: 1.25em; } h2 { font-size: 0.8em; font-weight: bold; color: #CC3300; } ul { list-style-type: none; padding: 0px; margin: 0px; } li { font-size: 0.8em; padding: 0px; margin: 0px; }</style>');
+		}
 		
-		if (KU_MENUSTYLESWITCHER) {
+		if (KU_MENUSTYLESWITCHER && KU_MENUTYPE == 'normal') {
 			$styles = explode(':', KU_MENUSTYLES);
 			$styleswitcher = _gettext('Styles') . ': ';
 			foreach ($styles as $style) {
@@ -54,7 +58,12 @@ class Menu {
 		
 		$tpl_irc = '';
 		if (KU_IRC!='') {
-			$tpl_irc .= '<h2>&nbsp;IRC</h2>' . "\n" .
+			if (KU_MENUTYPE == 'normal') {
+				$tpl_irc .= '<h2>';
+			} else {
+				$tpl_irc .= '<h2 style="display: inline;"><br>';
+			}
+			$tpl_irc .= '&nbsp;IRC</h2>' . "\n" .
 			'<ul>' . "\n" .
 			'	<li>' . KU_IRC . '</li>' . "\n" .
 			'</ul>' . "\n";
@@ -108,19 +117,29 @@ class Menu {
 			} else {
 				$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."sections` ORDER BY `order` ASC");
 				foreach($results AS $line) {
-					$tpl_boards .= '<h2><span class="plus" onclick="toggle(this, \''.$line['abbreviation'].'\');" title="'._gettext('Click to show/hide').'">';
-					if ($line['hidden']==1) {
-						$tpl_boards .= '+';
+					if (KU_MENUTYPE == 'normal') {
+						$tpl_boards .= '<h2>';
 					} else {
-						$tpl_boards .= '&minus;';
+						$tpl_boards .= '<h2 style="display: inline;"><br>';
 					}
-					$tpl_boards .= '</span>&nbsp;'.$line['name'].'</h2>' . "\n" .
-					'<div id="'.$line['abbreviation'].'" style="';
-					if ($line['hidden']==1) {
-						$tpl_boards .= 'display: none;';
+					if (KU_MENUTYPE == 'normal') {
+						$tpl_boards .= '<span class="plus" onclick="toggle(this, \''.$line['abbreviation'].'\');" title="'._gettext('Click to show/hide').'">';
+						if ($line['hidden']==1) {
+							$tpl_boards .= '+';
+						} else {
+							$tpl_boards .= '&minus;';
+						}
+						$tpl_boards .= '</span>&nbsp;';
 					}
-					$tpl_boards .= '">' . "\n" .
-					'<ul>' . "\n";
+					$tpl_boards .= $line['name'].'</h2>' . "\n";
+					if (KU_MENUTYPE == 'normal') {
+						$tpl_boards .= '<div id="'.$line['abbreviation'].'" style="';
+						if ($line['hidden']==1) {
+							$tpl_boards .= 'display: none;';
+						}
+						$tpl_boards .= '">' . "\n";
+					}
+					$tpl_boards .= '<ul>' . "\n";
 					$resultsboard = $tc_db->GetAll("SELECT `name`, `desc`, `locked`, `trial`, `popular` FROM `".KU_DBPREFIX."boards` WHERE `section` = ".$line['id']." ORDER BY `order` ASC");
 					if (count($resultsboard)>0) {
 						foreach($resultsboard AS $lineboard) {
@@ -143,12 +162,14 @@ class Menu {
 						_gettext('No visible boards') . "\n" .
 						'</li>' . "\n";
 					}
-					$tpl_boards .= '</ul>' . "\n" .
-					'</div>' . "\n";
+					$tpl_boards .= '</ul>' . "\n";
+					if (KU_MENUTYPE == 'normal') {
+						$tpl_boards .= '</div>' . "\n";
+					}
 				}
 			}
 			$smarty->assign('boards', $tpl_boards);
-			if (KU_MENUSTYLESWITCHER) {
+			if (KU_MENUSTYLESWITCHER && KU_MENUTYPE == 'normal') {
 				$showhidedirs = '<li id="sitestyles"><a onclick="javascript:showstyleswitcher();" href="#">[' . _gettext('Site Styles') . ']</a></li>'. "\n";
 			} else {
 				$showhidedirs = '';

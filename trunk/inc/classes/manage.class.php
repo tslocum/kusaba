@@ -2071,16 +2071,16 @@ class Manage {
 		}
 		$tpl_page .= '<form action="manage_page.php?action=addboard" method="post">
 	
-		<label for="directory">Directory:</label>
+		<label for="directory">' . _gettext('Directory') . ':</label>
 		<input type="text" name="directory">
-		<div class="desc">The directory of the board.  <b>Only put in the letter(s) of the board directory, no slashes!</b></div><br>
+		<div class="desc">' . _gettext('The directory of the board.') . '  <b>' . _gettext('Only put in the letter(s) of the board directory, no slashes!') . '</b></div><br>
 		
-		<label for="desc">Description:</label>
-		<input type="text" name="desc"><div class="desc">The name of the board.</div><br>
+		<label for="desc">' . _gettext('Description') . ':</label>
+		<input type="text" name="desc"><div class="desc">' . _gettext('The name of the board.') . '</div><br>
 		
-		<label for="firstpostid">First Post ID:</label>
+		<label for="firstpostid">' . _gettext('First Post ID') . ':</label>
 		<input type="text" name="firstpostid" value="1">
-		<div class="desc">The first post of this board will recieve this ID.</div><br>
+		<div class="desc">' . _gettext('The first post of this board will recieve this ID.') . '</div><br>
 		
 		<input type="submit" value="Add Board">
 		
@@ -2233,7 +2233,7 @@ class Manage {
 					if ($staff_type != 3) {
 						management_addlogentry(_gettext('Deleted staff member') . ': ' . $staff_username, 6);
 					} else {
-						management_addlogentry('Deleted a VIP code', 6);
+						management_addlogentry(_gettext('Deleted a VIP code'), 6);
 					}
 				} else {
 					$tpl_page .= _gettext('Invalid staff ID.');
@@ -2287,13 +2287,13 @@ class Manage {
 							if ($_POST['type'] != '1') {
 								$logentry .= ' - ' . _gettext('Moderates') . ': ';
 								if (isset($_POST['moderatesallboards'])) {
-									$logentry .= 'all boards';
+									$logentry .= strtolower(_gettext('All boards'));
 								} else {
 									$logentry .= '/' . implode('/, /', $staff_new_boards) . '/';
 								}
 							}
 						} else {
-							$logentry = 'Edited a VIP code';
+							$logentry = _gettext('Edited a VIP code');
 						}
 						management_addlogentry($logentry, 6);
 					}
@@ -2339,7 +2339,7 @@ class Manage {
 					if ($staff_boards == array('allboards')) {
 						$tpl_page .= ' checked';
 					}
-					$tpl_page .= '><br>or<br>';
+					$tpl_page .= '><br>' . _gettext('or') . '<br>';
 					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 					foreach ($results as $line) {
 						$tpl_page .= '<label for="moderate' . $line['name'] . '">' . $line['name'] . '</label><input type="checkbox" name="moderate' . $line['name'] . '" ';

@@ -93,6 +93,9 @@ msgstr ""
 msgid "and"
 msgstr ""
 
+msgid "or"
+msgstr ""
+
 msgid "Image"
 msgstr ""
 
@@ -106,6 +109,9 @@ msgid "Invalid session."
 msgstr ""
 
 msgid "Log in again."
+msgstr ""
+
+msgid "log in"
 msgstr ""
 
 msgid "log out"
@@ -471,6 +477,9 @@ msgstr ""
 msgid "Reports"
 msgstr ""
 
+msgid "View Reports"
+msgstr ""
+
 msgid "Can be left blank."
 msgstr ""
 
@@ -543,6 +552,9 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
+msgid "First Post ID"
+msgstr ""
+
 msgid "Order"
 msgstr ""
 
@@ -556,6 +568,42 @@ msgid "Stickied"
 msgstr ""
 
 msgid "Pages"
+msgstr ""
+
+msgid "You may now appeal this ban."
+msgstr ""
+
+msgid "You may appeal this ban in"
+msgstr ""
+
+msgid "will expire on"
+msgstr ""
+
+msgid "will not expire"
+msgstr ""
+
+msgid "Your IP address is"
+msgstr ""
+
+msgid "You have been banned from posting on
+msgstr ""
+
+msgid "for the following reason
+msgstr ""
+
+msgid "You may <b>not</b> appeal this ban."
+msgstr ""
+
+msgid "Your appeal is currently pending review."
+msgstr ""
+
+msgid "Your appeal was reviewed and denied.  You may <b>not</b> appeal this ban again."
+msgstr ""
+
+msgid "Appeal Message"
+msgstr ""
+
+msgid "Send Appeal"
 msgstr ""
 
 msgid "Allowed filetypes"
@@ -789,7 +837,13 @@ msgstr ""
 msgid "The directory of the board."
 msgstr ""
 
+msgid "Only put in the letter(s) of the board directory, no slashes!"
+msgstr ""
+
 msgid "The name of the board."
+msgstr ""
+
+msgid "The first post of this board will recieve this ID."
 msgstr ""
 
 msgid "Order to show board in menu list, in ascending order."
@@ -1300,6 +1354,18 @@ msgid "Ban proxy list"
 msgstr ""
 
 msgid "Proxy list"
+msgstr ""
+
+msgid "Deleted a VIP code"
+msgstr ""
+
+msgid "Edited a VIP code
+msgstr ""
+
+msgid "Statistics
+msgstr ""
+
+msgid "Blotter
 msgstr ""
 
 msgid "translator-credits"

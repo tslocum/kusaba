@@ -151,6 +151,12 @@ class Board {
 	 */	 
 	var $board_showid;
 	/**	 	
+	 * Whether to show a smaller version of the thread list on text boards
+	 * 	 	 	
+	 * @var integer Compact list
+	 */	 
+	var $board_compactlist;
+	/**	 	
 	 * Sets if after making a post, the user will be redirected to the thread they just posted in
 	 * 	 	 	
 	 * @var integer Redirect to thread
@@ -278,6 +284,7 @@ class Board {
 				$this->board_defaultstyle             = $line['defaultstyle'];
 				$this->board_locale                   = $line['locale'];
 				$this->board_showid                   = $line['showid'];
+				$this->board_compactlist              = $line['compactlist'];
 				$this->board_redirecttothread         = $line['redirecttothread'];
 				$this->board_enablecaptcha            = $line['enablecaptcha'];
 				$this->board_enablenofile             = $line['enablenofile'];
@@ -813,7 +820,7 @@ class Board {
 						
 						// }}}
 						
-						if (KU_APC) {
+						/*if (KU_APC) {
 							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|op') == serialize($results)) {
 								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|replies') == serialize($results_replies)) {
 									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread');
@@ -826,7 +833,7 @@ class Board {
 									}
 								}
 							}
-						}
+						}*/
 					} else {
 						// {{{ Page reply fetch
 						
@@ -853,7 +860,7 @@ class Board {
 						
 						// }}}
 						
-						if (KU_APC) {
+						/*if (KU_APC) {
 							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|op') == serialize($results)) {
 								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|replies') == serialize($results_replies)) {
 									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|thread');
@@ -866,7 +873,7 @@ class Board {
 									}
 								}
 							}
-						}
+						}*/
 					}
 					
 					if (!$buildthread_gotcache) {
@@ -894,7 +901,7 @@ class Board {
 							}
 						}
 						
-						if (KU_APC) {
+						/*if (KU_APC) {
 							if (($page && $page < 5) || !$page) {
 								$results_apc = serialize($results);
 								$results_replies_apc = serialize($results_replies);
@@ -914,7 +921,7 @@ class Board {
 									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread', $buildthread_output_apc, 600);
 								}
 							}
-						}
+						}*/
 					}
 				}
 				
@@ -1586,47 +1593,91 @@ class Board {
 		global $tc_db;
 		
 		$output = '<div class="hborder">' . "\n" . 
-		'<div class="head threadldiv">' . "\n" . 
-		'<a name="menu"></a>' . "\n" . 
-		'<table class="threads">' . "\n" .
-		'<thead>' . "\n" .
-		'	<tr>' . "\n" .
-		'		<th width="10%">#</th>' . "\n" .
-		'		<th nowrap="nowrap" width="100%">' . _gettext('Subject') . '</th>' . "\n" .
-		'		<th>' . _gettext('Posts') . '</th>' . "\n" .
-		'		<th>' . _gettext('Last Post') . '</th>' . "\n" .
-		'	</tr>' . "\n" .
-		'</thead>' . "\n" .
-		'<tbody>';
-		if ($liststooutput >= 0) {
+		'<div class="head threadldiv"';
+		if ($this->board_compactlist) {
+			$output .= ' style="padding: 4px;"';
+		}
+		$output .= '>' . "\n" . 
+		'<a name="menu"></a>' . "\n";
+		if (!$this->board_compactlist || $liststooutput >= 0) {
+			$output .= '<table class="threads">' . "\n" .
+			'<thead>' . "\n" .
+			'	<tr>' . "\n" .
+			'		<th width="10%">#</th>' . "\n" .
+			'		<th nowrap="nowrap" width="100%">' . _gettext('Subject') . '</th>' . "\n" .
+			'		<th>' . _gettext('Posts') . '</th>' . "\n" .
+			'		<th>' . _gettext('Last Post') . '</th>' . "\n" .
+			'	</tr>' . "\n" .
+			'</thead>' . "\n" .
+			'<tbody>' . "\n";
+		}
+		if ($liststooutput >= 0 || $this->board_compactlist) {
 			$startrecord = 40;
 		} else {
 			$startrecord = KU_THREADSTXT;
 		}
-		$query = "SELECT * FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = '0' AND `IS_DELETED` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC LIMIT $liststart,$startrecord";
-		$results = $tc_db->GetAll($query);
+		
+		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC LIMIT $liststart, $startrecord");
 		if (count($results)>0) {
 			$relative_id = $liststart;
 			foreach($results AS $line) {
-				$results2 = $tc_db->GetAll("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = '".$line['id']."' AND `IS_DELETED` = 0");
+				$results2 = $tc_db->GetAll("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = " . $line['id']);
 				$replies = $results2[0][0];
-				$output .= '<tr><td><a href="res/'.$line['id'].'.html">'.($relative_id+1).'</a></td><td><a href="';
-				if ($relative_id<KU_THREADSTXT&&!$ispage) {
-					$output .= '#'.$relative_id;
+				
+				if ($this->board_compactlist && $liststooutput < 0) {
+					$output .= '<a href="';
+					if ($relative_id < KU_THREADSTXT&&!$ispage) {
+						$output .= '#'.$relative_id . '">' . ($relative_id+1) . ': </a><a href="res/' . $line['id'] . '.html">';
+					} else {
+						$output .= 'res/'.$line['id'].'.html">' . ($relative_id+1) . ': ';
+					}
+					$output .= $line['subject'] . ' (' . $replies . ')</a> &nbsp;';
 				} else {
-					$output .= 'res/'.$line['id'].'.html';
+					$output .= '<tr><td><a href="res/' . $line['id'] . '.html">' . ($relative_id +1 ) . '</a></td><td><a href="';
+					if ($relative_id < KU_THREADSTXT && !$ispage) {
+						$output .= '#' . $relative_id;
+					} else {
+						$output .= 'res/' . $line['id'] . '.html';
+					}
+					$output .= '">' . $line['subject'] . '</a></td><td>' . ($replies + 1) . '</td><td nowrap><small>' . date('j F Y H:i', $line['lastbumped']) . '</small></td></tr>';
 				}
-				$output .= '">'.$line['subject'].'</a></td><td>'.($replies+1).'</td><td nowrap><small>'.date('j F Y H:i', $line['lastbumped']).'</small></td></tr>';
+				$output .= "\n";
+				
 				$relative_id++;
 			}
+			/* Remove the space and &nbsp; at the end */
+			$output = substr($output, 0, -8);
 		} else {
-			$output .= '<tr><td>N/A</td><td>'._gettext('There are currently no threads to display.').'</td><td>N/A</td><td>N/A</td></td>';
+			if ($this->board_compactlist && $liststooutput < 0) {
+				$output .= _gettext('There are currently no threads to display.');
+			} else {
+				$output .= '<tr><td>N/A</td><td>'._gettext('There are currently no threads to display.').'</td><td>N/A</td><td>N/A</td></td>';
+			}
 		}
 		if ($liststooutput < 0) {
-			$output .= '<tr><td colspan="4" class="threadlinks"><a href="#newthread" style="display: inline;">'._gettext('New Thread').'</a> | <a href="list.html" style="display: inline;">'._gettext('All Threads').'</a></td></tr>' . "\n";
+			if ($this->board_compactlist && $liststooutput < 0) {
+				$output .= '<br><div class="threadlinks">';
+			} else {
+				$output .= '<tr><td colspan="4" class="threadlinks">';
+			}
+			
+			$output .= '<a href="#newthread" style="display: inline;">' . _gettext('New Thread').'</a> | <a href="list.html" style="display: inline;">'._gettext('All Threads').'</a>';
+			
+			if ($this->board_compactlist && $liststooutput < 0) {
+				$output .= '</div>';
+			} else {
+				$output .= '</td></tr>';
+			}
+			
+			$output .= "\n";
+			
 		}
-		$output .= '</tbody></table>' . "\n" .
-		'</div>' . "\n" .
+		
+		if (!$this->board_compactlist || $liststooutput >= 0) {
+			$output .= '</tbody></table>' . "\n";
+		}
+		
+		$output .= '</div>' . "\n" .
 		'</div>' . "\n" .
 		'</div>';
 		
