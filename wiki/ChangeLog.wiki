@@ -2,6 +2,7 @@
 #labels Featured
 = 1.0.3=
   * The number of images omitted will now display with the proper number
+  * You may now choose to use a compact thread list on the front page of text boards by using the Compact List option in board options
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
