@@ -5,6 +5,7 @@
   * You may now choose to use a compact thread list on the front page of text boards by using the Compact List option in board options
   * Setting KU_MENUTYPE to plain will now make the menu much smaller and less styled
   * Changing the width/height of embedded YouTube videos is now taken care of in config.php by changing KU_YOUTUBEWIDTH and KU_YOUTUBEHEIGHT
+  * Expand all images has been added
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
