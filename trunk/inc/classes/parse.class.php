@@ -236,7 +236,7 @@ class Parse {
 	    return $newStr;
 	}*/
 	
-	function CutWord($txt, $where) {
+	/*function CutWord($txt, $where) {
 		if (empty($txt)) return false;
 		for ($c = 0, $a = 0, $g = 0; $c<strlen($txt); $c++) {
 			$d[$c+$g]=$txt[$c];
@@ -250,6 +250,31 @@ class Parse {
 		}
 		
 		return implode("", $d);
+	}*/
+	
+	function CutWord($txt, $where) {
+		$txt_split = preg_split('/[\s]+(.?)/', $txt);
+		$txt_processed = '';
+		$usemb = (function_exists('mb_substr')) ? true : false;
+		
+		foreach ($txt_split as $txt_segment) {
+			$segment_length = strlen($txt_segment);
+			while ($segment_length > $where) {
+				if ($usemb) {
+					$txt_processed .= mb_substr($txt_segment, 0, $where) . "\n";
+					$txt_segment = mb_substr($txt_segment, $where);
+				} else {
+					$txt_processed .= substr($txt_segment, 0, $where) . "\n";
+					$txt_segment = substr($txt_segment, $where);
+				}
+				
+				$segment_length = strlen($txt_segment);
+			}
+			
+			$txt_processed .= $txt_segment . "\n";
+		}
+		
+		return $txt_processed;
 	}
 	
 	function ParsePost($message, $board, $boardtype, $parentid, $ispage = false) {
@@ -257,7 +282,7 @@ class Parse {
 		$this->parentid = $parentid;
 		
 		$message = trim($message);
-		$message = $this->CutWord($message, KU_MAXCHAR, "\n");
+		$message = $this->CutWord($message, KU_LINELENGTH);
 		$message = htmlspecialchars($message, ENT_QUOTES);
 		if (KU_MAKELINKS) {
 			$message = $this->MakeClickable($message);

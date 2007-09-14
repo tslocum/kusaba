@@ -341,7 +341,7 @@ class Board {
 			$numthreadsdisplayed = KU_THREADS;
 		}
 		
-		$results = $tc_db->GetAll("SELECT `id` , `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+		$results = $tc_db->GetAll("SELECT `id`, `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 		$numpostsleft = count($results);
 		
 		$this->InitializeSmarty();
@@ -422,9 +422,9 @@ class Board {
 					}
 					
 					if ($this->board_type != 1) {
-						$page .= deletePostBox($this->board_type, $this->board_enablereporting);
-						$page .= setDelPassJavascript();
-						$page .= pageList($boardpage, $boardstooutput, $this->board_dir);
+						$page .= deletePostBox($this->board_type, $this->board_enablereporting) .
+						setDelPassJavascript() .
+						pageList($boardpage, $boardstooutput, $this->board_dir);
 					}
 					
 					$page .= $this->Footer(false, (microtime_float()-$executiontime_start_regeneratepages), $hide_extra);
@@ -450,9 +450,9 @@ class Board {
 		} else {
 			/* Make a blank index page */
 			$executiontime_start_blankindex = microtime_float();
-			$page = $this->pageheader_noreply;
-			$page .= $this->Postbox(0, '', $this->board_postboxnotice);
-			$page .= $this->Footer(false, (microtime_float()-$executiontime_start_blankindex), $hide_extra);
+			$page = $this->pageheader_noreply .
+			$this->Postbox(0, '', $this->board_postboxnotice) .
+			$this->Footer(false, (microtime_float()-$executiontime_start_blankindex), $hide_extra);
 			$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.KU_FIRSTPAGE, $page, $this->board_dir);
 		}
 		/* If text board, rebuild thread list html files */
@@ -463,8 +463,8 @@ class Board {
 			$currentpostwave = 0;
 			while ($numpostsleft>0) {
 				$executiontime_start_list = microtime_float();
-				$page = $this->PageHeader(0, $currentpostwave, $listpage, $liststooutput);
-				$page .= $this->Footer(false, (microtime_float()-$executiontime_start_list), $hide_extra);
+				$page = $this->PageHeader(0, $currentpostwave, $listpage, $liststooutput) .
+				$this->Footer(false, (microtime_float()-$executiontime_start_list), $hide_extra);
 				if ($listpage==0) {
 					$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/list.html', $page, $this->board_dir);
 				} else {
@@ -479,8 +479,8 @@ class Board {
 		if ($this->board_enablecatalog == 1 && ($this->board_type == 0 || $this->board_type == 2)) {
 			$executiontime_start_catalog = microtime_float();
 			$catalog_page = $this->PageHeader(0, 0, -1, -1, false, true);
-			$catalog_page .= '&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n";
-			$catalog_page .= '<table border="1" align="center">' . "\n" . '<tr>' . "\n";
+			$catalog_page .= '&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n" .
+			'<table border="1" align="center">' . "\n" . '<tr>' . "\n";
 			
 			$results = $tc_db->GetAll("SELECT `id` , `subject` , `filename` , `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 			$numresults = count($results);
@@ -527,9 +527,8 @@ class Board {
 				'</td>' . "\n";
 			}
 			
-			$catalog_page .= '</tr>' . "\n" . '</table><br>';
-			
-			$catalog_page .= $this->Footer(false, (microtime_float()-$executiontime_start_catalog));
+			$catalog_page .= '</tr>' . "\n" . '</table><br>' .
+			$this->Footer(false, (microtime_float()-$executiontime_start_catalog));
 			
 			$this->PrintPage(KU_BOARDSDIR . $this->board_dir . '/catalog.html', $catalog_page, $this->board_dir);
 		}
@@ -621,9 +620,9 @@ class Board {
 				}
 			}
 			
-			$thread_page = $this->PageHeader($thread_op_id, '', $this->board_postboxnotice);
-			$thread_page .= threadLinks('return', $thread_op_id, $this->board_dir, $this->board_type, $modifier_last50, $modifier_first100);
-			$thread_page .= $this->Postbox($thread_op_id, '', $this->board_postboxnotice);
+			$thread_page = $this->PageHeader($thread_op_id, '', $this->board_postboxnotice) .
+			threadLinks('return', $thread_op_id, $this->board_dir, $this->board_type, $modifier_last50, $modifier_first100) .
+			$this->Postbox($thread_op_id, '', $this->board_postboxnotice);
 			
 			if ($modifier_last50) {
 				$thread_page_last50 = $thread_page;
@@ -677,7 +676,7 @@ class Board {
 	 * @return string The built thread	 	 	 	 	 	 
 	 */	 
 	function BuildThread($parentid, $page = false, $resurrect = false, $thread_relative_id = 0, $modifier = '') {
-		global $tc_db;
+		global $tc_db, $expandjavascript;
 		$buildthread_output = '';
 		
 		// {{{ Check if an array of ID's were supplied, and if not, make it an array anyways
@@ -733,6 +732,7 @@ class Board {
 		
 		foreach($results AS $line) {
 			$thread_id = $line['id'];
+			$expandjavascript = '';
 			
 			$numReplies = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id) . ' ' . $isdeleted_check);
 			if (($this->board_type == 0 ||$this->board_type == 2) || ($this->board_type == 3 && !$page)) {
@@ -877,9 +877,18 @@ class Board {
 					}
 					
 					if (!$buildthread_gotcache) {
+						$buildthread_replies = '';
 						foreach($results_replies AS $line_reply) {
-							$buildthread_output .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
+							$buildthread_replies .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
 						}
+						if (!$page && $expandjavascript != '') {
+							$expandjavascript = '<a href="#" onclick="javascript:' . $expandjavascript . 'return false;">' . _gettext('Expand all images') . '</a>';
+						} else {
+							$expandjavascript = '';
+						}
+						$buildthread_output .= $expandjavascript . $buildthread_replies;
+						unset($buildthread_replies);
+						
 						if (!$page) {
 							$buildthread_output .= '</span>' . "\n";
 						}
@@ -1039,6 +1048,7 @@ class Board {
 	 * @return string The built post	 	 	 	 	 	 
 	 */	 
 	function BuildPost($page, $post_board, $post_board_type, $post, $thread_replies=0, $thread_relative_id='', $reply_relative_id=0, $threads_on_front_page=0) {
+		global $expandjavascript;
 		$buildpost_output = '';
 		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
 		$post_is_thread = ($post['parentid']==0) ? true : false;
@@ -1078,6 +1088,9 @@ class Board {
 				$info_file .= '<span class="filesize">'._gettext('File:').' ';
 				if ($post_is_standard) {
 					$info_file .= '<a href="' . $post_file_url . '" onclick="javascript:expandimg(\'' . $post['id'] . '\', \'' . $post_file_url . '\', \'' . $post_thumb . '\', \'' . $post['image_w'] . '\', \'' . $post['image_h'] . '\', \'' . $post['thumb_w'] . '\', \'' . $post['thumb_h'] . '\');return false;">';
+					if (!$post_is_thread) {
+						$expandjavascript .= 'expandimg(\'' . $post['id'] . '\', \'' . $post_file_url . '\', \'' . $post_thumb . '\', \'' . $post['image_w'] . '\', \'' . $post['image_h'] . '\', \'' . $post['thumb_w'] . '\', \'' . $post['thumb_h'] . '\');';
+					}
 				} else {
 					$info_file .= '<a ';
 					if (KU_NEWWINDOW) {
@@ -2061,7 +2074,7 @@ class Board {
 				$this->board_maxthreads = ($this->board_maxpages * KU_THREADS);
 				$numthreadsover = ($results_count - $this->board_maxthreads);
 				if ($numthreadsover > 0) {
-					$resultspost = $tc_db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = '0' AND `stickied` = '0' ORDER BY `lastbumped` ASC LIMIT " . $numthreadsover);
+					$resultspost = $tc_db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = 0 AND `stickied` = 0 ORDER BY `lastbumped` ASC LIMIT " . $numthreadsover);
 					foreach($resultspost AS $linepost) {
 						$post_class = new Post($linepost['id'], $this->board_dir);
 						$post_class->Delete(true);

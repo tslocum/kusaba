@@ -76,7 +76,24 @@ class Upload {
 					       exitWithErrorPage('Unknown File Error');
 					}
 					
-					if (!is_file($_FILES['imagefile']['tmp_name']) || !is_readable($_FILES['imagefile']['tmp_name']) || !@getimagesize($_FILES['imagefile']['tmp_name'])) {
+					$this->file_type = preg_replace('/.*(\..+)/','\1',$_FILES['imagefile']['name']);
+					if ($this->file_type == '.jpeg') {
+						/* Fix for the rarely used 4-char format */
+						$this->file_type = '.jpg';
+					}
+					
+					$pass = true;
+					if (!is_file($_FILES['imagefile']['tmp_name']) || !is_readable($_FILES['imagefile']['tmp_name'])) {
+						$pass = false;
+					} else {
+						if ($this->file_type == '.jpg' || $this->file_type == '.gif' || $this->file_type == '.png') {
+							if (!@getimagesize($_FILES['imagefile']['tmp_name'])) {
+								$pass = false;
+							}
+						}
+					}
+					if (!$pass) {
+						echo 'fff';
 						exitWithErrorPage(_gettext('File transfer failure.  Please go back and try again.'));
 					}
 					
@@ -87,12 +104,6 @@ class Upload {
 					$exists_thread = checkMd5($this->file_md5, $board_class->board_dir);
 					if (is_array($exists_thread)) {
 						exitWithErrorPage(_gettext('Duplicate file entry detected.'), sprintf(_gettext('Already posted %shere%s.'),'<a href="' . KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $exists_thread[0] . '.html#' . $exists_thread[1] . '">','</a>'));
-					}
-					
-					$this->file_type = preg_replace('/.*(\..+)/','\1',$_FILES['imagefile']['name']);
-					if ($this->file_type == '.jpeg') {
-						/* Fix for the rarely used 4-char format */
-						$this->file_type = '.jpg';
 					}
 					
 					if (strtolower($this->file_type) == 'svg') {

@@ -274,15 +274,17 @@ class Posting {
 		/* Check for and parse tags if one was provided, and they are enabled */
 		$post_tag = '';
 		$tags = unserialize(KU_TAGS);
-		if ($board_class->board_type == 3 && $tags != '' && $_POST['tag'] != '') {
-			$validtag = false;
-			while (list($tag, $tag_abbr) = each($tags)) {
-				if ($tag_abbr == $_POST['tag']) {
-					$validtag = true;
+		if ($board_class->board_type == 3 && $tags != '' && isset($_POST['tag'])) {
+			if ($_POST['tag'] != '') {
+				$validtag = false;
+				while (list($tag, $tag_abbr) = each($tags)) {
+					if ($tag_abbr == $_POST['tag']) {
+						$validtag = true;
+					}
 				}
-			}
-			if ($validtag) {
-				$post_tag = $_POST['tag'];
+				if ($validtag) {
+					$post_tag = $_POST['tag'];
+				}
 			}
 		}
 		

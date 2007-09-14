@@ -121,7 +121,6 @@ if (!$cache_loaded) {
 	/* Limitations */
 		$cf['KU_NEWTHREADDELAY'] = 30; /* Minimum time in seconds a user must wait before posting a new thread again */
 		$cf['KU_REPLYDELAY']     = 7; /* Minimum time in seconds a user must wait before posting a reply again */
-		$cf['KU_MAXCHAR']        = 200; /* Maximum number of characters in a row before forcing a linebreak in a post */
 		$cf['KU_LINELENGTH']     = 150; /* Used when cutting long post messages on pages and placing the message too long notification */
 	
 	/* Image handling */
@@ -148,6 +147,8 @@ if (!$cache_loaded) {
 		$cf['KU_THUMBMSG']        = false; /* Whether or not to display the "Thumbnail displayed, click image for full size." message on posts with images */
 		$cf['KU_BANMSG']          = '<br><font color="#FF0000"><b>(USER WAS BANNED FOR THIS POST)</b></font>'; /* The text to add at the end of a post if a ban is placed and "Add ban message" is checked */
 		$cf['KU_TRADITIONALREAD'] = false; /* Whether or not to use the traditional style for multi-quote urls.  Traditional: read.php/board/thread/posts, Non-traditional: read.php?b=board&t=thread&p=posts */
+		$cf['KU_YOUTUBEWIDTH']    = 200; /* Width to display embedded YouTube videos */
+		$cf['KU_YOUTUBEHEIGHT']   = 164; /* Height to display embedded YouTube videos */
 		
 	/* Pages */
 		$cf['KU_POSTBOX']   = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */

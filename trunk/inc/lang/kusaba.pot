@@ -1053,6 +1053,9 @@ msgstr ""
 msgid "Click Reply to view, or %sexpand%s."
 msgstr ""
 
+msgid "Expand all images"
+msgstr ""
+
 msgid "YOU ARE BANNED"
 msgstr ""
 

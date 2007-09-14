@@ -9,7 +9,7 @@ function embeddedVideoBox($post) {
 	$output = '<span style="float: left;">';
 				
 	if ($post['filetype'] == 'you') {
-		$output .= '<object width="200" height="164"><param name="movie" value="http://www.youtube.com/v/' . $post['filename'] . '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' . $post['filename'] . '" type="application/x-shockwave-flash" wmode="transparent" width="200" height="164"></embed></object>';
+		$output .= '<object width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"><param name="movie" value="http://www.youtube.com/v/' . $post['filename'] . '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' . $post['filename'] . '" type="application/x-shockwave-flash" wmode="transparent" width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"></embed></object>';
 	} elseif ($post['filetype'] == 'goo') {
 		$output .= '<embed style="width:200px; height:164px;" id="VideoPlayback" type="application/x-shockwave-flash" src="http://video.google.com/googleplayer.swf?docId=' . $post['filename'] . '&hl=en" flashvars=""></embed>';
 	}
