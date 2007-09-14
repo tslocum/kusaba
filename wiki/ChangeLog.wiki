@@ -4,7 +4,7 @@
   * The number of images omitted will now display with the proper number
   * You may now choose to use a compact thread list on the front page of text boards by using the Compact List option in board options
   * Setting KU_MENUTYPE to plain will now make the menu much smaller and less styled
-  * Changing the width/height of embedded YouTube videos is now taken care of in config.php by changing KU_YOUTUBEWIDTH and KU_YOUTUBEHEIGHT
+  * Changing the width/height of embedded !YouTube videos is now taken care of in config.php by changing KU_YOUTUBEWIDTH and KU_YOUTUBEHEIGHT
   * Expand all images has been added
   * Long strings of text without a space or line break will now cut using multibyte compatible functions, if they are available.  This means if the text being cut is in Japanese, you will no longer end up with characters missing and split characters resulting in question marks
 
@@ -224,4 +224,5 @@
 = 0.1 =
 
   * Initial release
+ 
  
