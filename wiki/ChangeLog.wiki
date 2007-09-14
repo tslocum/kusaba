@@ -163,7 +163,7 @@
 
   * Filenames longer than 20 characters are now cut short instead of causing 404's
   * Posters can place return (My preference) or noko (4chan preference) in the email field to return to their thread, regardless of the installation's configuration
-  * The [D & B] links will now correctly link to the installation's manage.php if you have a TC_BOARDSFOLDER of something other than /
+  * The D & B links will now correctly link to the installation's manage.php if you have a TC_BOARDSFOLDER of something other than /
   * Easily check for a new version though Misc > Check for new version
   * Ability to rename Anonymous poster's names using the TC_ANONYMOUS constant
   * Ability to choose the name of the html file used as the zero page (Default: board.html)
@@ -224,5 +224,6 @@
 = 0.1 =
 
   * Initial release
+ 
  
  
