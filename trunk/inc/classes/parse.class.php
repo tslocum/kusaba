@@ -255,20 +255,22 @@ class Parse {
 	function CutWord($txt, $where) {
 		$txt_split = preg_split('/[\s]+(.?)/', $txt);
 		$txt_processed = '';
-		$usemb = (function_exists('mb_substr')) ? true : false;
+		$usemb = (function_exists('mb_substr') && function_exists('mb_strlen')) ? true : false;
 		
 		foreach ($txt_split as $txt_segment) {
-			$segment_length = strlen($txt_segment);
+			$segment_length = ($usemb) ? mb_strlen($txt_segment) : strlen($txt_segment);
 			while ($segment_length > $where) {
 				if ($usemb) {
 					$txt_processed .= mb_substr($txt_segment, 0, $where) . "\n";
 					$txt_segment = mb_substr($txt_segment, $where);
+					
+					$segment_length = mb_strlen($txt_segment);
 				} else {
 					$txt_processed .= substr($txt_segment, 0, $where) . "\n";
 					$txt_segment = substr($txt_segment, $where);
+					
+					$segment_length = strlen($txt_segment);
 				}
-				
-				$segment_length = strlen($txt_segment);
 			}
 			
 			$txt_processed .= $txt_segment . "\n";
@@ -282,7 +284,7 @@ class Parse {
 		$this->parentid = $parentid;
 		
 		$message = trim($message);
-		$message = $this->CutWord($message, KU_LINELENGTH);
+		$message = $this->CutWord($message, (KU_LINELENGTH / 15));
 		$message = htmlspecialchars($message, ENT_QUOTES);
 		if (KU_MAKELINKS) {
 			$message = $this->MakeClickable($message);
