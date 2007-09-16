@@ -43,6 +43,18 @@ Go back to the board you want to make a mod post in and scroll to the post form.
 
 Paste your posting password in the Mod box and change any options in the Mod box if you desire, and click post.
 
+= Adding Boards to the Menu =
+
+First go to the manage panel, Misc -> Edit Sections.
+
+Add a section, and take note of its ID.
+
+Go to Board options, select a board, and in the Section box, place that ID.
+
+Save the changes.
+
+Reload your front page, and it should show up.
+
 = Optimization for High Post Counts =
 
 You can speed things up for page generation by using the following SQL queries.  However, these should only be used when you have enough posts that you believe it is slowing down the script, as using this on low post count boards will most likely have a negative effect.
@@ -55,3 +67,4 @@ ALTER TABLE `posts_boarddirhere` ADD INDEX `IS_DELETED-parentid` ( `IS_DELETED` 
 ALTER TABLE `posts_boarddirhere` ADD INDEX `parentid-stickied-lastbumped` ( `parentid` , `sticked` , `lastbumped` );
 );
 }}}
+ 
