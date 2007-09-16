@@ -33,7 +33,7 @@ processPost($temp_id, $new_id, $id);
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $new_id . " WHERE `id` = " . $temp_id . "");
 $tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 
-$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` DESC");
+$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
 foreach ($results as $line) {
 	$postid = $line['id'];
 	$next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_to . " ORDER BY `id` ASC LIMIT 1");
@@ -87,3 +87,4 @@ function processPost($id, $newthreadid, $oldthreadid) {
 
 ?>
 }}}
+ 
