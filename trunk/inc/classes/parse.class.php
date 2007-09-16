@@ -253,27 +253,34 @@ class Parse {
 	}*/
 	
 	function CutWord($txt, $where) {
-		$txt_split = preg_split('/[\s]+(.?)/', $txt);
+		$txt_split_primary = preg_split('/\n/', $txt);
 		$txt_processed = '';
 		$usemb = (function_exists('mb_substr') && function_exists('mb_strlen')) ? true : false;
 		
-		foreach ($txt_split as $txt_segment) {
-			$segment_length = ($usemb) ? mb_strlen($txt_segment) : strlen($txt_segment);
-			while ($segment_length > $where) {
-				if ($usemb) {
-					$txt_processed .= mb_substr($txt_segment, 0, $where) . "\n";
-					$txt_segment = mb_substr($txt_segment, $where);
-					
-					$segment_length = mb_strlen($txt_segment);
-				} else {
-					$txt_processed .= substr($txt_segment, 0, $where) . "\n";
-					$txt_segment = substr($txt_segment, $where);
-					
-					$segment_length = strlen($txt_segment);
+		foreach ($txt_split_primary as $txt_split) {
+			$txt_split_secondary = preg_split('/ /', $txt_split);
+			
+			foreach ($txt_split_secondary as $txt_segment) {
+				$segment_length = ($usemb) ? mb_strlen($txt_segment) : strlen($txt_segment);
+				while ($segment_length > $where) {
+					if ($usemb) {
+						$txt_processed .= mb_substr($txt_segment, 0, $where) . "\n";
+						$txt_segment = mb_substr($txt_segment, $where);
+						
+						$segment_length = mb_strlen($txt_segment);
+					} else {
+						$txt_processed .= substr($txt_segment, 0, $where) . "\n";
+						$txt_segment = substr($txt_segment, $where);
+						
+						$segment_length = strlen($txt_segment);
+					}
 				}
+				
+				$txt_processed .= $txt_segment . ' ';
 			}
 			
-			$txt_processed .= $txt_segment . "\n";
+			$txt_processed = ($usemb) ? mb_substr($txt_processed, 0, -1) : substr($txt_processed, 0, -1);
+			$txt_processed .= "\n";
 		}
 		
 		return $txt_processed;

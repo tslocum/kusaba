@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kusaba\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2007-09-03 04:57-0800\n"
+"PO-Revision-Date: 2007-09-16 01:53-0800\n"
 "Last-Translator: Trevor Slocum <tslocum@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -585,10 +585,10 @@ msgstr ""
 msgid "Your IP address is"
 msgstr ""
 
-msgid "You have been banned from posting on
+msgid "You have been banned from posting o"
 msgstr ""
 
-msgid "for the following reason
+msgid "for the following reaso"
 msgstr ""
 
 msgid "You may <b>not</b> appeal this ban."
@@ -1071,9 +1071,6 @@ msgstr ""
 msgid "A message is required to post without a file."
 msgstr ""
 
-msgid "File:"
-msgstr ""
-
 msgid "Thumbnail displayed, click image for full size."
 msgstr ""
 
@@ -1362,14 +1359,15 @@ msgstr ""
 msgid "Deleted a VIP code"
 msgstr ""
 
-msgid "Edited a VIP code
+msgid "Edited a VIP cod"
 msgstr ""
 
-msgid "Statistics
+msgid "Statistic"
 msgstr ""
 
-msgid "Blotter
+msgid "Blotte"
 msgstr ""
 
 msgid "translator-credits"
 msgstr ""
+

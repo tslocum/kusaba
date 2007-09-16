@@ -456,7 +456,7 @@ class Board {
 			$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.KU_FIRSTPAGE, $page, $this->board_dir);
 		}
 		/* If text board, rebuild thread list html files */
-		if ($this->board_type==1) {
+		if ($this->board_type == 1) {
 			$numpostsleft = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 			$liststooutput = floor(($numpostsleft-1) / 40);
 			$listpage = 0;
@@ -478,8 +478,8 @@ class Board {
 		/* If the board has catalog mode enabled, build it */
 		if ($this->board_enablecatalog == 1 && ($this->board_type == 0 || $this->board_type == 2)) {
 			$executiontime_start_catalog = microtime_float();
-			$catalog_page = $this->PageHeader(0, 0, -1, -1, false, true);
-			$catalog_page .= '&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n" .
+			$catalog_page = $this->PageHeader(0, 0, -1, -1, false, true) .
+			'&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n" .
 			'<table border="1" align="center">' . "\n" . '<tr>' . "\n";
 			
 			$results = $tc_db->GetAll("SELECT `id` , `subject` , `filename` , `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
@@ -596,7 +596,7 @@ class Board {
 	 * @param integer $thread_op_id Thread ID	 	 
 	 */	 	
 	function RegenerateThread($thread_op_id) {
-		global $tc_db;
+		global $tc_db, $tpl;
 		$hide_extra = ($this->board_type == 1) ? true : false;
 		
 		if ($this->board_locale != '') {
@@ -1085,7 +1085,7 @@ class Board {
 				if ($post['parentid'] == 0 && $thread_relative_id !== '') {
 					$info_file .= '<a name="s' . $thread_relative_id . '"></a>';
 				}
-				$info_file .= '<span class="filesize">'._gettext('File:').' ';
+				$info_file .= '<span class="filesize">'._gettext('File').': ';
 				if ($post_is_standard) {
 					$info_file .= '<a href="' . $post_file_url . '" onclick="javascript:expandimg(\'' . $post['id'] . '\', \'' . $post_file_url . '\', \'' . $post_thumb . '\', \'' . $post['image_w'] . '\', \'' . $post['image_h'] . '\', \'' . $post['thumb_w'] . '\', \'' . $post['thumb_h'] . '\');return false;">';
 					if (!$post_is_thread) {
@@ -1254,7 +1254,7 @@ class Board {
 			
 			$buildpost_output .= '</blockquote>' . "\n";
 			/* If the thread is two hours or less from being pruned, add the marked for deletion message */
-			if ($this->board_type != 1 && $this->archive_dir == '' && checkMarkedForDeletion($post, $this->board_maxage)) {
+			if ($this->archive_dir == '' && checkMarkedForDeletion($post, $this->board_maxage)) {
 				$buildpost_output .= markedForDeletionMessage();
 			}
 			if (!$post_is_thread) {
@@ -2133,6 +2133,7 @@ class Board {
 	function PrintPage($filename, $contents, $board) {
 		global $tpl;
 		
+		$this->smarty->assign('htmloptions', $tpl['htmloptions']);
 		$this->smarty->assign('title', $tpl['title']);
 		$this->smarty->assign('head', $tpl['head']);
 		$this->smarty->assign('page', $contents);
@@ -2153,6 +2154,11 @@ class Board {
 		global $tpl;
 		
 		$tpl = array();
+		if (KU_LOCALE == 'he' && $this->board_locale == '' || $this->board_locale == 'he') {
+			$tpl['htmloptions'] = ' dir="rtl"';
+		} else {
+			$tpl['htmloptions'] = '';
+		}
 	
 		require_once KU_ROOTDIR . 'lib/smarty/Smarty.class.php';
 		$this->smarty = new Smarty();
