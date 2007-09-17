@@ -6,8 +6,7 @@ Configure the area at the top of the script and run.
 
 *Warning!  This script has only been tested a few times.  You should try this on a test thread before running it on the thread you wish to transfer to make sure it works properly.*
 
-This will only work on kusaba 1.0.1 or later
-
+This is designed for kusaba 1.0.1 and 1.0.2, earlier versions are not compatible, and later versions already include a move thread feature.
 
 = kusamove.php =
 {{{
@@ -21,29 +20,28 @@ $board_to   = 'anotherboard';
 /* End configuration */
 
 $tc_db->Execute("START TRANSACTION");
-
-$temp_id = getTempID();
-$to_next_id = getNextID('to');
-$new_id = $to_next_id;
+$temp_id = 0;
 
 $tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
 
 $tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
-processPost($temp_id, $new_id, $id);
-$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $new_id . " WHERE `id` = " . $temp_id);
+$new_id = $tc_db->Insert_Id();
+
+processPost($new_id, $new_id, $id);
+
 $tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 
 $results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
 foreach ($results as $line) {
-	$postid = $line['id'];
-	$next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_to . " LIMIT 1");
-	$next_id++;
-	$temp_id = getTempID();
+	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = " . $line['id']);
 	
-	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = '" . $postid . "'");
 	$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
-	processPost($temp_id, $new_id, $id);
-	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `id` = " . $next_id . ", `parentid` = " . $new_id . " WHERE `id` = " . $temp_id);
+	$insert_id = $tc_db->Insert_Id();
+	
+	processPost($insert_id, $new_id, $id);
+	
+	$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `parentid` = " . $new_id . " WHERE `id` = " . $insert_id);
+	
 	$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 }
 
@@ -51,38 +49,18 @@ $tc_db->Execute("COMMIT");
 
 echo 'Move complete.';
 
-function getTempID() {
-	global $tc_db, $board_from, $board_to;
-	
-	$temp_id = max((getNextID('from') + 1), (getNextID('to') + 1));
-	
-	return $temp_id;
-}
-
-function getNextID($where) {
-	global $tc_db, $board_from, $board_to;
-	
-	if ($where == 'from') {
-		$from_next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " ORDER BY `id` DESC LIMIT 1");
-		$from_next_id++;
-		
-		return $from_next_id;
-	} elseif ($where == 'to') {
-		$to_next_id = $tc_db->GetOne("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_to . " ORDER BY `id` DESC LIMIT 1");
-		$to_next_id++;
-		
-		return $to_next_id;
-	}
-}
-
 function processPost($id, $newthreadid, $oldthreadid) {
 	global $tc_db, $board_from, $board_to;
 	
 	$message = $tc_db->GetOne("SELECT `message` FROM " . KU_DBPREFIX . "posts_" . $board_to . " WHERE `id` = " . $id . " LIMIT 1");
 	
-	$message = str_replace('/read.php/' . $board_from . '/' . $oldthreadid, '/read.php/' . $board_to . '/' . $newthreadid, $message);
-	
-	$tc_db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
+	if ($message != '') {
+		$message_new = str_replace('/read.php/' . $board_from . '/' . $oldthreadid, '/read.php/' . $board_to . '/' . $newthreadid, $message);
+		
+		if ($message_new != $message) {
+			$tc_db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
+		}
+	}
 }
 
 ?>
