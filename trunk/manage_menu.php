@@ -63,6 +63,7 @@ if (!$manage_class->ValidateSession(true)) {
 		<li><a href="manage_page.php?action=spaceused">' . _gettext('Disk space used') . '</a></li>
 		<li><a href="manage_page.php?action=viewdeletedthread">' . _gettext('View deleted thread') . '</a></li>
 		<li><a href="manage_page.php?action=cleanup">' . _gettext('Cleanup') . '</a></li>
+		<li><a href="manage_page.php?action=movethread">' . _gettext('Move thread') . '</a></li>
 		<li><a href="manage_page.php?action=search">' . _gettext('Search posts') . '</a></li>
 		<li><a href="manage_page.php?action=staff">' . _gettext('Staff') . '</a></li>
 		<li><a href="manage_page.php?action=modlog">' . _gettext('ModLog') . '</a></li>

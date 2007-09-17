@@ -585,10 +585,10 @@ msgstr ""
 msgid "Your IP address is"
 msgstr ""
 
-msgid "You have been banned from posting o"
+msgid "You have been banned from posting on"
 msgstr ""
 
-msgid "for the following reaso"
+msgid "for the following reason"
 msgstr ""
 
 msgid "You may <b>not</b> appeal this ban."
@@ -622,6 +622,15 @@ msgid "Maximum thread age (Hours)"
 msgstr ""
 
 msgid "Maximum thread replies"
+msgstr ""
+
+msgid "Move thread"
+msgstr ""
+
+Move complete.
+msgstr ""
+
+The change will not be apparent until the html files are rebuilt.
 msgstr ""
 
 msgid "Header image"
@@ -760,6 +769,12 @@ msgid "%s bans not shown."
 msgstr ""
 
 msgid "View all bans"
+msgstr ""
+
+msgid "From"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "Ban from"

@@ -246,4 +246,18 @@ function unistr_to_ords($str, $encoding = 'UTF-8'){
 	}       
 	return($ords);
 }
+
+function processPost($id, $newthreadid, $oldthreadid) {
+	global $tc_db, $board_from, $board_to;
+	
+	$message = $tc_db->GetOne("SELECT `message` FROM " . KU_DBPREFIX . "posts_" . $board_to . " WHERE `id` = " . $id . " LIMIT 1");
+	
+	if ($message != '') {
+		$message_new = str_replace('/read.php/' . $board_from . '/' . $oldthreadid, '/read.php/' . $board_to . '/' . $newthreadid, $message);
+		
+		if ($message_new != $message) {
+			$tc_db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
+		}
+	}
+}
 ?>

@@ -2482,7 +2482,7 @@ class Manage {
 			$tpl_page .= '<form action="?" method="get">
 	
 			<input type="hidden" name="action" value="viewdeletedthread">
-			<label for="board"><'._gettext('Board').':</label>' .
+			<label for="board">' . _gettext('Board') . ':</label>' .
 			$this->MakeBoardListDropdown('board', $this->BoardList($_SESSION['manageusername'])) .
 			'<br>
 			
@@ -2493,6 +2493,65 @@ class Manage {
 			
 			</form>';
 		}
+	}
+	
+	function movethread() {
+		global $tc_db, $smarty, $tpl_page;
+		$this->AdministratorsOnly();
+		
+		$tpl_page .= '<h2>' . ucwords(_gettext('Move thread')) . '</h2><br><b>Warning:  Move thread currently is only designed to work across text boards, and does not move images with threads if they come from a non text board thread.</b><br><br>';
+		
+		if (isset($_POST['id']) && isset($_POST['board_from']) && isset($_POST['board_to'])) {
+			$board_from = mysql_real_escape_string($_POST['board_from']);
+			$board_to = mysql_real_escape_string($_POST['board_to']);
+			$id = mysql_real_escape_string($_POST['id']);
+			$temp_id = 0;
+			
+			$tc_db->Execute("START TRANSACTION");
+			
+			$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
+			
+			$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+			$new_id = $tc_db->Insert_Id();
+			
+			processPost($new_id, $new_id, $id);
+			
+			$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+			
+			$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
+			foreach ($results as $line) {
+				$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = " . $line['id']);
+				
+				$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+				$insert_id = $tc_db->Insert_Id();
+				
+				processPost($insert_id, $new_id, $id);
+				
+				$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `parentid` = " . $new_id . " WHERE `id` = " . $insert_id);
+				
+				$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+			}
+			
+			$tc_db->Execute("COMMIT");
+			
+			$tpl_page .= _gettext('Move complete.') . '  ' . _gettext('The change will not be apparent until the html files are rebuilt.') . '<br><hr>';
+		}
+		
+		$tpl_page .= '<form action="?action=movethread" method="post">
+		
+		<label for="id">' . _gettext('ID') . ':</label>
+		<input type="text" name="id">
+		<br>
+		
+		<label for="board_from">' . _gettext('From') . ':</label>' .
+		$this->MakeBoardListDropdown('board_from', $this->BoardList($_SESSION['manageusername'])) .
+		'<br>
+		
+		<label for="board_to">'  ._gettext('To') . ':</label>' .
+		$this->MakeBoardListDropdown('board_to', $this->BoardList($_SESSION['manageusername'])) .
+		'<br>
+		
+		<input type="submit" value="' . _gettext('Move thread') . '">';
 	}
 	
 	/* Search for text in posts */
