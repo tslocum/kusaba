@@ -45,7 +45,7 @@ Paste your posting password in the Mod box and change any options in the Mod box
 
 = Adding Boards to the Menu =
 
-First go to the manage panel, Misc -> Edit Sections.
+First go to the manage panel, Administration -> Edit Sections.
 
 Add a section, and take note of its ID.
 
@@ -67,4 +67,5 @@ ALTER TABLE `posts_boarddirhere` ADD INDEX `IS_DELETED-parentid` ( `IS_DELETED` 
 ALTER TABLE `posts_boarddirhere` ADD INDEX `parentid-stickied-lastbumped` ( `parentid` , `sticked` , `lastbumped` );
 );
 }}}
+ 
  
