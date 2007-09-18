@@ -627,10 +627,10 @@ msgstr ""
 msgid "Move thread"
 msgstr ""
 
-Move complete.
+msgid "Move complete."
 msgstr ""
 
-The change will not be apparent until the html files are rebuilt.
+msgid "The change will not be apparent until the html files are rebuilt."
 msgstr ""
 
 msgid "Header image"
