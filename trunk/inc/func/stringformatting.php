@@ -154,7 +154,7 @@ function formatLongMessage($message, $board, $threadid, $page) {
 		$message_shortened = closeOpenTags($message_shortened);
 		
 		$output = $message_shortened . '<div class="abbrev">' . "\n" .
-		'	' . sprintf(_gettext('Comment too long. Click %shere%s to view the full text.'), '<a href="' . KU_BOARDSFOLDER . $board . '/res/' . $threadid . '.html">', '</a>') . "\n" .
+		'	' . sprintf(_gettext('Message too long. Click %shere%s to view the full text.'), '<a href="' . KU_BOARDSFOLDER . $board . '/res/' . $threadid . '.html">', '</a>') . "\n" .
 		'</div>' . "\n";
 	} else {
 		$output .= $message . "\n";

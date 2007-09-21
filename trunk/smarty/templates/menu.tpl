@@ -20,6 +20,14 @@ function showstyleswitcher() {
 	var switcher = document.getElementById('sitestyles');
 	switcher.innerHTML = '{/literal}{$styleswitcher}{literal}';
 }
+function removeframes() {
+	var boardlinks = document.getElementsByTagName("a");
+	for(var i=0;i<boardlinks.length;i++) if(boardlinks[i].className == "boardlink") boardlinks[i].target = "_top";
+	
+	document.getElementById("removeframes").innerHTML = 'Frames removed.';
+	
+	return false;
+}
 function reloadmain() {
 	if (parent.main) {
 		parent.main.location.reload();
@@ -41,6 +49,7 @@ function showdirs() {
 <ul>
 <li><a href="{$ku_webpath}" target="_top">{$lang_frontpage}</a></li>
 {$showhidedirs}
+{$removeframes}
 </ul>
 {$boards}
 {$irc}

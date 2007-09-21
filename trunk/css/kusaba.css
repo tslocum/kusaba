@@ -120,6 +120,9 @@ a:hover {
 	color:#117743;
 	font-weight:bold;
 }
+.postername a {
+	font-family:inherit;
+}
 .oldpost {
         background:inherit;
         font-size:18px;

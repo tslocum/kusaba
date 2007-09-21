@@ -45,7 +45,16 @@ class Menu {
 		} else {
 			$styleswitcher = '';
 		}
+		
 		$smarty->assign('styleswitcher', $styleswitcher);
+		
+		if (KU_MENUTYPE == 'normal') {
+			$removeframes = '<li id="removeframes"><a href="#" onclick="javascript:return removeframes();">[Remove Frames]</a></li>';
+		} else {
+			$removeframes = '';
+		}
+		
+		$smarty->assign('removeframes', $removeframes);
 		
 		if ($savetofile) {
 			$files = array('menu.html', 'menu_dirs.html');
@@ -143,7 +152,7 @@ class Menu {
 					$resultsboard = $tc_db->GetAll("SELECT `name`, `desc`, `locked`, `trial`, `popular` FROM `".KU_DBPREFIX."boards` WHERE `section` = ".$line['id']." ORDER BY `order` ASC");
 					if (count($resultsboard)>0) {
 						foreach($resultsboard AS $lineboard) {
-							$tpl_boards .= '	<li><a href="'.KU_BOARDSPATH.'/'.$lineboard['name'].'/" target="main">';
+							$tpl_boards .= '	<li><a href="'.KU_BOARDSPATH.'/'.$lineboard['name'].'/" target="main" class="boardlink">';
 							if ($lineboard['trial']==1) { $tpl_boards .= '<i>'; }
 							if ($lineboard['popular']==1) { $tpl_boards .= '<b>'; }
 							if ($i == 1) {

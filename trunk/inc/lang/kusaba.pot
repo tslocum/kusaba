@@ -1103,7 +1103,7 @@ msgstr ""
 msgid "Mod"
 msgstr ""
 
-msgid "Comment too long. Click %shere%s to view the full text."
+msgid "Message too long. Click %shere%s to view the full text."
 msgstr ""
 
 msgid "This post has been deleted."

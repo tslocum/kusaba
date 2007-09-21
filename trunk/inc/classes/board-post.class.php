@@ -1381,6 +1381,60 @@ class Board {
 		}
 		$tpl['title'] .= $this->board_desc;
 		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>' . "\n";
+		/*
+			$tpl['head'] .= '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/wii.js"></script>' . "\n" .
+			'<script type="text/javascript">' . "\n" .
+			'var wiimote = new wii.Wiimote();
+			var horizontalController = new wii.HorizontalController();
+			var keyboardController = new wii.KeyboardController();
+			
+			function changeController(code) {
+			  if (code == 0) {
+			    wii.addController(wiimote);
+			    wii.removeController(horizontalController);
+			    wii.removeController(keyboardController);
+			  } else if (code == 1) {
+			    wii.removeController(wiimote);
+			    wii.addController(horizontalController);
+			    wii.removeController(keyboardController);
+			  } else if (code == 2) {
+			    wii.removeController(wiimote);
+			    wii.removeController(horizontalController);
+			    wii.addController(keyboardController);
+			  }
+			}
+
+			function setupControllers() {
+			  var controllers = [ wiimote, horizontalController, keyboardController ];
+			  for (var i = 0; i < controllers.length; ++i) {
+			    var controller = controllers[i];
+			    /*controller.handleUp = createLoggerFunction(\'&uarr; button pressed\');
+			    controller.handleDown = createLoggerFunction(\'&darr; button pressed\');
+			    controller.handleLeft = createLoggerFunction(\'&larr; button pressed\');
+			    controller.handleRight = createLoggerFunction(\'&rarr; button pressed\');
+			    controller.handleMinus = createLoggerFunction(\'&ndash; button pressed\');
+			    controller.handlePlus = createLoggerFunction(\'+ button pressed\');
+			    controller.handle1 = createLoggerFunction(\'1 button pressed\');
+			    controller.handle2 = createLoggerFunction(\'2 button pressed\');
+			    controller.handleA = createLoggerFunction(\'A button pressed\', true);
+			    controller.handleB = createLoggerFunction(\'B button pressed\');
+			  }
+			}
+			
+			wii.setupHandlers();
+			setupControllers();
+			
+			var controller;
+			if (wii.isWiiOperaBrowser()) {
+				changeController(0);
+				//controller = $(\'wiimote\');
+			} else {
+				changeController(2);
+				//controller = $(\'keyboardController\');
+			}
+			//controller.checked = \'yes\';' . "\n" .
+			'</script>' . "\n";
+		}*/
 		$output = '';
 		
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
@@ -1435,8 +1489,11 @@ class Board {
 					$output .= '-&nbsp;';
 				}
 			}
-			$output .= '[<a href="'.KU_WEBPATH.'" target="_top">' . _gettext('Home') . '</a>]&nbsp;[<a href="' . KU_CGIPATH . '/manage.php" target="_top">' . _gettext('Manage') . '</a>]</div>';
-			$output .= $this->DisplayBoardList(false);
+			if (KU_WATCHTHREADS) {
+				$output .= '[<a href="#" onclick="javascript:showwatchedthreads();return false" title="' . _gettext('Watched Threads') . '">WT</a>]&nbsp;';
+			}
+			$output .= '[<a href="'.KU_WEBPATH.'" target="_top">' . _gettext('Home') . '</a>]&nbsp;[<a href="' . KU_CGIPATH . '/manage.php" target="_top">' . _gettext('Manage') . '</a>]</div>' . "\n" .
+			$this->DisplayBoardList(false);
 		} else {
 			$output .= $this->DisplayBoardList(true);
 		}
@@ -1473,32 +1530,29 @@ class Board {
 			'</div>' . "\n";
 		}
 		if (KU_WATCHTHREADS && !$isoekaki && ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) && !$hidewatchedthreads) {
-			$output .= '<div id="watchedthreads" style="top: ' . $ad_top . 'px; left: 25px;" class="watchedthreads">' . "\n" .
-			'<div class="postblock" id="watchedthreadsdraghandle" style="width: 100%;">' . _gettext('Watched Threads') . '</div>' . "\n" .
-			'<span id="watchedthreadlist"></span>' . "\n" .
-			'<div id="watchedthreadsbuttons">' . "\n" .
-			'<a href="#" onclick="javascript:hidewatchedthreads();return false;" title="' . _gettext('Hide the watched threads box') . '">' . "\n" .
-			'<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidewatchedthreads" alt="hide">' . "\n" .
-			'</a>&nbsp;' . "\n" .
-			'<a href="#" onclick="javascript:getwatchedthreads(\'0\', \'' . $this->board_dir . '\');return false;" title="' . _gettext('Refresh watched threads') . '">' . "\n" .
-			'<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="refreshwatchedthreads" alt="refresh">' . "\n" .
-			'</a>' . "\n" .
-			'</div>' . "\n" .
+			$output .= 
 			'<script type="text/javascript"><!--' . "\n" .
-			'watchedthreadselement = document.getElementById(\'watchedthreads\');' . "\n" .
 			'if (getCookie(\'showwatchedthreads\') == \'1\') {' . "\n" .
+			'	document.write(\'<div id="watchedthreads" style="top: ' . $ad_top . 'px; left: 25px;" class="watchedthreads">' .
+			'	<div class="postblock" id="watchedthreadsdraghandle" style="width: 100%;">' . _gettext('Watched Threads') . '</div>' .
+			'	<span id="watchedthreadlist"></span>' .
+			'	<div id="watchedthreadsbuttons">' .
+			'	<a href="#" onclick="javascript:hidewatchedthreads();return false;" title="' . _gettext('Hide the watched threads box') . '">' .
+			'	<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidewatchedthreads" alt="hide">' .
+			'	</a>&nbsp;' .
+			'	<a href="#" onclick="javascript:getwatchedthreads(\\\'0\\\', \\\'' . $this->board_dir . '\\\');return false;" title="' . _gettext('Refresh watched threads') . '">' .
+			'	<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="refreshwatchedthreads" alt="refresh">' .
+			'	</a>' .
+			'	</div>' .
+			'	</div>\');' . "\n" .
+			'	watchedthreadselement = document.getElementById(\'watchedthreads\');' . "\n" .
 			'	watchedthreadselement.style.top = getCookie(\'watchedthreadstop\');' . "\n" .
 			'	watchedthreadselement.style.left = getCookie(\'watchedthreadsleft\');' . "\n" .
 			'	watchedthreadselement.style.width = Math.max(250,getCookie(\'watchedthreadswidth\')) + \'px\';' . "\n" .
 			'	watchedthreadselement.style.height = Math.max(75,getCookie(\'watchedthreadsheight\')) + \'px\';' . "\n" .
 			'	getwatchedthreads(\'' . $replythread . '\', \'' . $this->board_dir . '\');' . "\n" .
-			'} else {' . "\n" .
-			'	watchedthreadselement.innerHTML = \'<a href="#" onclick="javascript:showwatchedthreads();return false"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="restorewatchedthreads" title="' . _gettext('Restore watched threads') . '"><\/a>\';' . "\n" .
-			'	watchedthreadselement.style.width = \'16px\';' . "\n" .
-			'	watchedthreadselement.style.height = \'16px\';' . "\n" .
 			'}' . "\n" .
-			'//--></script>' . "\n" .
-			'</div>' . "\n";
+			'//--></script>' . "\n";
 		}
 		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
 			$output .= '<div class="logo">';
