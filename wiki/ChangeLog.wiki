@@ -11,8 +11,9 @@
   * A modified version of PHP Markdown may be included with 1.0.3
   * Many more improvements towards making the entire database use a UTF-8 charset
   * ADDED EXTRA INFO TO THE APPEALS EMAILS
-  * FIXED MODBROWSE FOR GLOBAL MODS
+  * FIXED MODPOSTING FOR GLOBAL MODS
   * ADDED # COMMENTS TO RANDOM FILES SO TEE WOULD GET ANGRY
+  * CHANGED THIS WIKI PAGE
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
@@ -230,6 +231,7 @@
 = 0.1 =
 
   * Initial release
+ 
  
  
  
