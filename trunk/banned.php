@@ -42,7 +42,8 @@ if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
 			if ($line['appealat'] > 0 && $line['appealat'] < time()) {
 				$emails = split(':', KU_APPEAL);
 				foreach ($emails as $email) {
-					@mail($email, 'Ban appeal at ' . KU_NAME . ' for ' . $_SERVER['REMOTE_ADDR'], wordwrap(strip_tags($_POST['appealmessage']), 70), 'From: ' . KU_NAME . "\r\n");
+					@mail($email, 'Ban appeal at ' . KU_NAME . ' for ' . $_SERVER['REMOTE_ADDR'], wordwrap(strip_tags($_POST['appealmessage'].'
+Unban: '.KU_BOARDSPATH.KU_BOARDSFOLDER.'manage_page.php?action=bans&delban='.$line['id']), 70), 'From: ' . KU_NAME . "\r\n");
 				}
 				
 				$tc_db->Execute("UPDATE `".KU_DBPREFIX."banlist` SET `appealat` = '-1' WHERE `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "'");
