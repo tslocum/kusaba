@@ -41,16 +41,16 @@ if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
 		foreach($results AS $line) {
 			if ($line['appealat'] > 0 && $line['appealat'] < time()) {
 				$emails = split(':', KU_APPEAL);
-				if ($line['until'] > 0) { $expires = date("F j, Y, g:i a", $line['until']); } else { $expires = 'never'; }
+				$expires = ($line['until'] > 0) ? date("F j, Y, g:i a", $line['until']) : 'never';
 				foreach ($emails as $email) {
-					@mail($email, 'Ban appeal at ' . KU_NAME . ' for ' . $_SERVER['REMOTE_ADDR'], wordwrap(strip_tags($_POST['appealmessage'].'
-Banned for: '.$line['reason'].'
-On: '.date("F j, Y, g:i a", $line['at']).'
-Expires: '.$expires.'
-By: '.$line['by'].'
-Unban: '.KU_BOARDSPATH.KU_BOARDSFOLDER.'manage_page.php?action=bans&delban='.$line['id']), 70), 'From: ' . KU_NAME . "\r\n");
+					@mail($email, 'Ban appeal at ' . KU_NAME . ' for ' . $_SERVER['REMOTE_ADDR'], wordwrap(strip_tags($_POST['appealmessage'] . "\n" .
+					'Banned for: ' . $line['reason'] . "\n" .
+					'On: ' . date("F j, Y, g:i a", $line['at']) . "\n" .
+					'Expires: ' . $expires . "\n" .
+					'By: ' . $line['by'] . "\n" .
+					'Unban: ' . KU_CGIPATH . '/manage_page.php?action=bans&delban=' . $line['id']), 70), 'From: ' . KU_NAME . "\r\n");
 				}
-				
+					
 				$tc_db->Execute("UPDATE `".KU_DBPREFIX."banlist` SET `appealat` = '-1' WHERE `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "'");
 				
 				echo 'Your appeal has been sent and is pending review.';
