@@ -39,7 +39,7 @@ class Menu {
 			$styles = explode(':', KU_MENUSTYLES);
 			$styleswitcher = _gettext('Styles') . ': ';
 			foreach ($styles as $style) {
-				$styleswitcher .= '[<a href="#" onclick="javascript:set_stylesheet(\\\'' . ucfirst($style) . '\\\', false, true);reloadmain();" style="display: inline;">' . strtoupper(substr($style, 0, 1)) . '</a>] ';
+				$styleswitcher .= '[<a href="#" onclick="javascript:set_stylesheet(\\\'' . ucfirst($style) . '\\\', false, true);reloadmain();" style="display: inline;" target="_self">' . strtoupper(substr($style, 0, 1)) . '</a>] ';
 			}
 			$styleswitcher = substr($styleswitcher, 0, -1);
 		} else {
@@ -49,7 +49,7 @@ class Menu {
 		$smarty->assign('styleswitcher', $styleswitcher);
 		
 		if (KU_MENUTYPE == 'normal') {
-			$removeframes = '<li id="removeframes"><a href="#" onclick="javascript:return removeframes();">[Remove Frames]</a></li>';
+			$removeframes = '<li id="removeframes"><a href="#" onclick="javascript:return removeframes();" target="_self">[Remove Frames]</a></li>';
 		} else {
 			$removeframes = '';
 		}
@@ -80,7 +80,7 @@ class Menu {
 		if (isset($kusabaorg)) {
 			$tpl_irc .= '<h2>&nbsp;Links</h2>
 			<ul>
-			<li><a href="chans.php" target="main">Directory</a></li>
+			<li><a href="chans.php">Directory</a></li>
 			<li><a href="http://code.google.com/p/kusaba/w/list" target="_top">Wiki (Guides and more)</a></li>
 			<li><a href="http://code.google.com/p/kusaba/wiki/InstallationGuide" target="_top">&nbsp;-&nbsp;Installing</a></li>
 			<li><a href="http://code.google.com/p/kusaba/wiki/AdministrationGuide" target="_top">&nbsp;-&nbsp;Administration</a></li>
@@ -91,7 +91,7 @@ class Menu {
 			<li><a href="http://code.google.com/p/kusaba/wiki/K2K" target="_top">&nbsp;-&nbsp;K2K</a></li>
 			<li><a href="http://code.google.com/p/kusaba/wiki/B2K" target="_top">&nbsp;-&nbsp;B2K</a></li>
 			<li><a href="http://code.google.com/p/kusaba/" target="_top">Project page</a></li>
-			<li><a href="http://kusaba.org/doc/index.html" target="main">Code Documentation</a></li>
+			<li><a href="http://kusaba.org/doc/index.html">Code Documentation</a></li>
 			</ul>
 			
 			<script type="text/javascript"><!--
@@ -152,7 +152,7 @@ class Menu {
 					$resultsboard = $tc_db->GetAll("SELECT `name`, `desc`, `locked`, `trial`, `popular` FROM `".KU_DBPREFIX."boards` WHERE `section` = ".$line['id']." ORDER BY `order` ASC");
 					if (count($resultsboard)>0) {
 						foreach($resultsboard AS $lineboard) {
-							$tpl_boards .= '	<li><a href="'.KU_BOARDSPATH.'/'.$lineboard['name'].'/" target="main" class="boardlink">';
+							$tpl_boards .= '	<li><a href="'.KU_BOARDSPATH.'/'.$lineboard['name'].'/" class="boardlink">';
 							if ($lineboard['trial']==1) { $tpl_boards .= '<i>'; }
 							if ($lineboard['popular']==1) { $tpl_boards .= '<b>'; }
 							if ($i == 1) {
@@ -179,7 +179,7 @@ class Menu {
 			}
 			$smarty->assign('boards', $tpl_boards);
 			if (KU_MENUSTYLESWITCHER && KU_MENUTYPE == 'normal') {
-				$showhidedirs = '<li id="sitestyles"><a onclick="javascript:showstyleswitcher();" href="#">[' . _gettext('Site Styles') . ']</a></li>'. "\n";
+				$showhidedirs = '<li id="sitestyles"><a onclick="javascript:showstyleswitcher();" href="#" target="_self">[' . _gettext('Site Styles') . ']</a></li>'. "\n";
 			} else {
 				$showhidedirs = '';
 			}
@@ -189,11 +189,11 @@ class Menu {
 					$smarty->assign('redirscript', "\n" . 'if (getCookie(\'tcshowdirs\') == \'yes\') {' . "\n" .
 					'	window.location = \'' . KU_WEBPATH . '/' . $files[1] . '\';' . "\n" .
 					'}' . "\n");
-					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:showdirs();" href="' . $files[1] . '">['._gettext('Show Directories').']</a></li>');
+					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:showdirs();" href="' . $files[1] . '" target="_self">['._gettext('Show Directories').']</a></li>');
 					file_put_contents(KU_ROOTDIR . $files[0], $smarty->fetch('menu.tpl'));
 				} else {
 					$smarty->assign('redirscript', '');
-					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:hidedirs();" href="' . $files[0] . '">['._gettext('Hide Directories').']</a></li>');
+					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:hidedirs();" href="' . $files[0] . '" target="_self">['._gettext('Hide Directories').']</a></li>');
 					file_put_contents(KU_ROOTDIR . $files[1], $smarty->fetch('menu.tpl'));
 				}
 			} else {
@@ -201,14 +201,14 @@ class Menu {
 					$smarty->assign('redirscript', "\n" . 'if (getCookie(\'tcshowdirs\') == \'yes\') {' . "\n" .
 					'	window.location = \'' . KU_WEBPATH . '/' . $files[1] . '\';' . "\n" .
 					'}' . "\n");
-					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:showdirs();" href="' . $files[1] . '">['._gettext('Show Directories').']</a></li>');
+					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:showdirs();" href="' . $files[1] . '" target="_self">['._gettext('Show Directories').']</a></li>');
 					$menu_nodirs = $smarty->fetch('menu.tpl');
 					if ($option == 'nodirs') {
 						return $menu_nodirs;
 					}
 				} else {
 					$smarty->assign('redirscript', '');
-					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:hidedirs();" href="' . $files[0] . '">['._gettext('Hide Directories').']</a></li>');
+					$smarty->assign('showhidedirs', $showhidedirs . '<li><a onclick="javascript:hidedirs();" href="' . $files[0] . '" target="_self">['._gettext('Hide Directories').']</a></li>');
 					$menu_dirs = $smarty->fetch('menu.tpl');
 					if ($option == 'dirs') {
 						return $menu_dirs;

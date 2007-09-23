@@ -43,6 +43,7 @@ function showdirs() {
 }{/literal}{$redirscript}{literal}
 </script>
 {/literal}
+<base target="main">
 </head>
 <body>
 <h1>{$ku_name}</h1>
