@@ -1377,10 +1377,28 @@ msgstr ""
 msgid "Edited a VIP cod"
 msgstr ""
 
-msgid "Statistic"
+msgid "Statistics"
 msgstr ""
 
-msgid "Blotte"
+msgid "Blotter"
+msgstr ""
+
+msgid "Cleared APC cache"
+msgstr ""
+
+msgid "Viewed disk space used"
+msgstr ""
+
+msgid "Inserted SQL"
+msgstr ""
+
+msgid "Edited a news entry"
+msgstr ""
+
+msgid "Added a news entry"
+msgstr ""
+
+msgid "Banned %d IP addresses using an IP address list."
 msgstr ""
 
 msgid "translator-credits"

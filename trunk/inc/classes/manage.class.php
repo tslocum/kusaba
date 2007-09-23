@@ -397,6 +397,7 @@ class Manage {
 			apc_clear_cache();
 			apc_clear_cache('user');
 			$tpl_page .= 'APC cache cleared.';
+			management_addlogentry(_gettext('Cleared APC cache'), 0);
 		} else {
 			$tpl_page .= 'APC isn\'t enabled!';
 		}
@@ -458,6 +459,7 @@ class Manage {
 		$tpl_page .= '<tr><td>thumb/</td><td>' . number_format($files_thumb) . '</td><td>' . ConvertBytes($spaceused_thumb) . '</td></tr>';
 		$tpl_page .= '<tr><td><b>Total</b></td><td>' . number_format($files_total) . '</td><td>' . ConvertBytes($spaceused_total) . '</td></tr>';
 		$tpl_page .= '</table>';
+		management_addlogentry(_gettext('Viewed disk space used'), 0);
 	}
 	
 	/* Display moderators and administrators actions which were logged */
@@ -491,6 +493,7 @@ class Manage {
 				$tpl_page .= 'Error: ' . $tc_db->ErrorMsg();
 			}
 			$tpl_page .= '<hr>';
+			management_addlogentry(_gettext('Inserted SQL'), 0);
 		}
 		$tpl_page .= '<form method="post" action="?action=sql">
 		
@@ -510,6 +513,7 @@ class Manage {
 			if (isset($_POST['news'])) {
 				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "news` SET `subject` = '" . mysql_real_escape_string($_POST['subject']) . "', `message` = '" . mysql_real_escape_string($_POST['news']) . "', `postedemail` = '" . mysql_real_escape_string($_POST['email']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 				$tpl_page .= '<h3>News post edited</h3>';
+				management_addlogentry(_gettext('Edited a news entry'), 9);
 			}
 			$tpl_page .= '<h1>Edit news post</h1>';
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
@@ -530,6 +534,7 @@ class Manage {
 		} elseif (isset($_GET['delete'])) {
 			$results = $tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['delete']) . "'");
 			$tpl_page .= '<h3>News post deleted</h3>';
+			management_addlogentry(_gettext('Deleted a news entry'), 9);
 		} else {
 			$tpl_page .= _gettext('<h2>Add News Post</h2>This message will be displayed as it is written, so make sure you add the proper HTML.') . '<br><br>';
 			if (isset($_POST['news']) && isset($_POST['subject']) && isset($_POST['email'])) {
@@ -1746,20 +1751,20 @@ class Manage {
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Ban proxy list')) . '</h2><br>';
 		if (isset($_FILES['imagefile'])) {
-		$bans_class = new Bans;
-		$ips = 0;
-		$successful = 0;
-		$proxies = file($_FILES['imagefile']['tmp_name']);
-		foreach($proxies as $proxy) {
-			if (preg_match('/.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+.*/',$proxy)) {
-				$ips++;
-				if ($bans_class->BanUser(preg_replace("/:.*/","",$proxy),"SERVER",1,0,"","IP from proxylist automatically banned",0)) {
-					$successful++;
+			$bans_class = new Bans;
+			$ips = 0;
+			$successful = 0;
+			$proxies = file($_FILES['imagefile']['tmp_name']);
+			foreach($proxies as $proxy) {
+				if (preg_match('/.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+.*/', $proxy)) {
+					$ips++;
+					if ($bans_class->BanUser(preg_replace('/:.*/', '', $proxy), 'SERVER', 1, 0, '', 'IP from proxylist automatically banned', 0)) {
+						$successful++;
+					}
 				}
 			}
-		}
-		management_addlogentry("banned ".$successful." proxies automatically.",8);
-		$tpl_page .= $successful." of ".$ips." proxies banned.";
+			management_addlogentry(sprintf(_gettext('Banned %d IP addresses using an IP address list.'), $successful), 8);
+			$tpl_page .= $successful . ' of ' . $ips . ' IP addresses banned.';
 		} else {
 			$tpl_page .= '<form id="postform" action="' . KU_CGIPATH . 'manage_page.php?action=proxyban" method="post" enctype="multipart/form-data">'._gettext('Proxy list').'<input type="file" name="imagefile" size="35" accesskey="f"><br>
 			<input type="submit" value="Submit">
