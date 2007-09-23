@@ -41,8 +41,13 @@ if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
 		foreach($results AS $line) {
 			if ($line['appealat'] > 0 && $line['appealat'] < time()) {
 				$emails = split(':', KU_APPEAL);
+				if ($line['until'] > 0) { $expires = date("F j, Y, g:i a", $line['until']); } else { $expires = 'never'; }
 				foreach ($emails as $email) {
 					@mail($email, 'Ban appeal at ' . KU_NAME . ' for ' . $_SERVER['REMOTE_ADDR'], wordwrap(strip_tags($_POST['appealmessage'].'
+Banned for: '.$line['reason'].'
+On: '.date("F j, Y, g:i a", $line['at']).'
+Expires: '.$expires.'
+By: '.$line['by'].'
 Unban: '.KU_BOARDSPATH.KU_BOARDSFOLDER.'manage_page.php?action=bans&delban='.$line['id']), 70), 'From: ' . KU_NAME . "\r\n");
 				}
 				
