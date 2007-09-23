@@ -217,6 +217,8 @@ class Posting {
 					$user_authority = 1;
 				} elseif ($results[0][0] == 2 && in_array($board_class->board_dir, explode('|', $results[0][1]))) {
 					$user_authority = 2;
+				} elseif ($results[0][0] == 2 && $results[0][1] == 'allboards') {
+					$user_authority = 2;
 				}
 			} else {
 				$vip_valid = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['modpassword']) . "' AND `type` = '3' LIMIT 1");
