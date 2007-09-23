@@ -690,11 +690,12 @@ class Manage {
 					$updateboard_popular = isset($_POST['popular']) ? '1' : '0';
 					$updateboard_enablearchiving = isset($_POST['enablearchiving']) ? '1' : '0';
 					$updateboard_showid = isset($_POST['showid']) ? '1' : '0';
+					$updateboard_compactlist = isset($_POST['compactlist']) ? '1' : '0';
 					$updateboard_locked = isset($_POST['locked']) ? '1' : '0';
 					
 					if (($_POST['type'] == '0' || $_POST['type'] == '1' || $_POST['type'] == '2' || $_POST['type'] == '3') && ($_POST['uploadtype'] == '0' || $_POST['uploadtype'] == '1' || $_POST['uploadtype'] == '2')) {
 						if (!($_POST['uploadtype'] != '0' && $_POST['type'] == '3')) {
-							$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "boards` SET `type` = '" . mysql_real_escape_string($_POST['type']) . "' , `uploadtype` = '" . mysql_real_escape_string($_POST['uploadtype']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `section` = '" . mysql_real_escape_string($_POST['section']) . "' , `desc` = '" . mysql_real_escape_string($_POST['desc']) . "' , `locale` = '" . mysql_real_escape_string($_POST['locale']) . "' , `showid` = '" . $updateboard_showid . "' , `locked` = '" . $updateboard_locked . "' , `maximagesize` = '" . mysql_real_escape_string($_POST['maximagesize']) . "' , `messagelength` = '" . mysql_real_escape_string($_POST['messagelength']) . "' , `maxpages` = '" . mysql_real_escape_string($_POST['maxpages']) . "' , `maxage` = '" . mysql_real_escape_string($_POST['maxage']) . "' , `markpage` = '" . mysql_real_escape_string($_POST['markpage']) . "' , `maxreplies` = '" . mysql_real_escape_string($_POST['maxreplies']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `includeheader` = '" . mysql_real_escape_string($_POST['includeheader']) . "' , `redirecttothread` = '" . $updateboard_redirecttothread . "' , `anonymous` = '" . mysql_real_escape_string($_POST['anonymous']) . "' , `forcedanon` = '" . $updateboard_forcedanon . "' , `trial` = '" . $updateboard_trial . "' , `popular` = '" . $updateboard_popular . "' , `defaultstyle` = '" . mysql_real_escape_string($_POST['defaultstyle']) . "' , `enablereporting` = '" . $updateboard_enablereporting . "' , `enablecaptcha` = '" . $updateboard_enablecaptcha . "' , `enablenofile` = '" . $updateboard_enablenofile . "' , `enablearchiving` = '" . $updateboard_enablearchiving . "', `enablecatalog` = '" . $updateboard_enablecatalog . "' , `loadbalanceurl` = '" . mysql_real_escape_string($_POST['loadbalanceurl']) . "' , `loadbalancepassword` = '" . mysql_real_escape_string($_POST['loadbalancepassword']) . "' WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "'");
+							$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "boards` SET `type` = '" . mysql_real_escape_string($_POST['type']) . "' , `uploadtype` = '" . mysql_real_escape_string($_POST['uploadtype']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `section` = '" . mysql_real_escape_string($_POST['section']) . "' , `desc` = '" . mysql_real_escape_string($_POST['desc']) . "' , `locale` = '" . mysql_real_escape_string($_POST['locale']) . "' , `showid` = '" . $updateboard_showid . "' , `compactlist` = '" . $updateboard_compactlist . "' , `locked` = '" . $updateboard_locked . "' , `maximagesize` = '" . mysql_real_escape_string($_POST['maximagesize']) . "' , `messagelength` = '" . mysql_real_escape_string($_POST['messagelength']) . "' , `maxpages` = '" . mysql_real_escape_string($_POST['maxpages']) . "' , `maxage` = '" . mysql_real_escape_string($_POST['maxage']) . "' , `markpage` = '" . mysql_real_escape_string($_POST['markpage']) . "' , `maxreplies` = '" . mysql_real_escape_string($_POST['maxreplies']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `includeheader` = '" . mysql_real_escape_string($_POST['includeheader']) . "' , `redirecttothread` = '" . $updateboard_redirecttothread . "' , `anonymous` = '" . mysql_real_escape_string($_POST['anonymous']) . "' , `forcedanon` = '" . $updateboard_forcedanon . "' , `trial` = '" . $updateboard_trial . "' , `popular` = '" . $updateboard_popular . "' , `defaultstyle` = '" . mysql_real_escape_string($_POST['defaultstyle']) . "' , `enablereporting` = '" . $updateboard_enablereporting . "' , `enablecaptcha` = '" . $updateboard_enablecaptcha . "' , `enablenofile` = '" . $updateboard_enablenofile . "' , `enablearchiving` = '" . $updateboard_enablearchiving . "', `enablecatalog` = '" . $updateboard_enablecatalog . "' , `loadbalanceurl` = '" . mysql_real_escape_string($_POST['loadbalanceurl']) . "' , `loadbalancepassword` = '" . mysql_real_escape_string($_POST['loadbalancepassword']) . "' WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "'");
 							$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $boardid . "'");
 							foreach ($filetypes as $filetype) {
 								$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid`, `typeid` ) VALUES ( '" . $boardid . "', '" . mysql_real_escape_string($filetype) . "' )");
@@ -861,7 +862,7 @@ class Manage {
 					<div class="desc">'._gettext('Name to display when a name is not attached to a post.') . ' ' . _gettext('Default').': <b>Anonymous</b></div><br>';
 					
 					/* Locked */
-					$tpl_page .= '<label for="locked">'._gettext('Locked').': (<img src="'.KU_BOARDSPATH.'/locked.gif" alt="Lock">)</label>
+					$tpl_page .= '<label for="locked">'._gettext('Locked').':</label>
 					<input type="checkbox" name="locked" ';
 					if ($lineboard['locked'] == '1') {
 						$tpl_page .= 'checked ';
@@ -877,7 +878,16 @@ class Manage {
 					}
 					$tpl_page .= '>
 					<div class="desc">If enabled, each post will display the poster\'s ID, which is a representation of their IP address.</div><br>';
-	
+					
+					/* Show ID */
+					$tpl_page .= '<label for="compactlist">Compact list:</label>
+					<input type="checkbox" name="compactlist" ';
+					if ($lineboard['compactlist'] == '1') {
+						$tpl_page .= 'checked ';
+					}
+					$tpl_page .= '>
+					<div class="desc">' . _gettext('Text boards only.  If enabled, the list of threads displayed on the front page will be formatted differently to be compact.') . '</div><br>';
+					
 					/* Enable reporting */
 					$tpl_page .= '<label for="enablereporting">'._gettext('Enable reporting:').'</label>
 					<input type="checkbox" name="enablereporting"';
@@ -1181,7 +1191,7 @@ class Manage {
 					$output .= '<a href="?action=unstickypost&board=' . $line_board['name'] . '&postid=' . $line['id'] . '">#' . $line['id'] . '</a><br>';
 				}
 			} else {
-				$output .= 'No locked threads.<br>';
+				$output .= 'No stickied threads.<br>';
 			}
 		}
 		$output .= '</td></tr></table>';

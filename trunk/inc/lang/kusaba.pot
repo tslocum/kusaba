@@ -1401,6 +1401,9 @@ msgstr ""
 msgid "Banned %d IP addresses using an IP address list."
 msgstr ""
 
+msgid "Text boards only.  If enabled, the list of threads displayed on the front page will be formatted differently to be compact."
+msgstr ""
+
 msgid "translator-credits"
 msgstr ""
 
