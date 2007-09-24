@@ -1404,6 +1404,12 @@ msgstr ""
 msgid "Text boards only.  If enabled, the list of threads displayed on the front page will be formatted differently to be compact."
 msgstr ""
 
+msgid "Appeal successfully denied."
+msgstr ""
+
+msgid "Denied the ban appeal for"
+msgstr ""
+
 msgid "translator-credits"
 msgstr ""
 

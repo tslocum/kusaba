@@ -136,7 +136,6 @@ if (!$cache_loaded) {
 	/* Post handling */
 		$cf['KU_NEWWINDOW']       = true; /* When a user clicks a thumbnail, whether to open the link in a new window or not */
 		$cf['KU_MAKELINKS']       = true; /* Whether or not to turn http:// links into clickable links */
-		$cf['KU_MARKDOWN']        = false; /* Whether or not to enable markdown processing on posts */
 		$cf['KU_NOMESSAGETHREAD'] = ''; /* Text to set a message to if a thread is made with no text */
 		$cf['KU_NOMESSAGEREPLY']  = ''; /* Text to set a message to if a reply is made with no text */
 	

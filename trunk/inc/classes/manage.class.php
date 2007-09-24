@@ -1479,6 +1479,22 @@ class Manage {
 				$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `id` = '" . mysql_real_escape_string($_GET['delhashid']) . "'");
 				$tpl_page .= 'Hash removed from ban list.<hr>';
 			}
+		} elseif (isset($_GET['denyappeal'])) {
+			if ($_GET['denyappeal'] > 0) {
+				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
+				if (count($results) > 0) {
+					foreach ($results as $line) {
+						$unban_ip = md5_decrypt($line['ip'], KU_RANDOMSEED);
+					}
+					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "banlist` SET `appealat` = -2 WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
+					$bans_class->UpdateHtaccess();
+					$tpl_page .= _gettext('Appeal successfully denied.');
+					management_addlogentry(_gettext('Denied the ban appeal for') . ' ' . $unban_ip, 8);
+				} else {
+					$tpl_page .= _gettext('Invalid ban ID');
+				}
+				$tpl_page .= '<hr>';
+			}
 		}
 		if (isset($_GET['banboard']) && isset($_GET['banpost'])) {
 			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['banboard']) . "'");
@@ -2574,8 +2590,6 @@ class Manage {
 		global $tc_db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
-		//Devnote: fix searching
-		exitWithErrorPage("Broken for now due to the new table system.");
 		if (isset($_GET['query'])) {
 			$search_query = $_GET['query'];
 			if (isset($_GET['s'])) {
@@ -2583,70 +2597,123 @@ class Manage {
 			} else {
 				$s = 0;
 			}
+			$search_query_array = explode('KUSABA_AND', $search_query);
 			$trimmed = trim($search_query);
 			$limit = 10;
 			if ($trimmed == '') {
 				$tpl_page .= _gettext('Please enter a search query.');
 				exit;
 			}
-			$query = "SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts` WHERE `IS_DELETED` = '0' AND `message` LIKE '%" . $trimmed . "%' ORDER BY `postedat` DESC";
+			$boardlist = $this->BoardList($_SESSION['manageusername']);
+			$likequery = '';
+			foreach ($search_query_array as $search_split) {
+				$likequery .= "`message` LIKE '" . mysql_real_escape_string(str_replace('_', '\_', $search_split)) . "' AND ";
+			}
+			$likequery = substr($likequery, 0, -4);
+			$query = '';
+			foreach ($boardlist as $board) {
+				$query .= "SELECT *, '" . $board . "' as board FROM `posts_" . $board . "` WHERE `IS_DELETED` = 0 AND " . $likequery . " UNION ";
+			}
+			$query = substr($query, 0, -6) . 'ORDER BY `postedat` DESC';
 			$numresults = $tc_db->GetAll($query);
 			$numrows = count($numresults);
 			if ($numrows == 0) {
 				$tpl_page .= '<h4>' . _gettext('Results') . '</h4>';
 				$tpl_page .= '<p>' . _gettext('Sorry, your search returned zero results.') . '</p>';
-				die();
-			}
-			$query .= " LIMIT $s, $limit";
-			$results = $tc_db->GetAll($query);
-			$tpl_page .= '<p>' . _gettext('You searched for') . ': &quot;' . $search_query . '&quot;</p>';
-			$tpl_page .= _gettext('Results') . ':<br><br>';
-			$count = 1 + $s;
-			foreach ($results as $line) {
-				$board = boardid_to_dir($line['boardid']);
-				$tpl_page .= $count . '. Board: /' . $board . '/, Thread #<a href="'.KU_BOARDSPATH . '/' . $board . '/res/';
-				if ($line['parentid'] == 0) {
-					$tpl_page .= $line['id'] . '.html">' . $line['id'] . '</a>';
-				} else {
-					$tpl_page .= $line['parentid'] . '.html#' . $line['id'] . '">' . $line['parentid'] . '</a>, Post #' . $line['id'];
+			} else {
+				$query .= " LIMIT $s, $limit";
+				$results = $tc_db->GetAll($query);
+				$tpl_page .= '<p style="font-size: 1.5em;">Results for: <b>' . $search_query . '</b></p>';
+				$count = 1 + $s;
+				foreach ($results as $line) {
+					$tpl_page .= '<span style="font-size: 1.5em;">' . $count . '.</span> <span style="font-size: 1.3em;">Board: /' . $line['board'] . '/, <a href="'.KU_BOARDSPATH . '/' . $line['board'] . '/res/';
+					if ($line['parentid'] == 0) {
+						$tpl_page .= $line['id'] . '.html">';
+					} else {
+						$tpl_page .= $line['parentid'] . '.html#' . $line['id'] . '">';
+					}
+					
+					if ($line['parentid'] == 0) {
+						$tpl_page .= 'Thread #' . $line['id'];
+					} else {
+						$tpl_page .= 'Thread #' . $line['parentid'] . ', Post #' . $line['id'];
+					}
+					$tpl_page .= '</a></span>';
+					
+					$regexp = '/(';
+					foreach ($search_query_array as $search_word) {
+						$regexp .= preg_quote($search_word) . '|';
+					}
+					$regexp = substr($regexp, 0, -1) . ')/';
+					//$line['message'] = preg_replace_callback($regexp, array(&$this, 'search_callback'), stripslashes($line['message']));
+					$line['message'] = stripslashes($line['message']);
+					$tpl_page .= '<fieldset>' . $line['message'] . '</fieldset><br>';
+					$count++;
 				}
-				$tpl_page .= '<fieldset>' . $line['message'] . '</fieldset><br>';
-				$count++;
+				$currPage = (($s / $limit) + 1);
+				$tpl_page .= '<br>';
+				if ($s >= 1) {
+					$prevs = ($s - $limit);
+					$tpl_page .= "&nbsp;<a href=\"?action=search&s=$prevs&query=" . urlencode($search_query) . "\">&lt;&lt; Prev 10</a>&nbsp&nbsp;";
+				}
+				$pages = intval($numrows / $limit);
+				if ($numrows % $limit) {
+					$pages++;
+				}
+				if (!((($s + $limit) / $limit) == $pages) && $pages != 1) {
+					$news = $s + $limit;
+					$tpl_page .= "&nbsp;<a href=\"?action=search&s=$news&query=" . urlencode($search_query) . "\">Next 10 &gt;&gt;</a>";
+				}
+				
+				$a = $s + ($limit);
+				if ($a > $numrows) {
+					$a = $numrows;
+				}
+				$b = $s + 1;
+				
+				$tpl_page .= $this->search_results_display($a, $b, $numrows);
 			}
-			$currPage = (($s / $limit) + 1);
-			$tpl_page .= '<br>';
-			if ($s >= 1) {
-				$prevs = ($s - $limit);
-				print "&nbsp;<a href=\"?action=search&s=$prevs&query=$search_query\">&lt;&lt; Prev 10</a>&nbsp&nbsp;";
-			}
-			$pages = intval($numrows / $limit);
-			if ($numrows % $limit) {
-				$pages++;
-			}
-			if (!((($s + $limit) / $limit) == $pages) && $pages != 1) {
-				$news = $s + $limit;
-				$tpl_page .= "&nbsp;<a href=\"?action=search&s=$news&query=$search_query\">Next 10 &gt;&gt;</a>";
-			}
-		
-			$a = $s + ($limit);
-			if ($a > $numrows) {
-				$a = $numrows;
-			}
-			$b = $s + 1;
-			$tpl_page .= '<p>' . _gettext('Results') . ' ' . $b . ' &gt;&gt; ' . $a . ' of ' . $numrows . '</p>';
-			$tpl_page .= '<hr>';
 		}
 		
 		$tpl_page .= '<form action="?" method="get">
 		<input type="hidden" name="action" value="search">
 		<input type="hidden" name="s" value="0">
 		
-		<label for="query">'._gettext('Query').':</label>
-		<input type="text" name="query" value="'.$_GET['query'].'"><br>
+		<b>'._gettext('Query').'</b>:<br><input type="text" name="query" ';
+		if (isset($_GET['query'])) {
+			$tpl_page .= 'value="' . $_GET['query'] . '" ';
+		}
+		$tpl_page .= 'size="52"><br>
 		
-		<input type="submit" value="'._gettext('Search').'">
+		<input type="submit" value="'._gettext('Search').'"><br><br>
+		
+		<h1>Search Help</h1>
+		
+		Separate search terms with the word <b>KUSABA_AND</b><br><br>
+		
+		To find a single phrase anywhere in a post\'s message, use:<br>
+		%some phrase here%<br><br>
+		
+		To find a phrase at the beginning of a post\'s message:<br>
+		some phrase here%<br><br>
+		
+		To find a phrase at the end of a post\'s message:<br>
+		%some phrase here<br><br>
+		
+		To find two phrases anywhere in a post\'s message, use:<br>
+		%first phrase here%KUSABA_AND%second phrase here%<br><br>
 		
 		</form>';
+	}
+	
+	function search_callback($matches) {
+		print_r($matches);
+		return '<b>' . $matches[0] . '</b>';
+	}
+	
+	function search_results_display($a, $b, $numrows) {
+		return '<p>' . _gettext('Results') . ' <b>' . $b . '</b> to <b>' . $a . '</b> of <b>' . $numrows . '</b></p>' . "\n" .
+		'<hr>';
 	}
 	
 	/* View and delete reports */

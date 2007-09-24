@@ -83,7 +83,30 @@ class Posting {
 	function CheckValidPost($is_oekaki) {
 		global $tc_db, $board_class;
 		
-		if ((isset($_POST['message']) || isset($_FILES['imagefile'])) || $is_oekaki || ($board_class->board_type == '1' && isset($_POST['message'])) || (($board_class->board_uploadtype == '1' || $board_class->board_uploadtype == '2') && isset($_POST['embed']))) {
+		if (
+			( /* A message is set, or an image was provided */
+				isset($_POST['message']) ||
+				isset($_FILES['imagefile'])
+			) || /* It is a validated oekaki posting */
+			$is_oekaki ||
+			( /* It is a text board, meaning only a message is required */
+				$board_class->board_type == '1' &&
+				isset($_POST['message'])
+			) || (
+				( /* It has embedding allowed */
+						$board_class->board_uploadtype == '1' ||
+						$board_class->board_uploadtype == '2'
+				) && ( /* An embed ID was provided, or no file was checked and no ID was supplied */
+						isset($_POST['embed']) ||
+						(
+							$board_class->board_uploadtype == '2' &&
+							!isset($_FILES['imagefile']) &&
+							isset($_POST['nofile']) &&
+							$board_class->board_enablenofile == true
+						)
+				)
+			)
+		) {
 			return true;
 		} else {
 			return false;

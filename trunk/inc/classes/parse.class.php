@@ -298,10 +298,10 @@ class Parse {
 		}
 		$message = $this->ClickableQuote($message, $board, $boardtype, $parentid, $ispage);
 		$message = $this->ColoredQuote($message, $boardtype);
-		if (KU_MARKDOWN) {
+		/*if (KU_MARKDOWN) {
 			require KU_ROOTDIR . 'lib/markdown/markdown.php';
 			$message = Markdown($message);
-		}
+		}*/
 		$message = str_replace("\n", '<br>', $message);
 		$message = $this->BBCode($message);
 		$message = $this->Wordfilter($message, $board);
