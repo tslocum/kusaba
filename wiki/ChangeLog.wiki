@@ -13,6 +13,7 @@
   * (Steve) Added extra information to the ban appeal emails
   * (Steve) Fixed modposting for moderators who are set to moderate all boards
   * Added a "Deny appeal" link to the ban appeal emails
+  * The search posts feature has returned
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
@@ -230,6 +231,7 @@
 = 0.1 =
 
   * Initial release
+ 
  
  
  
