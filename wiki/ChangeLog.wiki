@@ -13,6 +13,7 @@
   * (Steve) Fixed modposting for moderators who are set to moderate all boards
   * Added a "Deny appeal" link to the ban appeal emails
   * The search posts feature has returned
+  * The passcache table has been removed; names and tripcodes will now no longer cache in the database
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
