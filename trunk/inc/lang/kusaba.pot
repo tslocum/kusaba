@@ -969,9 +969,6 @@ msgstr ""
 msgid "Updated board configuration"
 msgstr ""
 
-msgid "Added a news entry"
-msgstr ""
-
 msgid "Added staff member"
 msgstr ""
 
@@ -1378,9 +1375,6 @@ msgid "Edited a VIP cod"
 msgstr ""
 
 msgid "Statistics"
-msgstr ""
-
-msgid "Blotter"
 msgstr ""
 
 msgid "Cleared APC cache"

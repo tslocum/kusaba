@@ -1468,6 +1468,10 @@ class Manage {
 					$bans_class->UpdateHtaccess();
 					$tpl_page .= _gettext('Ban successfully removed.');
 					management_addlogentry(_gettext('Unbanned') . ' ' . $unban_ip, 8);
+					if (isset($_GET['sm'])) {
+						sendStaffMail('Ban appeal at ' . KU_NAME . ' for ' . $unban_ip, wordwrap('The following action has taken place on this appeal:' . "\n" .
+							'Ban removed.', 70));
+					}
 				} else {
 					$tpl_page .= _gettext('Invalid ban ID');
 				}
@@ -1490,6 +1494,10 @@ class Manage {
 					$bans_class->UpdateHtaccess();
 					$tpl_page .= _gettext('Appeal successfully denied.');
 					management_addlogentry(_gettext('Denied the ban appeal for') . ' ' . $unban_ip, 8);
+					if (isset($_GET['sm'])) {
+						sendStaffMail('Ban appeal at ' . KU_NAME . ' for ' . $unban_ip, wordwrap('The following action has taken place on this appeal:' . "\n" .
+							'Appeal denied.', 70));
+					}
 				} else {
 					$tpl_page .= _gettext('Invalid ban ID');
 				}
