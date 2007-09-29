@@ -953,8 +953,6 @@ class Board {
 				if ($numReplies > 5 && $page) {
 					$modifier_last50 = ($numReplies > 49) ? true : false;
 					$modifier_first100 = ($numReplies > 99) ? true : false;
-						
-					$buildthread_output .= threadLinks('page', $thread_id, $this->board_dir, $this->board_type, $modifier_last50, $modifier_first100);
 					
 					$reply_relative_id = $numReplies-4;
 				} else {
@@ -1142,12 +1140,12 @@ class Board {
 				}
 			}
 			$info_post .= '<a name="'.$post['id'].'"></a>' . "\n" . 
-			'<label>' . "\n" . 
-			'<input type="checkbox" name="delete" value="' . $post['id'] . '">' . "\n";
+			'		<label>' . "\n" . 
+			'			<input type="checkbox" name="delete" value="' . $post['id'] . '">' . "\n";
 			if ($post['subject']!='') {
-				$info_post .= '<span class="filetitle">' . "\n" .
-				'	' . $post['subject'] . "\n" .
-				'</span> ' . "\n";
+				$info_post .= '			<span class="filetitle">' . "\n" .
+				'						' . $post['subject'] . "\n" .
+				'				</span> ' . "\n";
 			}
 			
 			$info_post .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode'], $this->board_anonymous);
@@ -1167,7 +1165,7 @@ class Board {
 			}
 			
 			$info_post .= ' '.date("y/m/d(D)H:i", $post['postedat']) . "\n" .
-			'</label>' . "\n" .
+			'		</label>' . "\n" .
 			' <span class="reflink">' . "\n" .
 			'	<a href="'.KU_BOARDSFOLDER.$post_board.'/res/'.$post_thread_start_id.'.html#'.$post['id'].'"';
 			if (!$page) {
@@ -1229,7 +1227,7 @@ class Board {
 				'		&gt;&gt;' . "\n" .
 				'	</td>' . "\n" .
 				'	<td class="reply" id="reply'.$post['id'].'">' . "\n" .
-				'		' . $info_post . "\n";
+				'		' . $info_post;
 				/* Make sure the file line is actually in use to prevent an unwanted <br> */
 				if ($info_file != '') {
 					$buildpost_output .= '		<br>' . $info_file . "\n";
@@ -1606,11 +1604,18 @@ class Board {
 			if ($listpage >= 0 && $liststooutput >= 0) {
 				$output .= _gettext('Pages') . ':&nbsp;<a href="'.KU_BOARDSPATH . '/' . $this->board_dir . '/">' . _gettext('Front') . '</a>';
 				for ($i = 0; $i <= $liststooutput; $i++) {
-					$output .= '&nbsp;<a href="list';
-					if ($i!=0) {
-						$output .= $i;
+					$output .= '&nbsp;';
+					if ($listpage != $i) {
+						$output .= '<a href="list';
+						if ($i != 0) {
+							$output .= $i;
+						}
+						$output .= '.html">';
 					}
-					$output .= '.html">'.($i+1).'</a>';
+					$output .= ($i + 1);
+					if ($listpage != $i) {
+						$output .= '</a>';
+					}
 				}
 				$output .= '<br>' . "\n";
 			}
