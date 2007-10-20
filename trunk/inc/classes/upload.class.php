@@ -184,10 +184,7 @@ class Upload {
 							}
 						} else {
 							/* Fetch the mime requirement for this special filetype */
-							$results = $tc_db->GetAll("SELECT `mime` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string(substr($this->file_type, 1)) . "' LIMIT 1");
-							foreach ($results as $line) {
-								$filetype_required_mime = $line['mime'];
-							}
+							$filetype_required_mime = $tc_db->GetOne("SELECT `mime` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string(substr($this->file_type, 1)) . "'");
 							
 							$this->file_name = str_replace(' ', '_', $this->file_name);
 							$this->file_name = str_replace('#', '(number)', $this->file_name);
