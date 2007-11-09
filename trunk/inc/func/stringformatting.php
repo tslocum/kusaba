@@ -37,6 +37,59 @@ function formatNameAndTrip($name, $email, $tripcode, $anonymous = 'Anonymous') {
 	return $output;
 }
 
+function formatDate($timestamp, $type = 'post', $locale = 'en') {
+	if ($type == 'post') {
+		if ($locale == 'ja') {
+			/* Format the timestamp japanese style */
+			$fulldate = strftime("%Y年%m月%d日(DAYOFWEEK)%H時%M分", $timestamp);
+			$dayofweek = strftime("%a", $timestamp);
+			
+			/* I don't like this method, but I can't rely on PHP's locale settings to do it for me... */
+			switch ($dayofweek) {
+			case 'Sun':
+				$dayofweek = '日';
+				break;
+				
+			case 'Mon':
+				$dayofweek = '月';
+				break;
+				
+			case 'Tue':
+				$dayofweek = '火';
+				break;
+				
+			case 'Wed':
+				$dayofweek = '水';
+				break;
+				
+			case 'Thu':
+				$dayofweek = '木';
+				break;
+				
+			case 'Fri':
+				$dayofweek = '金';
+				break;
+				
+			case 'Sat':
+				$dayofweek = '土';
+				break;
+				
+			default:
+				break; /* Leave it as the english term */
+				
+			}
+			
+			$fulldate = str_replace('DAYOFWEEK', $dayofweek, $fulldate);
+			return $fulldate;
+		} else {
+			/* Format the timestamp english style */
+			return date("y/m/d(D)H:i", $timestamp);
+		}
+	}
+	
+	return date("y/m/d(D)H:i", $timestamp);
+}
+
 /**
  * Calculate the different name and tripcode for the name field provided
  *

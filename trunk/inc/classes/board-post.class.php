@@ -1046,7 +1046,7 @@ class Board {
 	 * @return string The built post	 	 	 	 	 	 
 	 */	 
 	function BuildPost($page, $post_board, $post_board_type, $post, $thread_replies=0, $thread_relative_id='', $reply_relative_id=0, $threads_on_front_page=0) {
-		global $expandjavascript;
+		global $expandjavascript, $CURRENTLOCALE;
 		$buildpost_output = '';
 		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
 		$post_is_thread = ($post['parentid']==0) ? true : false;
@@ -1164,7 +1164,7 @@ class Board {
 				'</span>' . "\n";
 			}
 			
-			$info_post .= ' '.date("y/m/d(D)H:i", $post['postedat']) . "\n" .
+			$info_post .= ' ' . formatDate($post['postedat'], 'post', $CURRENTLOCALE) . "\n" .
 			'		</label>' . "\n" .
 			' <span class="reflink">' . "\n" .
 			'	<a href="'.KU_BOARDSFOLDER.$post_board.'/res/'.$post_thread_start_id.'.html#'.$post['id'].'"';

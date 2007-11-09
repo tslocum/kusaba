@@ -56,13 +56,16 @@ if ($kusabaorg) {
 </head>
 <?php
 if (isset($_GET['info'])) {
-	require_once KU_ROOTDIR . 'inc/module.php';
+	require KU_ROOTDIR . 'inc/functions.php';
 	
 	echo '<body>';
 	
 	echo '<h1>General info:</h1><ul>';
+	echo '<li>Version: kusaba ' . KU_VERSION . '</li>';
 	$bans = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."banlist`");
 	echo '<li>Active bans: ' . $bans . '</li>';
+	$wordfilters = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."wordfilter`");
+	echo '<li>Wordfilters: ' . $wordfilters . '</li>';
 	echo '<li>Modules loaded: ';
 	$modules = modules_list();
 	if (count($modules) > 0) {
