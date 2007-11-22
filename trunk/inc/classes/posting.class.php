@@ -311,13 +311,13 @@ class Posting {
 	
 	function CheckBlacklistedText() {
 		global $bans_class;
-		$badlinks = file(KU_ROOTDIR . 'spam.txt');
-		
+		$badlinks = array_map('rtrim', file(KU_ROOTDIR . 'spam.txt'));
+
 		foreach ($badlinks as $badlink) {
-			if (strpos($_POST['message'], substr($badlink, 0, -1)) !== false) {
+			if (strpos($_POST['message'], $badlink) !== false) {
 				/* They included a blacklisted link in their post.  Ban them for an hour */
-				$bans_class->BanUser($_SERVER['REMOTE_ADDR'], 'board.php', 1, 3600, '', _gettext('Posting a blacklisted link.') . ' (' . substr($badlink, 0, -1) . ')');
-				exitWithErrorPage('Blacklisted link ('.substr($badlink, 0, -1).') detected.');
+				$bans_class->BanUser($_SERVER['REMOTE_ADDR'], 'board.php', 1, 3600, '', _gettext('Posting a blacklisted link.') . ' (' . $badlink . ')');
+				exitWithErrorPage('Blacklisted link (' . $badlink . ') detected.');
 			}
 		}
 	}

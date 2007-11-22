@@ -78,8 +78,6 @@ function do_redirect($url, $ispost = false, $file = '') {
 		echo '---> ---> --->';
 	}
 	
-	echo '<meta http-equiv="refresh" content="1;url=' . $url . '">';
-	
-	die();
+	die('<meta http-equiv="refresh" content="1;url=' . $url . '">');
 }
 ?>

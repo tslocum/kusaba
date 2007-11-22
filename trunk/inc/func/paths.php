@@ -2,9 +2,9 @@
 function getCWebPath() {
 	if (KU_WEBCORAL != '') {
 		return KU_WEBCORAL . '/';
-	} else {
-		return KU_WEBPATH . '/';
 	}
+	
+	return KU_WEBPATH . '/';
 }
 
 function getCLBoardPath($board = '', $loadbalanceurl = '', $archivedir = '') {

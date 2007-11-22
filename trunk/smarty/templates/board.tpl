@@ -7,8 +7,9 @@
 	var hiddenthreads = getCookie('hiddenthreads').split('!');
 </script>
 <link rel="shortcut icon" href="{$ku_webpath}/favicon.ico">
-<meta http-equiv="cache-control" content="no-cache, must-revalidate">
 <meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="cache-control" content="post-check=0, pre-check=0">
 <meta http-equiv="expires" content="-1">
 </head>
 {$page}

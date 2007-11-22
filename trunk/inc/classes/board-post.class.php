@@ -1787,7 +1787,7 @@ class Board {
 		$results = $tc_db->GetAll("SELECT `maximagesize` FROM `".KU_DBPREFIX."boards` WHERE `name` = '" . mysql_real_escape_string($board) . "' LIMIT 1");
 		foreach($results AS $line) {
 			$filetypes = '';
-			$filetypes_allowed = $tc_db->GetAll("SELECT ".KU_DBPREFIX."filetypes.filetype FROM ".KU_DBPREFIX."boards, ".KU_DBPREFIX."filetypes, ".KU_DBPREFIX."board_filetypes WHERE ".KU_DBPREFIX."boards.id = '" . $this->board_id . "' AND ".KU_DBPREFIX."board_filetypes.boardid = ".KU_DBPREFIX."boards.id AND ".KU_DBPREFIX."board_filetypes.typeid = ".KU_DBPREFIX."filetypes.id ORDER BY ".KU_DBPREFIX."filetypes.filetype ASC;");
+			$filetypes_allowed = $tc_db->GetAll("SELECT ".KU_DBPREFIX."filetypes.filetype FROM ".KU_DBPREFIX."boards, ".KU_DBPREFIX."filetypes, ".KU_DBPREFIX."board_filetypes WHERE ".KU_DBPREFIX."boards.id = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.boardid = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.typeid = ".KU_DBPREFIX."filetypes.id ORDER BY ".KU_DBPREFIX."filetypes.filetype ASC;");
 			if ($filetypes_allowed == '') {
 				$filetypes = _gettext('None');
 			} else {

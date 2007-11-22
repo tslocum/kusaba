@@ -172,9 +172,9 @@ function calculateNameAndTripcode($post_name) {
 		$tc_db->Execute("INSERT INTO `".KU_DBPREFIX."passcache` ( `md5` , `name` , `tripcode` ) VALUES ( '" . md5($post_name) . "' , '" . $name . "' , '" . $tripcode . "' )");
 		
 		return array($name, $tripcode);
-	} else {
-		return $post_name;
 	}
+	
+	return $post_name;
 }
 
 /**

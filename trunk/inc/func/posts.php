@@ -30,9 +30,9 @@ function checkMd5($md5, $board) {
 		$real_parentid = ($matches[0][1] == 0) ? $matches[0][0] : $matches[0][1];
 		
 		return array($real_parentid, $matches[0][0]);
-	} else {
-		return false;
 	}
+	
+	return false;
 }
 
 /* Image handling */
@@ -173,9 +173,9 @@ function fastImageCopyResampled(&$dst_image, &$src_image, $dst_x, $dst_y, $src_x
 function checkMarkedForDeletion($post, $maxage) {
 	if (!$post['stickied'] && $post['parentid'] == 0 && (($maxage > 0 && ($post['postedat']  + ($maxage * 3600)) < (time() + 7200)) || ($post['deletedat'] > 0 && $post['deletedat'] <= (time() + 7200)))) {
 		return true;
-	} else {
-		return false;
 	}
+	
+	return false;
 }
 
 function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = false, $threadid = false, $formid = '') {
