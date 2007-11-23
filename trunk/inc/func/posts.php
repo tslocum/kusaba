@@ -196,9 +196,7 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 		if ($enablecaptcha == 1) {
 			$output .= textBoardReplyBoxCaptcha();
 		}
-		$output .= textBoardReplyBoxPassword() .
-		'</tr>' . "\n" .
-		'<tr style="display: none;" id="opt' . $threadid . '">';
+		$output .= textBoardReplyBoxPassword();
 	} else {
 		$output .= textBoardReplyBoxEmail();
 		if ($enablecaptcha == 1) {
@@ -212,10 +210,9 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 			'<tr>' . "\n" .
 			textBoardReplyBoxPassword();
 		}
-		$output .= '</tr>' . "\n" .
-		'<tr style="display: none;" id="opt' . $threadid . '">';
 	}
 	$output .= '</tr>' . "\n" .
+	'<tr style="display: none;" id="opt' . $threadid . '"><td></td></tr>' . "\n" .
 	'<tr>' . "\n" .
 	'	<td class="postfieldleft">' . "\n" .
 	'		<span class="postnum">' . "\n";
@@ -239,7 +236,7 @@ function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = fa
 function textBoardReplyBoxSubject() {
 	return '<tr>' . "\n" .
 	'	<td class="label">' . "\n" .
-	'		<label for="subject">' . _gettext('Subject').':</label>' . "\n" .
+	'		<label>' . _gettext('Subject').':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td colspan="4">' . "\n" .//
 	'		<input name="subject" maxlength="75" size="50" style="width: 70%;">' . "\n" .
@@ -249,7 +246,7 @@ function textBoardReplyBoxSubject() {
 
 function textBoardReplyBoxName() {
 	return '	<td class="label">' . "\n" .
-	'		<label for="name">' . _gettext('Name').':</label>' . "\n" .
+	'		<label>' . _gettext('Name').':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input name="name" size="25" maxlength="75">' . "\n" .
@@ -258,7 +255,7 @@ function textBoardReplyBoxName() {
 
 function textBoardReplyBoxEmail() {
 	return '	<td class="label">' . "\n" .
-	'		<label for="em">' . _gettext('Email') . ':</label>' . "\n" .
+	'		<label>' . _gettext('Email') . ':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input name="em" size="25" maxlength="75">' . "\n" .
@@ -277,7 +274,7 @@ function textBoardReplyBoxCaptcha() {
 
 function textBoardReplyBoxPassword() {
 	return  '	<td class="label">' . "\n" .
-	'		<label for="postpassword">' . _gettext('Password') . ':</label>' . "\n" .
+	'		<label>' . _gettext('Password') . ':</label>' . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
 	'		<input type="password" name="postpassword" size="8" accesskey="p" maxlength="75">' . "\n" .

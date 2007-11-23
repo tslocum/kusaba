@@ -54,7 +54,7 @@ if (isset($_GET['graph'])) {
 			if ($_GET['type'] == 'day') {
 				$graph->setTitle('Posts per board in past 24hrs');
 				
-				$results = $ku_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {

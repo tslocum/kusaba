@@ -890,7 +890,7 @@ class Board {
 						unset($buildthread_replies);
 						
 						if (!$page) {
-							$buildthread_output .= '</span>' . "\n";
+							//$buildthread_output .= '</span>' . "\n";
 						}
 						$buildthread_output .= '</div>' . "\n";
 						
@@ -936,8 +936,7 @@ class Board {
 				
 				// }}}
 				
-				$buildthread_output .= '</div>' . "\n" .
-				'<br clear="left">' . "\n" . 
+				$buildthread_output .= '<br clear="left">' . "\n" . 
 				'<hr>' . "\n";
 			} elseif ($this->board_type == 3 && $page) {
 				// {{{ Upload imageboard page generation
@@ -1316,7 +1315,7 @@ class Board {
 					}
 				} else {
 					$buildpost_output .= '<span class="replies">&nbsp;('.$thread_replies.')</span>' . "\n" .
-					'</h3>' . "\n";
+					'</h2>' . "\n";
 					$buildpost_output .= '<div class="post even">' . "\n";
 				}
 			} else {
@@ -1532,17 +1531,17 @@ class Board {
 			'<script type="text/javascript"><!--' . "\n" .
 			'if (getCookie(\'showwatchedthreads\') == \'1\') {' . "\n" .
 			'	document.write(\'<div id="watchedthreads" style="top: ' . $ad_top . 'px; left: 25px;" class="watchedthreads">' .
-			'	<div class="postblock" id="watchedthreadsdraghandle" style="width: 100%;">' . _gettext('Watched Threads') . '</div>' .
-			'	<span id="watchedthreadlist"></span>' .
+			'	<div class="postblock" id="watchedthreadsdraghandle" style="width: 100%;">' . _gettext('Watched Threads') . '<\/div>' .
+			'	<span id="watchedthreadlist"><\/span>' .
 			'	<div id="watchedthreadsbuttons">' .
 			'	<a href="#" onclick="javascript:hidewatchedthreads();return false;" title="' . _gettext('Hide the watched threads box') . '">' .
 			'	<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidewatchedthreads" alt="hide">' .
-			'	</a>&nbsp;' .
+			'	<\/a>&nbsp;' .
 			'	<a href="#" onclick="javascript:getwatchedthreads(\\\'0\\\', \\\'' . $this->board_dir . '\\\');return false;" title="' . _gettext('Refresh watched threads') . '">' .
 			'	<img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="refreshwatchedthreads" alt="refresh">' .
-			'	</a>' .
-			'	</div>' .
-			'	</div>\');' . "\n" .
+			'	<\/a>' .
+			'	<\/div>' .
+			'	<\/div>\');' . "\n" .
 			'	watchedthreadselement = document.getElementById(\'watchedthreads\');' . "\n" .
 			'	watchedthreadselement.style.top = getCookie(\'watchedthreadstop\');' . "\n" .
 			'	watchedthreadselement.style.left = getCookie(\'watchedthreadsleft\');' . "\n" .
@@ -1717,13 +1716,16 @@ class Board {
 				
 				$relative_id++;
 			}
-			/* Remove the space and &nbsp; at the end */
-			$output = substr($output, 0, -8);
+			
+			if ($this->board_compactlist && $liststooutput < 0) {
+				/* Remove the space and &nbsp; at the end */
+				$output = substr($output, 0, -8);
+			}
 		} else {
 			if ($this->board_compactlist && $liststooutput < 0) {
-				$output .= _gettext('There are currently no threads to display.');
+				$output .= _gettext('There are currently no threads to display.') . "\n";
 			} else {
-				$output .= '<tr><td>N/A</td><td>'._gettext('There are currently no threads to display.').'</td><td>N/A</td><td>N/A</td></td>';
+				$output .= '<tr><td>N/A</td><td>'._gettext('There are currently no threads to display.').'</td><td>N/A</td><td>N/A</td></td>' . "\n";
 			}
 		}
 		if ($liststooutput < 0) {
@@ -1746,7 +1748,8 @@ class Board {
 		}
 		
 		if (!$this->board_compactlist || $liststooutput >= 0) {
-			$output .= '</tbody></table>' . "\n";
+			$output .= '</tbody>' . "\n" .
+			'</table>' . "\n";
 		}
 		
 		$output .= '</div>' . "\n" .
@@ -2017,6 +2020,7 @@ class Board {
 							$blotter = getBlotter();
 							if ($blotter != '') {
 								$output .= '<br>' . "\n" .
+								'<ul style="margin-left: 0; margin-top: 0; margin-bottom: 0; padding-left: 0;">' . "\n" .
 								'<li style="position: relative;">' . "\n" .
 								'	<span style="color: red;">' . "\n" .
 								'		' . _gettext('Blotter updated') . ': ' . date('m/d/y', getBlotterLastUpdated()) . "\n" .
@@ -2026,6 +2030,7 @@ class Board {
 								'	</span>' . "\n" .
 								'</li>' . "\n" .
 								$blotter .
+								'</ul>' . "\n" .
 								'<script type="text/javascript"><!--' . "\n" .
 								'if (getCookie(\'ku_showblotter\') == \'1\') {' . "\n" .
 								'	toggleblotter(false);' . "\n" .

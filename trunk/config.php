@@ -246,7 +246,27 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 				if ($line['name'] == 'pingback') {
 					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 43200) . " WHERE `name` = 'pingback'");
 					if (KU_PINGBACK != '') {
-						$ch = curl_init('http://www.kusaba.org/chans.php?dopingback&name=' . urlencode(KU_NAME) . '&password=' . urlencode(KU_PINGBACK) . '&version=' . KU_VERSION . '&url=' . urlencode(KU_WEBPATH));
+						$daypostcount = 0;
+						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						if (count($results) > 0) {
+							foreach ($results as $line) {
+								$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
+								
+								$daypostcount += $posts;
+							}
+						}
+						
+						$totalpostcount = 0;
+						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						if (count($results) > 0) {
+							foreach ($results as $line) {
+								$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
+								
+								$totalpostcount += $posts;
+							}
+						}
+						
+						$ch = curl_init('http://www.kusaba.org/chans.php?dopingback&name=' . urlencode(KU_NAME) . '&password=' . urlencode(KU_PINGBACK) . '&version=' . KU_VERSION . '&daypostcount=' . $daypostcount . '&postcount=' . $totalpostcount . '&url=' . urlencode(KU_WEBPATH));
 						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 						curl_setopt($ch, CURLOPT_HEADER, 0);
 						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
