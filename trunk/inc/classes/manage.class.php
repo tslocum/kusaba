@@ -1800,9 +1800,10 @@ class Manage {
 			management_addlogentry(sprintf(_gettext('Banned %d IP addresses using an IP address list.'), $successful), 8);
 			$tpl_page .= $successful . ' of ' . $ips . ' IP addresses banned.';
 		} else {
-			$tpl_page .= '<form id="postform" action="' . KU_CGIPATH . 'manage_page.php?action=proxyban" method="post" enctype="multipart/form-data">'._gettext('Proxy list').'<input type="file" name="imagefile" size="35" accesskey="f"><br>
+			$tpl_page .= '<form id="postform" action="' . KU_CGIPATH . '/manage_page.php?action=proxyban" method="post" enctype="multipart/form-data">'._gettext('Proxy list').'<input type="file" name="imagefile" size="35" accesskey="f"><br>
 			<input type="submit" value="Submit">
-			<br>The proxy list is assumed to be in plaintext *.*.*.*:port or *.*.*.* format, one IP per line.';
+			<br>The proxy list is assumed to be in plaintext *.*.*.*:port or *.*.*.* format, one IP per line.<br><br><hr>
+			<a href="http://spam.kusaba.org/?list" target="_top">Downloadable often-updated list of spammers (right-click -> save as)</a> - <a href="http://spam.kusaba.org/" target="_top">Explanation</a>';
 		}
 	}
 	
