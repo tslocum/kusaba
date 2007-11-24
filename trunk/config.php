@@ -183,7 +183,7 @@ if (!$cache_loaded) {
 		$cf['KU_GENERATEBOARDLIST'] = true; /* Set to true to automatically make the board list which is displayed ad the top and bottom of the board pages, or false to use the boards.html file */
 		
 	/* Language / timezone / encoding */
-		$cf['KU_LOCALE']  = 'en'; /* The locale of kusaba you would like to use.  Locales available: en, de, es, fi, it, nl, no, pl, ru */
+		$cf['KU_LOCALE']  = 'en'; /* The locale of kusaba you would like to use.  Locales available: en, de, et, es, fi, pl, nl, nb, ru, it, ja */
 		$cf['KU_CHARSET'] = 'UTF-8'; /* The character encoding to mark the pages as.  This must be the same in the .htaccess file (AddCharset charsethere .html and AddCharset charsethere .php) to function properly.  Only UTF-8 and Shift_JIS have been tested */
 		putenv('TZ=US/Pacific'); /* The time zone which the server resides in */
 		
