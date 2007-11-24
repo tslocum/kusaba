@@ -151,7 +151,7 @@ if (!$cache_loaded) {
 		$cf['KU_YOUTUBEHEIGHT']   = 164; /* Height to display embedded YouTube videos */
 		
 	/* Pages */
-		$cf['KU_POSTBOX']   = '<li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li>'; /* Notice displayed under the post area */
+		$cf['KU_POSTBOX']   = '<ul style="margin-left: 0; margin-top: 0; margin-bottom: 0; padding-left: 0;"><li>Supported file types are: <!tc_filetypes /></li><li>Maximum file size allowed is <!tc_maximagekb /> KB.</li><li>Images greater than <!tc_maxthumbwidth />x<!tc_maxthumbheight /> pixels will be thumbnailed.</li><li>Currently <!tc_uniqueposts /> unique user posts.<!tc_catalog /></li></ul>'; /* Notice displayed under the post area */
 		$cf['KU_FIRSTPAGE'] = 'board.html'; /* Filename of the first page of a board.  Only change this if you are willing to maintain the .htaccess files for each board directory (they are created with a DirectoryIndex board.html, change them if you change this) */
 		$cf['KU_DIRTITLE']  = false; /* Whether or not to place the board directory in the board's title and at the top of the page.  true would render as "/b/ - Random", false would render as "Random" */
 		
