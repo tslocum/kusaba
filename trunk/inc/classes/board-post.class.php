@@ -889,10 +889,11 @@ class Board {
 						$buildthread_output .= $expandjavascript . $buildthread_replies;
 						unset($buildthread_replies);
 						
-						if (!$page) {
-							//$buildthread_output .= '</span>' . "\n";
-						}
-						$buildthread_output .= '</div>' . "\n";
+						if ($page) {
+							$buildthread_output .= '</div>' . "\n";
+						} /*else {
+							$buildthread_output .= '</span>' . "\n";
+						}*/
 						
 						if (!$page) {
 							if ($modifier == 'first100') {
@@ -936,7 +937,8 @@ class Board {
 				
 				// }}}
 				
-				$buildthread_output .= '<br clear="left">' . "\n" . 
+				$buildthread_output .= '</div>' . "\n" . 
+				'<br clear="left">' . "\n" . 
 				'<hr>' . "\n";
 			} elseif ($this->board_type == 3 && $page) {
 				// {{{ Upload imageboard page generation

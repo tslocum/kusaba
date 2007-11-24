@@ -6,12 +6,16 @@
  * @return string Embedded video
  */ 
 function embeddedVideoBox($post) {
-	$output = '<span style="float: left;">';
+	$output = '<span style="float: left;">' . "\n";
 				
 	if ($post['filetype'] == 'you') {
-		$output .= '<object width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"><param name="movie" value="http://www.youtube.com/v/' . $post['filename'] . '"></param><param name="wmode" value="transparent"></param><embed src="http://www.youtube.com/v/' . $post['filename'] . '" type="application/x-shockwave-flash" wmode="transparent" width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"></embed></object>';
+		$output .= '<script type="text/javascript"><!--' . "\n" .
+		'document.write(\'<object width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"><param name="movie" value="http://www.youtube.com/v/' . $post['filename'] . '"><\/param><param name="wmode" value="transparent"><\/param><embed src="http://www.youtube.com/v/' . $post['filename'] . '" type="application/x-shockwave-flash" wmode="transparent" width="' . KU_YOUTUBEWIDTH . '" height="' . KU_YOUTUBEHEIGHT . '"><\/embed><\/object>\');' . "\n" .
+		'--></script>' . "\n";
 	} elseif ($post['filetype'] == 'goo') {
-		$output .= '<embed style="width:200px; height:164px;" id="VideoPlayback" type="application/x-shockwave-flash" src="http://video.google.com/googleplayer.swf?docId=' . $post['filename'] . '&hl=en" flashvars=""></embed>';
+		$output .= '<script type="text/javascript"><!--' . "\n" .
+		'document.write(\'<embed style="width:200px; height:164px;" id="VideoPlayback" type="application/x-shockwave-flash" src="http://video.google.com/googleplayer.swf?docId=' . $post['filename'] . '&hl=en" flashvars=""><\/embed>\');' . "\n" .
+		'--></script>' . "\n";
 	}
 	
 	$output .= '</span>&nbsp;' . "\n";
