@@ -93,7 +93,6 @@ class Upload {
 						}
 					}
 					if (!$pass) {
-						echo 'fff';
 						exitWithErrorPage(_gettext('File transfer failure.  Please go back and try again.'));
 					}
 					
@@ -133,7 +132,7 @@ class Upload {
 								$loadbalancer->url = $board_class->board_loadbalanceurl;
 								$loadbalancer->password = $board_class->board_loadbalancepassword;
 								
-								$response = $loadbalancer->Send('thumbnail', $_FILES['imagefile']['tmp_name'], 'src/' . $this->file_name . $this->file_type, 'thumb/' . $this->file_name . 's' . $this->file_type, 'thumb/' . $this->file_name . 'c' . $this->file_type, '', $this->isreply, true);
+								$response = $loadbalancer->Send('thumbnail', base64_encode(file_get_contents($_FILES['imagefile']['tmp_name'])), 'src/' . $this->file_name . $this->file_type, 'thumb/' . $this->file_name . 's' . $this->file_type, 'thumb/' . $this->file_name . 'c' . $this->file_type, '', $this->isreply, true);
 								
 								if ($response != 'failure' && $response != '') {
 									$response_unserialized = unserialize($response);
@@ -195,7 +194,7 @@ class Upload {
 							/* If this board has a load balance url and password configured for it, attempt to use it */
 							if ($board_class->board_loadbalanceurl != '' && $board_class->board_loadbalancepassword != '') {
 								require_once KU_ROOTDIR . 'inc/classes/loadbalancer.class.php';
-								$loadbalancer = new LoadBalancer;
+								$loadbalancer = new Load_Balancer;
 								
 								$loadbalancer->url = $board_class->board_loadbalanceurl;
 								$loadbalancer->password = $board_class->board_loadbalancepassword;

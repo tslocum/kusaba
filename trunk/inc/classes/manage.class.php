@@ -1791,6 +1791,7 @@ class Manage {
 			$proxies = file($_FILES['imagefile']['tmp_name']);
 			foreach($proxies as $proxy) {
 				if (preg_match('/.[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+.*/', $proxy)) {
+					$proxy = trim($proxy);
 					$ips++;
 					if ($bans_class->BanUser(preg_replace('/:.*/', '', $proxy), 'SERVER', 1, 0, '', 'IP from proxylist automatically banned', 0)) {
 						$successful++;

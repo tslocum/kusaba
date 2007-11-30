@@ -8,6 +8,7 @@ function getCWebPath() {
 }
 
 function getCLBoardPath($board = '', $loadbalanceurl = '', $archivedir = '') {
+	global $board_class;
 	if ($loadbalanceurl == '') {
 		if (KU_BOARDSCORAL != '' && $archivedir == '') {
 			return KU_BOARDSCORAL . '/' . $board;
@@ -15,7 +16,7 @@ function getCLBoardPath($board = '', $loadbalanceurl = '', $archivedir = '') {
 			return KU_BOARDSPATH . '/' . $board . $archivedir;
 		}
 	} elseif ($board != '') {
-		return $this->board_loadbalanceurl_formatted;
+		return $board_class->board_loadbalanceurl_formatted;
 	}
 }
 ?>
