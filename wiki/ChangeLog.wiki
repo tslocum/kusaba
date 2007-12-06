@@ -17,6 +17,7 @@
   * Pingbacks now send post count statistics
   * Better page validation (http://validator.w3.org/ )
   * Ban proxy list file submitting has been fixed
+  * The default configuration values for the paths is now completely up to the user to enter.  I'm sick of constantly having people rely solely on it and then post support threads about how it is incorrect
 
 = 1.0.2 =
   * KU_WEBCORAL and KU_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
