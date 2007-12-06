@@ -100,8 +100,8 @@ if (!$cache_loaded) {
 			$cf['KU_CGIPATH']   = $cf['KU_BOARDSPATH'];
 			
 		/* Coralized URLs (optional, change to enable) */
-			$cf['KU_WEBCORAL']  = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
-			$cf['KU_BOARDSCORAL']   = '';
+			$cf['KU_WEBCORAL']    = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
+			$cf['KU_BOARDSCORAL'] = '';
 			
 	/* Templates */
 		$cf['KU_TEMPLATEDIR']       = $cf['KU_ROOTDIR'] . 'smarty/templates'; /* Smarty templates directory */
