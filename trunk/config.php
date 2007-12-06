@@ -82,24 +82,27 @@ if (!$cache_loaded) {
 	
 	/* Paths and URLs */
 		/* Main installation directory */
-			/* NOTE!  You probably will NOT need to edit these, unless you use the BOARDS* or CGI* options below, which you probably won't! */
-			$cf['KU_ROOTDIR']   = dirname($_SERVER['SCRIPT_FILENAME']) . '/'; /* Full system path of the folder containing kusaba.php, with trailing slash */
-			$cf['KU_WEBFOLDER'] = dirname($_SERVER['PHP_SELF']) . '/'; /* The path from the domain of the board to the folder which kusaba is in, including the trailing slash.  Example: "http://www.yoursite.com/misc/kusaba/" would have a $cf['KU_WEBFOLDER'] of "/misc/kusaba/" */
-			$cf['KU_WEBPATH']   = 'http://' . $_SERVER['HTTP_HOST'] . $cf['KU_WEBFOLDER']; /* The path to the index folder of kusaba, without trailing slash */
-			$cf['KU_WEBCORAL']  = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
-			$cf['KU_DOMAIN']    = '.' . $_SERVER['HTTP_HOST']; /* Used in cookies for the domain parameter.  Should be a period and then the top level domain, which will allow the cookies to be set for all subdomains.  For http://www.randomchan.org, the domain would be .randomchan.org; http://zachchan.freehost.com would be zach.freehost.com */
-		
+			$cf['KU_ROOTDIR']   = 'CHANGEME'; /* Full system path of the folder containing kusaba.php, with trailing slash */
+			$cf['KU_WEBFOLDER'] = 'CHANGEME'; /* The path from the domain of the board to the folder which kusaba is in, including the trailing slash.  Example: "http://www.yoursite.com/misc/kusaba/" would have a $cf['KU_WEBFOLDER'] of "/misc/kusaba/" */
+			$cf['KU_WEBPATH']   = 'CHANGEME'; /* The path to the index folder of kusaba, without trailing slash */
+			$cf['KU_DOMAIN']    = 'CHANGEME'; /* Used in cookies for the domain parameter.  Should be a period and then the top level domain, which will allow the cookies to be set for all subdomains.  For http://www.randomchan.org, the domain would be .randomchan.org; http://zachchan.freehost.com would be zach.freehost.com */
+			
 		/* Board subdomain/alternate directory (optional, change to enable) */
+			/* DO NOT CHANGE THESE IF YOU DO NOT KNOW WHAT YOU ARE DOING!! */
 			$cf['KU_BOARDSDIR']    = $cf['KU_ROOTDIR'];
 			$cf['KU_BOARDSFOLDER'] = $cf['KU_WEBFOLDER'];
 			$cf['KU_BOARDSPATH']   = $cf['KU_WEBPATH'];
-			$cf['KU_BOARDSCORAL']   = '';
 		
 		/* CGI subdomain/alternate directory (optional, change to enable) */
+			/* DO NOT CHANGE THESE IF YOU DO NOT KNOW WHAT YOU ARE DOING!! */
 			$cf['KU_CGIDIR']    = $cf['KU_BOARDSDIR'];
 			$cf['KU_CGIFOLDER'] = $cf['KU_BOARDSFOLDER'];
 			$cf['KU_CGIPATH']   = $cf['KU_BOARDSPATH'];
-		
+			
+		/* Coralized URLs (optional, change to enable) */
+			$cf['KU_WEBCORAL']  = ''; /* Set to the coralized version of your webpath to enable.  If not set to '', URLs which can safely be cached will be coralized, and will use the Coral Content Distribution Network.  Example: http://www.kusaba.org becomes http://www.kusaba.org.nyud.net, http://www.crapchan.org/kusaba becomes http://www.crapchan.org.nyud.net/kusaba */
+			$cf['KU_BOARDSCORAL']   = '';
+			
 	/* Templates */
 		$cf['KU_TEMPLATEDIR']       = $cf['KU_ROOTDIR'] . 'smarty/templates'; /* Smarty templates directory */
 		$cf['KU_CACHEDTEMPLATEDIR'] = $cf['KU_ROOTDIR'] . 'smarty/templates_c'; /* Smarty compiled templates directory.  This folder MUST be writable (you may need to chmod it to 755).  Set to '' to disable template caching */
