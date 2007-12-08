@@ -1,6 +1,9 @@
 #summary kusaba changelog
 #labels Featured
-= 1.0.3=
+= 1.0.4 =
+  * The staff page now shows the time which each staff member was last active
+
+= 1.0.3 =
   * The number of images omitted will now display with the proper number
   * You may now choose to use a compact thread list on the front page of text boards by using the Compact List option in board options
   * Setting KU_MENUTYPE to plain will now make the menu much smaller and less styled
