@@ -194,7 +194,7 @@ if (!$cache_loaded) {
 		$cf['KU_DEBUG'] = false; /* When enabled, debug information will be printed (Warning: all queries will be shown publicly) */
 	
 	/* Post-configuration actions, don't modify these */
-		$cf['KU_VERSION']    = '1.0.3';
+		$cf['KU_VERSION']    = '1.0.4';
 		$cf['KU_TAGS']       = serialize($cf['KU_TAGS']);
 		$cf['KU_TRIPS']      = serialize($cf['KU_TRIPS']);
 		$cf['KU_LINELENGTH'] = $cf['KU_LINELENGTH'] * 15;

@@ -510,6 +510,9 @@ msgstr ""
 msgid "That ID is a reply, not a thread."
 msgstr ""
 
+msgid "Posting password"
+msgstr ""
+
 msgid "Your posting password"
 msgstr ""
 
@@ -1402,6 +1405,12 @@ msgid "Appeal successfully denied."
 msgstr ""
 
 msgid "Denied the ban appeal for"
+msgstr ""
+
+msgid "Last active"
+msgstr ""
+
+msgid "Online now"
 msgstr ""
 
 msgid "translator-credits"

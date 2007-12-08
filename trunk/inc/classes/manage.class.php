@@ -57,6 +57,9 @@ class Manage {
 				session_destroy();
 				exitWithErrorPage(_gettext('Invalid session.'), '<a href="manage_page.php">' . _gettext('Log in again.') . '</a>');
 			}
+			
+			$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `lastactive` = " . time() . " WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");		
+			
 			return true;
 		} else {
 			if (!$is_menu) {
@@ -1535,11 +1538,12 @@ class Manage {
 			$ban_ip = $_GET['ip'];
 		}
 		
-		$tpl_page .= '<label for="ip">'._gettext('IP').':</label>
+		$tpl_page .= '<fieldset>
+		<legend>IP address and ban type</legend>
+		<label for="ip">'._gettext('IP').':</label>
 		<input type="text" name="ip" value="'.$ban_ip.'">';
 		if ($ban_ip != '') { $tpl_page .= '&nbsp;&nbsp;<a href="?action=deletepostsbyip&ip=' . $ban_ip . '" target="_blank">' . _gettext('Delete all posts by this IP') . '</a>'; }
 		$tpl_page .= '<br>
-		
 		<label for="allowread">Allow read:</label>
 		<select name="allowread"><option value="1">Yes</option><option value="0">No</option></select>
 		<div class="desc">Whether or not the user(s) affected by this ban will be allowed to read the boards.<br><b>Warning</b>: Selecting No will prevent any reading of any page on the level of the boards on the server.<br>Changing this option to No will provide a global ban, whether or not you set the option below.</div><br>
@@ -1554,13 +1558,18 @@ class Manage {
 			<div class="desc">If checked, the configured ban message will be added to the end of the post.</div><br>';
 		}
 		
-		$tpl_page .= _gettext('Ban from').':&nbsp;<label for="banfromall"><b>'._gettext('All boards').'</b></label>
-		<input type="checkbox" name="banfromall"><br>OR<br>' .
+		$tpl_page .= '</fieldset>
+		<fieldset>
+		<legend>' . _gettext('Ban from') . '</legend>
+		<label for="banfromall"><b>'._gettext('All boards').'</b></label>
+		<input type="checkbox" name="banfromall"><br><hr><br>' .
 		$this->MakeBoardListCheckboxes('bannedfrom', $this->BoardList($_SESSION['manageusername'])) .
-		'<br>';
+		'</fieldset>';
 		
 		if (isset($ban_hash)) {
-			$tpl_page .= '<input type="hidden" name="hash" value="' . $ban_hash . '">
+			$tpl_page .= '<fieldset>
+			<legend>Ban file</legend>
+			<input type="hidden" name="hash" value="' . $ban_hash . '">
 			
 			<label for="banhashtime">Ban file hash for:</label>
 			<input type="text" name="banhashtime">
@@ -1568,10 +1577,13 @@ class Manage {
 			
 			<label for="banhashdesc">Ban file hash description:</label>
 			<input type="text" name="banhashdesc">
-			<div class="desc">The description of the image being banned.  Not applicable if the above box is blank.</div><br>';
+			<div class="desc">The description of the image being banned.  Not applicable if the above box is blank.</div>
+			</fieldset>';
 		}
 		
-		$tpl_page .= '<label for="seconds">'._gettext('Seconds').':</label>
+		$tpl_page .= '<fieldset>
+		<legend>Ban duration, reason, and appeal information</legend>
+		<label for="seconds">'._gettext('Seconds').':</label>
 		<input type="text" name="seconds">
 		<div class="desc">'._gettext('Presets').':&nbsp;<a href="#" onclick="document.banform.seconds.value=\'3600\';">1hr</a>&nbsp;<a href="#" onclick="document.banform.seconds.value=\'604800\';">1w</a>&nbsp;<a href="#" onclick="document.banform.seconds.value=\'1209600\';">2w</a>&nbsp;<a href="#" onclick="document.banform.seconds.value=\'2592000\';">30d</a>&nbsp;<a href="#" onclick="document.banform.seconds.value=\'31536000\';">1yr</a>&nbsp;<a href="#" onclick="document.banform.seconds.value=\'0\';">never</a></div><br>
 		
@@ -1585,7 +1597,8 @@ class Manage {
 			<div class="desc">'._gettext('Presets').':&nbsp;<a href="#" onclick="document.banform.appealdays.value=\'0\';">No Appeal</a>&nbsp;<a href="#" onclick="document.banform.appealdays.value=\'5\';">5 days</a>&nbsp;<a href="#" onclick="document.banform.appealdays.value=\'10\';">10 days</a>&nbsp;<a href="#" onclick="document.banform.appealdays.value=\'30\';">30 days</a></div><br>';
 		}
 		
-		$tpl_page .= '<input type="submit" value="'._gettext('Add ban').'">
+		$tpl_page .= '</fieldset>
+		<input type="submit" value="'._gettext('Add ban').'">
 		
 		</form>
 		<hr><br>';
@@ -2421,21 +2434,37 @@ class Manage {
 		</form>
 		<hr><br>';
 		
-		$tpl_page .= '<table border="1" width="100%"><tr><th>Username</th><th>Added on</th><th>' . _gettext('Moderating boards') . '</th><th>&nbsp;</th></tr>' . "\n";
-		$tpl_page .= '<tr><td align="center" colspan="4"><font size="+1"><b>' . _gettext('Administrators') . '</b></font></td></tr>' . "\n";
+		$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('Username') . '</th><th>' . _gettext('Added on') . '</th><th>' . _gettext('Last active') . '</th><th>' . _gettext('Moderating boards') . '</th><th>&nbsp;</th></tr>' . "\n";
+		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Administrators') . '</b></font></td></tr>' . "\n";
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '1' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
-				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>&nbsp;</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
+				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
+				if ($line['lastactive'] == 0) {
+					$tpl_page .= _gettext('Never');
+				} elseif ((time() - $line['lastactive']) > 300) {
+					$tpl_page .= timeDiff($line['lastactive'], false);
+				} else {
+					$tpl_page .= _gettext('Online now');
+				}
+				$tpl_page .= '</td><td>&nbsp;</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
 			}
 		} else {
 			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
 		}
-		$tpl_page .= '<tr><td align="center" colspan="4"><font size="+1"><b>' . _gettext('Moderators') . '</b></font></td></tr>' . "\n";
+		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Moderators') . '</b></font></td></tr>' . "\n";
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '2' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
+				if ($line['lastactive'] == 0) {
+					$tpl_page .= _gettext('Never');
+				} elseif ((time() - $line['lastactive']) > 300) {
+					$tpl_page .= timeDiff($line['lastactive'], false);
+				} else {
+					$tpl_page .= _gettext('Online now');
+				}
+				$tpl_page .= '</td><td>';
 				if ($line['boards'] != '') {
 					if ($line['boards'] == 'allboards') {
 						$tpl_page .= 'All boards';
@@ -2450,11 +2479,19 @@ class Manage {
 		} else {
 			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
 		}
-		$tpl_page .= '<tr><td align="center" colspan="4"><font size="+1"><b>' . _gettext('Janitors') . '</b></font></td></tr>' . "\n";
+		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Janitors') . '</b></font></td></tr>' . "\n";
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '0' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
+				if ($line['lastactive'] == 0) {
+					$tpl_page .= _gettext('Never');
+				} elseif ((time() - $line['lastactive']) > 300) {
+					$tpl_page .= timeDiff($line['lastactive'], false);
+				} else {
+					$tpl_page .= _gettext('Online now');
+				}
+				$tpl_page .= '</td><td>';
 				if ($line['boards'] != '') {
 					if ($line['boards'] == 'allboards') {
 						$tpl_page .= 'All boards';
@@ -2467,17 +2504,17 @@ class Manage {
 				$tpl_page .= '</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
 			}
 		} else {
-			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
+			$tpl_page .= '<tr><td colspan="5">' . _gettext('None') . '</td></tr>' . "\n";
 		}
-		$tpl_page .= '<tr><td align="center" colspan="4"><font size="+1"><b>VIP</b></font></td></tr>' . "\n";
-		$tpl_page .= '<tr><th>Posting password</th><th colspan="2">Added on</th><th>&nbsp;</th>' . "\n";;
+		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>VIP</b></font></td></tr>' . "\n";
+		$tpl_page .= '<tr><th>' . _gettext('Posting password') . '</th><th colspan="3">' . _gettext('Added on') . '</th><th>&nbsp;</th>' . "\n";;
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '3' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td colspan="2">' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
 			}
 		} else {
-			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
+			$tpl_page .= '<tr><td colspan="5">' . _gettext('None') . '</td></tr>' . "\n";
 		}
 		$tpl_page .= '</table>';
 	}
