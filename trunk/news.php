@@ -117,14 +117,15 @@ if ($_GET['p']=='faq') {
 }
 
 /* Don't worry about this, it only applies to my personal installation of kusaba */
-if (isset($kusabaorg)) {
-	echo '<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-	</script>
-	<script type="text/javascript">
-	_uacct = "UA-71983-11";
-	urchinTracker(document.referrer);
-	</script>';
-}
+if (isset($kusabaorg)) { echo '<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write("\<script src=\'" + gaJsHost + "google-analytics.com/ga.js\' type=\'text/javascript\'>\<\/script>" );
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-71983-11");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>'; }
 ?>
 </body>
 </html>

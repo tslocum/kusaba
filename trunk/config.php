@@ -269,7 +269,34 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 							}
 						}
 						
-						$ch = curl_init('http://www.kusaba.org/chans.php?dopingback&name=' . urlencode(KU_NAME) . '&password=' . urlencode(KU_PINGBACK) . '&version=' . KU_VERSION . '&daypostcount=' . $daypostcount . '&postcount=' . $totalpostcount . '&url=' . urlencode(KU_WEBPATH));
+						$boards = '';
+						/*
+						For the above, if you wish to have your boards listed in the Directory, the format is as follows:
+						boarddir|boarddesc,boarddir2|boarddesc2
+						
+						So, an example $boards configuration would be:
+						b|Random,c|Comments,sug|Suggestions,sup|Support
+						
+						DO NOT USE SPECIAL CHARACTERS (UTF-8 stuff) AS IT WILL BREAK URLENCODE AND YOUR PINGBACK WILL NOT WORK!
+						USE ONLY NORMAL LETTERS/NUMBERS, AND REPLACE ALL SPACES WITH + SIGNS!
+						
+						See http://code.google.com/p/kusaba/wiki/DirectoryBoards for a script to auto-generate the $boards value
+						*/
+						
+						/* Because of DreamHost's WONDERFUL AND HELPFUL security measures, it will fail if I try and supply an urlencoded URL twice */
+						$nohttpboardspath = str_replace('http://', '', KU_BOARDSPATH);
+						
+						$url = 'http://www.kusaba.org/chans.php?dopingback' .
+						'&name=' . urlencode(KU_NAME) .
+						'&password=' . urlencode(KU_PINGBACK) .
+						'&version=' . KU_VERSION .
+						'&daypostcount=' . $daypostcount .
+						'&postcount=' . $totalpostcount .
+						'&boardspath=' . urlencode($nohttpboardspath) .
+						'&boards=' . $boards .
+						'&url=' . urlencode(KU_WEBPATH);
+						
+						$ch = curl_init($url);
 						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 						curl_setopt($ch, CURLOPT_HEADER, 0);
 						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
