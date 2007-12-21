@@ -14,6 +14,7 @@ People *will not* come to your site if:
 
 I'll go into a bit more detail on each.
 
+
 == It is unoriginal ==
 
 From what I have seen, I can make a good guess that at least one quarter to one half of all kusaba installations are just 4chan clones, with a different name.  There is already a 4chan, what makes your site so much better?  Claiming that you have better mods, or a tighter community, or any other small things like that will not grab users' attention.
@@ -37,3 +38,10 @@ Don't forget that kusaba does support janitors, which can only delete posts from
 == It does not have a sense of community ==
 
 This also ties with the above two.  Installing kusaba, giving it a name, making a few boards and then saying "okay, go." will not leave your users with a sense of you even caring about what happens.  Post with your users, inform them of how things are going with the site, make contests (if it suits your site's focus).
+
+
+= Good ways to show effort =
+
+ * Write your own board/site styles to make your site stand out
+ * Rearrange some of the content in pages to make your site unique (this requires some kusaba knowledge)
+ * 
