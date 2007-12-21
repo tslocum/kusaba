@@ -5,7 +5,7 @@
 These are from my experience mainly with 7chan, however also with many smaller chans which I have seen come, scratch their heads at why they don't have any users, and then go just as quickly as they arrived.
 
 
-= Before you even buy the domain =
+= What not to do =
 
 People *will not* come to your site if:
  * It is unoriginal (this is a huge factor)
@@ -31,3 +31,9 @@ You need to think about how you are going to show that you care.  Make a few pos
 *Moderate your site.*  People are going to post unwanted content on your site.  People are going to flood your site.  People are going to spam your site.  There is no magical way to stop this without having good moderators.
 
 I don't mean make a news post saying "We need moderators, email me!", I mean asking your trusted friends, and perhaps your top users (since they will already be using the site often).
+
+Don't forget that kusaba does support janitors, which can only delete posts from boards which they are allowed.  You can use this to have users prove they are active and know what content is allowed, and what isn't.  When they look like they would be a good addition, promote them to moderator.
+
+== It does not have a sense of community ==
+
+This also ties with the above two.  Installing kusaba, giving it a name, making a few boards and then saying "okay, go." will not leave your users with a sense of you even caring about what happens.  Post with your users, inform them of how things are going with the site, make contests (if it suits your site's focus).
