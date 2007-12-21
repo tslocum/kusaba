@@ -26,4 +26,8 @@ One of the recent sites which showed up in my directory is called !PaintChan.  I
 
 Not showing effort does tie in with being unoriginal, but there are other ways to show how the site does not care about its users.
 
-You need to think about how you are going to show that you care.  Make a few posts in the boards, write news to show the site is still alive, 
+You need to think about how you are going to show that you care.  Make a few posts in the boards, write news to show the site is still alive, exchange text links to and from other chans with different focuses than your site.
+
+*Moderate your site.*  People are going to post unwanted content on your site.  People are going to flood your site.  People are going to spam your site.  There is no magical way to stop this without having good moderators.
+
+I don't mean make a news post saying "We need moderators, email me!", I mean asking your trusted friends, and perhaps your top users (since they will already be using the site often).
