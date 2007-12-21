@@ -3,7 +3,7 @@
 
 = Introduction =
 
-These are from my experience mainly with 7chan, however also with many smaller chans which I have seen come, scratch their heads at why they don't have any users, and then go just as quickly as they arrived.
+These are mostly from working with 7chan, however also with many smaller chans which I have seen come, scratch their heads at why they don't have any users, and then go just as quickly as they arrived.
 
 
 = What not to do =
