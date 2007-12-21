@@ -1,5 +1,4 @@
 #summary A module for your chan, consisting of fortunes.
-#labels Featured
 
 = Usage =
 #fortune in name or email field
