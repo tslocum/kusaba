@@ -44,4 +44,8 @@ This also ties with the above two.  Installing kusaba, giving it a name, making 
 
  * Write your own board/site styles to make your site stand out
  * Rearrange some of the content in pages to make your site unique (this requires some kusaba knowledge)
- * 
+
+= Getting your site known =
+
+ * Get listed on both overchans (http://www.1chan.net/overchan/ and http://shii.org/2ch/)
+ * Set KU_PINGBACK in your config.php to be added to the kusaba Directory
