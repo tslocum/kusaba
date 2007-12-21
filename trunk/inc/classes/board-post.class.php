@@ -348,28 +348,33 @@ class Board {
 		$boardstooutput = calculatenumpages($this->board_type, ($numpostsleft-1));
 		$this->CachePageHeaderData();
 		
-		$master_thread_ids = array();
-		$threadcount = 0;
-		$threadpage = 0;
-		foreach($results AS $line) {
-			$threadcount++;
-			if ($threadcount > $numthreadsdisplayed) {
-				$threadcount = 0;
-				$threadpage++;
-			}
-			
-			/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
-			if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $threadpage >= $this->board_markpage) {
-				$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `deletedat` = '" . (time() + 7200) . "' WHERE `id` = '" . $line['id'] . "' LIMIT 1");
-				$this->RegenerateThread($line['id']);
-			}
-			$master_thread_ids[$threadpage][] = $line[0];
-		}
-		
 		$boardpage = 0;
 		if ($numpostsleft>0) {
 			$cached_postbox = $this->Postbox(0, '', $this->board_postboxnotice);
-			while ($numpostsleft>0) {
+			
+			// {{{ Fetch all of the thread IDs for each page of the board and save them in an array
+			$master_thread_ids = array();
+			$threadcount = 1;
+			$threadpage = 0;
+			foreach($results AS $line) {
+				/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
+				if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $threadpage >= $this->board_markpage) {
+					$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `deletedat` = '" . (time() + 7200) . "' WHERE `id` = '" . $line['id'] . "' LIMIT 1");
+					clearPostCache($line['id'], $this->board_dir);
+					$this->RegenerateThread($line['id']);
+				}
+				$master_thread_ids[$threadpage][] = $line[0];
+				
+				if ($threadcount == $numthreadsdisplayed) {
+					$threadcount = 1;
+					$threadpage++;
+				} else {
+					$threadcount++;
+				}
+			}
+			// }}}
+			
+			while ($numpostsleft > 0) {
 				$executiontime_start_regeneratepages = microtime_float();
 				
 				if (isset($master_thread_ids[$boardpage])) {

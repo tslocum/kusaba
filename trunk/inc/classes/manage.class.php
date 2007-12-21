@@ -287,6 +287,9 @@ class Manage {
 				if (isset($_POST['filetype'])) {
 					if ($_POST['filetype'] != '' && $_POST['image'] != '') {
 						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "filetypes` SET `filetype` = '" . mysql_real_escape_string($_POST['filetype']) . "' , `mime` = '" . mysql_real_escape_string($_POST['mime']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `image_w` = '" . mysql_real_escape_string($_POST['image_w']) . "' , `image_h` = '" . mysql_real_escape_string($_POST['image_h']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
+						if (KU_APC) {
+							apc_delete('filetype|' . $_POST['filetype']);
+						}
 						$tpl_page .= _gettext('Filetype updated.');
 					}
 				} else {
