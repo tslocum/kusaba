@@ -2,6 +2,8 @@
 #labels Featured
 = 1.0.4 =
   * The staff page now shows the time which each staff member was last active
+  * Images posted in the past 24 hours are now easily checked for following the rules without scavenging each board with the new "Recently uploaded images" page in the manage panel
+  * The manage panel's menu has been reorganized a bit
 
 = 1.0.3 =
   * The number of images omitted will now display with the proper number
