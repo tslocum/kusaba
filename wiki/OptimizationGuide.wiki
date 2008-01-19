@@ -1,4 +1,4 @@
-#summary Methods for making kusaba faster.
+#summary Methods for making kusaba faster
 #labels Phase-Implementation
 
 = APC =
