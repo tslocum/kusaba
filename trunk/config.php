@@ -51,6 +51,9 @@ Possible values you may use:
 	<!tc_uniqueposts />
 	<!tc_catalog />
 */
+if (!headers_sent()) {
+	header('Content-Type: text/html; charset=utf-8');
+}
 
 $cf = array();
 
@@ -176,9 +179,11 @@ if (!$cache_loaded) {
 		$cf['KU_WATCHTHREADS']    = true; /* Whether or not to add thread watching capabilities */
 		$cf['KU_FIRSTLAST']       = true; /* Whether or not to generate extra files for the first 100 posts/last 50 posts */
 		$cf['KU_BLOTTER']         = true; /* Whether or not to enable the blotter feature */
-		$cf['KU_APPEAL']          = ''; /* List of email addresses separated by colons to send ban appeal messages to.  Set to '' to disable the ban appeal system. */
+		$cf['KU_SITEMAP']         = false; /* Whether or not to enable automatic sitemap generation (you will still need to link the search engine sites to the sitemap.xml file) */
+		$cf['KU_APPEAL']          = ''; /* List of email addresses separated by colons to send ban appeal messages to.  Set to '' to disable the ban appeal system */
 		$cf['KU_PINGBACK']        = ''; /* The password to use when making a ping to the chan directory.  Set to '' to disable */
-	
+		$cf['KU_PINGBACKDESC']    = ''; /* Description of site to send when making a ping to the chan directory.  This will have no effect if KU_PINGBACK is blank */
+		
 	/* Misc config */
 		$cf['KU_MODLOGDAYS']        = 7; /* Days to keep modlog entries before removing them */
 		$cf['KU_RANDOMSEED']        = 'ENTER RANDOM LETTERS/NUMBERS HERE'; /* Type a bunch of random letters/numbers here, any large amount (35+ characters) will do */
@@ -242,11 +247,11 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 		$tc_db->debug = true;
 	}
 	
-	$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "events` WHERE `at` <= " . time());
-	if (count($results) > 0) {
+	$results_events = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "events` WHERE `at` <= " . time());
+	if (count($results_events) > 0) {
 		if ($tc_db->ErrorMsg() == '') {
-			foreach($results AS $line) {
-				if ($line['name'] == 'pingback') {
+			foreach($results_events AS $line_events) {
+				if ($line_events['name'] == 'pingback') {
 					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 43200) . " WHERE `name` = 'pingback'");
 					if (KU_PINGBACK != '') {
 						$daypostcount = 0;
@@ -274,11 +279,11 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 						For the above, if you wish to have your boards listed in the Directory, the format is as follows:
 						boarddir|boarddesc,boarddir2|boarddesc2
 						
-						So, an example $boards configuration would be:
-						b|Random,c|Comments,sug|Suggestions,sup|Support
+						Or:
+						boarddir|a long desc with spaces,boarddir2|another description with spaces
 						
-						DO NOT USE SPECIAL CHARACTERS (UTF-8 stuff) AS IT WILL BREAK URLENCODE AND YOUR PINGBACK WILL NOT WORK!
-						USE ONLY NORMAL LETTERS/NUMBERS, AND REPLACE ALL SPACES WITH + SIGNS!
+						A practical example:
+						b|Random,c|Comments,sug|Suggestions,sup|Support,trans|Translation Efforts
 						
 						See http://code.google.com/p/kusaba/wiki/DirectoryBoards for a script to auto-generate the $boards value
 						*/
@@ -286,26 +291,69 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 						/* Because of DreamHost's WONDERFUL AND HELPFUL security measures, it will fail if I try and supply an urlencoded URL twice */
 						$nohttpboardspath = str_replace('http://', '', KU_BOARDSPATH);
 						
-						$url = 'http://www.kusaba.org/chans.php?dopingback' .
-						'&name=' . urlencode(KU_NAME) .
-						'&password=' . urlencode(KU_PINGBACK) .
-						'&version=' . KU_VERSION .
-						'&daypostcount=' . $daypostcount .
-						'&postcount=' . $totalpostcount .
-						'&boardspath=' . urlencode($nohttpboardspath) .
-						'&boards=' . $boards .
-						'&url=' . urlencode(KU_WEBPATH);
+						$pingback = array(
+							'name' => KU_NAME,
+							'password' => KU_PINGBACK,
+							'version' => KU_VERSION,
+							'desc' => KU_PINGBACKDESC,
+							'daypostcount' => $daypostcount,
+							'postcount' => $totalpostcount,
+							'boardspath' => $nohttpboardspath,
+							'boards' => $boards,
+							'url' => KU_WEBPATH
+						);
 						
-						$ch = curl_init($url);
+						$ch = curl_init('http://www.kusaba.org/chans.php?dopingback');
+						curl_setopt($ch, CURLOPT_POST, 1);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, $pingback);
 						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 						curl_setopt($ch, CURLOPT_HEADER, 0);
 						curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 						@curl_exec($ch);
 						curl_close($ch);
+						unset($ch, $pingback, $nohttpboardspath, $boards, $daypostcount, $totalpostcount);
+					}
+				} elseif ($line_events['name'] == 'sitemap') {
+					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 21600) . " WHERE `name` = 'sitemap'");
+					if (KU_SITEMAP) {
+						$sitemap = '<?xml version="1.0" encoding="UTF-8"?' . '>' . "\n" .
+						'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n" . "\n";
+						
+						$results = $tc_db->GetAll("SELECT `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						if (count($results) > 0) {
+							foreach($results AS $line) {
+								$sitemap .= '	<url>' . "\n" .
+								'		<loc>' . KU_BOARDSPATH . '/' . $line['name'] . '/</loc>' . "\n" .
+								'		<lastmod>' . date('Y-m-d') . '</lastmod>' . "\n" .
+								'		<changefreq>hourly</changefreq>' . "\n" .
+								'	</url>' . "\n";
+										
+								$results2 = $tc_db->GetAll("SELECT `id`, `lastbumped` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
+								if (count($results2) > 0) {
+									foreach($results2 AS $line2) {
+										$sitemap .= '	<url>' . "\n" .
+										'		<loc>' . KU_BOARDSPATH . '/' . $line['name'] . '/res/' . $line2['id'] . '.html</loc>' . "\n" .
+										'		<lastmod>' . date('Y-m-d', $line2['lastbumped']) . '</lastmod>' . "\n" .
+										'		<changefreq>hourly</changefreq>' . "\n" .
+										'	</url>' . "\n";
+									}
+								}
+							}
+						}
+						
+						$sitemap .= '</urlset>';
+						
+						$fp = fopen(KU_BOARDSDIR . 'sitemap.xml', 'w');
+						fwrite($fp, $sitemap);
+						fclose($fp);
+						
+						unset($sitemap, $fp);
 					}
 				}
 			}
 		}
+		
+		unset($results_events, $line_events);
 	}
 }
 

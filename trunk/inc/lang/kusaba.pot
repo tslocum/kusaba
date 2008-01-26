@@ -1413,6 +1413,15 @@ msgstr ""
 msgid "Online now"
 msgstr ""
 
+msgid "Site Administration"
+msgstr ""
+
+msgid "Boards Administration"
+msgstr ""
+
+msgid "Recently uploaded images"
+msgstr ""
+
 msgid "translator-credits"
 msgstr ""
 

@@ -2095,6 +2095,7 @@ class Manage {
 							  `stickied` tinyint(1) NOT NULL default '0',
 							  `locked` tinyint(1) NOT NULL default '0',
 							  `posterauthority` tinyint(1) NOT NULL default '0',
+							  `reviewed` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0',
 							  `deletedat` int(20) NOT NULL default '0',
 							  `IS_DELETED` tinyint(1) NOT NULL default '0',
 							  UNIQUE KEY `id` (`id`),
@@ -2835,12 +2836,69 @@ class Manage {
 		}
 	}
 	
-	/* Display links to miscellaneous administrator functions */
-	function misc() {
+	/* View recently uploaded images */
+	function recentimages() {
 		global $tc_db, $smarty, $tpl_page;
-		$this->AdministratorsOnly();
-	
-		$tpl_page .= '<a href="?action=rebuildall">' . _gettext('Rebuild all boards and html files') . '</a><br><a href="?action=checkversion">' . _gettext('Check for new version') . '</a><br><a href="?action=spaceused">' . _gettext('Disk space used') . '</a><br><a href="?action=viewdeletedthread">' . _gettext('View deleted thread') . '</a><br><a href="?action=cleanup">' . _gettext('Cleanup') . '</a><br><a href="?action=search">' . _gettext('Search posts') . '</a><br><a href="?action=staff">' . _gettext('Staff') . '</a><br><a href="?action=modlog">' . _gettext('ModLog') . '</a><br><a href="?action=editfiletypes">' . 'Edit filetypes' . '</a><br><a href="?action=editsections">' . 'Edit sections' . '</a><br><a href="?action=sql">' . _gettext('SQL query') . '</a>';
+		$this->ModeratorsOnly();
+		
+		if (!isset($_SESSION['imagesperpage'])) {
+			$_SESSION['imagesperpage'] = 50;
+		}
+		
+		if (isset($_GET['show'])) {
+			if ($_GET['show'] == '25' || $_GET['show'] == '50' || $_GET['show'] == '75' || $_GET['show'] == '100') {
+				$_SESSION['imagesperpage'] = $_GET['show'];
+			}
+		}
+		
+		$tpl_page .= '<h2>' . ucwords(_gettext('Recently uploaded images')) . '</h2><br>
+		Number of images to show per page: <a href="?action=recentimages&show=25">25</a>, <a href="?action=recentimages&show=50">50</a>, <a href="?action=recentimages&show=75">75</a>, <a href="?action=recentimages&show=100">100</a> (note that this is a rough limit, more may be shown)<br>';
+		if (isset($_POST['clear'])) {
+			if ($_POST['clear'] != '') {
+				$clear_decrypted = md5_decrypt($_POST['clear'], KU_RANDOMSEED);
+				if ($clear_decrypted != '') {
+					$clear_unserialized = unserialize($clear_decrypted);
+					
+					foreach ($clear_unserialized as $clear_sql) {
+						$tc_db->Execute($clear_sql);
+					}
+					$tpl_page .= 'Successfully marked previous images as reviewed.<hr>';
+				}
+			}
+		}
+		
+		$dayago = (time() - 86400);
+		$imagesshown = 0;
+		$reviewsql_array = array();
+		
+		$boardlist = $this->BoardList($_SESSION['manageusername']);
+		foreach ($boardlist as $board) {
+			if ($imagesshown <= $_SESSION['imagesperpage']) {
+				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `parentid`, `filename`, `filetype`, `thumb_w`, `thumb_h` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . $dayago . " AND (`filetype` = 'jpg' OR `filetype` = 'gif' OR `filetype` = 'png') AND `reviewed` = 0 AND `IS_DELETED` = 0 ORDER BY RAND() LIMIT " . mysql_real_escape_string($_SESSION['imagesperpage']));
+				if (count($results) > 0) {
+					$reviewsql = "UPDATE `" . KU_DBPREFIX . "posts_" . $board . "` SET `reviewed` = 1 WHERE ";
+					foreach ($results as $line) {
+						$reviewsql .= '`id` = ' . $line['id'] . ' OR ';
+						$real_parentid = ($line['parentid'] == 0) ? $line['id'] : $line['parentid'];
+						$tpl_page .= '<a href="' . KU_BOARDSPATH . '/' . $board . '/res/' . $real_parentid . '.html#' . $line['id'] . '"><img src="' . KU_BOARDSPATH . '/' . $board . '/thumb/' . $line['filename'] . 's.' . $line['filetype'] . '" width="' . $line['thumb_w'] . '" height="' . $line['thumb_h'] . '" border="0"></a> ';
+					}
+					
+					$reviewsql = substr($reviewsql, 0, -3) . 'LIMIT ' . count($results);
+					$reviewsql_array[] = $reviewsql;
+					$imagesshown += count($results);
+				}
+			}
+		}
+		
+		if ($imagesshown > 0) {
+			$tpl_page .= '<br><br>' . $imagesshown . ' images shown.<br>
+			<form action="?action=recentimages" method="post">
+			<input type="hidden" name="clear" value="' . md5_encrypt(serialize($reviewsql_array), KU_RANDOMSEED) . '">
+			<input type="submit" value="Clear All On Page As Reviewed">
+			</form>';
+		} else {
+			$tpl_page .= '<br><br>No recent images currently need review.';
+		}
 	}
 	
 	/* Display posting rates for the past hour */
