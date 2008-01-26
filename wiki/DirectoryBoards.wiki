@@ -2,6 +2,33 @@
 
 = directoryboards.php =
 
+== 1.0.4 and greater ==
+
+{{{
+<?php
+require 'config.php';
+
+echo '$boards = \'';
+
+$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name`, `desc` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+if (count($results) > 0) {
+	$boards_list = '';
+	
+	foreach ($results as $line) {
+		$boards_list .= $line['name'] . '|' . $line['desc'] . ',';
+	}
+	
+	$boards_list = substr($boards_list, 0, -1);
+	
+	echo $boards_list;
+}
+
+echo '\';';
+?>
+}}}
+
+== Pre-1.0.4 ==
+
 {{{
 <?php
 require 'config.php';
