@@ -117,7 +117,19 @@ if ($_GET['p']=='faq') {
 }
 
 /* Don't worry about this, it only applies to my personal installation of kusaba */
-if (isset($kusabaorg)) { echo '<script type="text/javascript">
+if (isset($kusabaorg)) { echo '<center>
+<a href=\'http://www.adgridwork.com/?r=14899\' style=\'color: #7FBE00; font-size: 14px\' target=\'_blank\'>Free Advertising</a>
+<script type=\'text/javascript\'>
+var sid = \'14899\'; 
+var title_color = \'000000\'; 
+var description_color = \'646360\'; 
+var link_color = \'7FBE00\'; 
+var background_color = \'FFFFFF\'; 
+var border_color = \'646360\';
+</script><u style=\'display: none\'><a href=\'http://www.freeannualcreditreports.org\'>Free Annual Credit Report</a></u>
+<script type=\'text/javascript\' src=\'http://www.mediagridwork.com/mx.js\'></script>
+</center>
+<script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
 document.write("\<script src=\'" + gaJsHost + "google-analytics.com/ga.js\' type=\'text/javascript\'>\<\/script>" );
 </script>
