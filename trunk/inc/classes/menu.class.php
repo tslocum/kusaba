@@ -39,7 +39,7 @@ class Menu {
 			$styles = explode(':', KU_MENUSTYLES);
 			$styleswitcher = _gettext('Styles') . ': ';
 			foreach ($styles as $style) {
-				$styleswitcher .= '[<a href="#" onclick="javascript:set_stylesheet(\\\'' . ucfirst($style) . '\\\', false, true);reloadmain();" style="display: inline;" target="_self">' . strtoupper(substr($style, 0, 1)) . '</a>] ';
+				$styleswitcher .= '[<a href="#" onclick="javascript:set_stylesheet(\\\'' . ucfirst($style) . '\\\', false, true);reloadmain();" style="display: inline;" target="_self">' . strtoupper(substr($style, 0, 1)) . '<\/a>] ';
 			}
 			$styleswitcher = substr($styleswitcher, 0, -1);
 		} else {
@@ -102,8 +102,8 @@ class Menu {
 			   var AdBrite_Background_Color = \'FFFFEE\';
 			   var AdBrite_Border_Color = \'FFFFEE\';
 			</script>
-			<script src="http://ads.adbrite.com/mb/text_group.php?sid=534855&zs=3132305f363030" type="text/javascript"></script>
-			<div><a target="_top" href="http://www.adbrite.com/mb/commerce/purchase_form.php?opid=534855&afsid=1" style="font-weight:bold;font-family:Arial;font-size:13px;">Your Ad Here</a></div>
+			<script src="http://ads.adbrite.com/mb/text_group.php?sid=534855&amp;zs=3132305f363030" type="text/javascript"></script>
+			<div><a target="_top" href="http://www.adbrite.com/mb/commerce/purchase_form.php?opid=534855&amp;afsid=1" style="font-weight:bold;font-family:Arial;font-size:13px;">Your Ad Here</a></div>
 			<!-- End: AdBrite -->';
 		}
 		$smarty->assign('irc', $tpl_irc);
