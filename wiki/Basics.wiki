@@ -54,3 +54,19 @@ Go to Board options, select a board, and in the Section box, place that ID.
 Save the changes.
 
 Reload your front page, and it should show up.
+
+= Making F5 Work Properly =
+
+Thanks go to hurrrrr from freechan.org for this:
+
+Once your site is set up and finished being configured, go to the front page.  You should see a menu with your boards and the news area.  Click View -> Page Source, and copy the contents.
+
+Make a new file called kusaba.html, and in that file, paste the HTML into it, and upload it to the same area as kusaba.php
+
+Open your .htaccess, change:
+DirectoryIndex kusaba.php
+
+To:
+DirectoryIndex kusaba.html
+
+Overwrite the old .htaccess, reload your front page, and enjoy finally having proper F5 support!
