@@ -64,7 +64,7 @@ Once your site is set up and finished being configured, go to the front page.  Y
 Make a new file called kusaba.html, and in that file, paste the HTML into it, and upload it to the same area as kusaba.php
 
 Open your .htaccess, change:
-DirectoryIndex kusaba.php
+!DirectoryIndex kusaba.php
 
 To:
 DirectoryIndex kusaba.html
