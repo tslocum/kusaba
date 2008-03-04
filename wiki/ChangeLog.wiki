@@ -5,6 +5,7 @@
   * Images posted in the past 24 hours are now easily checked for following the rules without scavenging each board with the new "Recently uploaded images" page in the manage panel
   * The manage panel's menu has been reorganized a bit
   * News page is now tpl'd
+  * Quotes made on imageboards can now be moused over to reveal a preview of the post being referenced.  This will only work on new posts made after the upgrade
 
 = 1.0.3 =
   * The number of images omitted will now display with the proper number
