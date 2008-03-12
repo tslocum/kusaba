@@ -123,7 +123,11 @@ document.write("\<script src=\'" + gaJsHost + "google-analytics.com/ga.js\' type
 var pageTracker = _gat._getTracker("UA-71983-11");
 pageTracker._initData();
 pageTracker._trackPageview();
-</script>'; }
+</script>
+<script language="javascript">
+var woopra_id = \'247037172\';
+</script>
+<script src="http://static.woopra.com/js/woopra.js"></script>'; }
 
 $smarty->assign('content', $content);
 // }}}

@@ -351,7 +351,7 @@ class Manage {
 	function rebuildall() {
 		global $tc_db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
-		
+				
 		$tpl_page .= '<h2>' . ucwords(_gettext('Rebuild all html files')) . '</h2><br>';
 		$time_start = time();
 		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");

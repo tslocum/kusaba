@@ -87,7 +87,7 @@ if (isset($_GET['info'])) {
 }
 
 $menufile = (KU_STATICMENU) ? 'menu.html' : 'menu.php';
-$menusize = (KU_MENUTYPE == 'normal') ? '18%' : '10%';
+$menusize = (KU_MENUTYPE == 'normal') ? '15%' : '10%';
 ?>
 <frameset cols="<?php echo $menusize; ?>,*" frameborder="0" border="0">
 <frame src="<?php echo $menufile; ?>" name="menu" id="menu">

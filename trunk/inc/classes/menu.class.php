@@ -104,7 +104,11 @@ class Menu {
 			</script>
 			<script src="http://ads.adbrite.com/mb/text_group.php?sid=534855&amp;zs=3132305f363030" type="text/javascript"></script>
 			<div><a target="_top" href="http://www.adbrite.com/mb/commerce/purchase_form.php?opid=534855&amp;afsid=1" style="font-weight:bold;font-family:Arial;font-size:13px;">Your Ad Here</a></div>
-			<!-- End: AdBrite -->';
+			<!-- End: AdBrite -->
+			<script language="javascript">
+			var woopra_id = \'247037172\';
+			</script>
+			<script src="http://static.woopra.com/js/woopra.js"></script>';
 		}
 		$smarty->assign('irc', $tpl_irc);
 		

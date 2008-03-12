@@ -80,7 +80,7 @@ function formatDate($timestamp, $type = 'post', $locale = 'en') {
 			}
 			
 			$fulldate = str_replace('DAYOFWEEK', $dayofweek, $fulldate);
-			return $fulldate;
+			return formatJapaneseNumbers($fulldate);
 		} else {
 			/* Format the timestamp english style */
 			return date('y/m/d(D)H:i', $timestamp);
@@ -88,6 +88,33 @@ function formatDate($timestamp, $type = 'post', $locale = 'en') {
 	}
 	
 	return date('y/m/d(D)H:i', $timestamp);
+}
+
+/**
+ * Format the provided input into a reflink, which follows the Japanese locale if it is set.
+ */ 
+function formatReflink($post_board, $page, $post_thread_start_id, $post_id, $locale = 'en') {
+	$return = '	';
+	
+	$reflink_noquote = '<a href="' . KU_BOARDSFOLDER . $post_board . '/res/' . $post_thread_start_id . '.html#' . $post_id . '"';
+	if (!$page) {
+		$reflink_noquote .= ' onclick="javascript:highlight(\'' . $post_id . '\');"';
+	}
+	$reflink_noquote .= '>';
+	
+	$reflink_quote = '<a href="' . KU_BOARDSFOLDER . $post_board . '/res/' . $post_thread_start_id . '.html#i' . $post_id . '"';
+	if (!$page) {
+		$reflink_quote .= ' onclick="insert(\'>>' . $post_id . '\');"';
+	}
+	$reflink_quote .= '>';
+	
+	if ($locale == 'ja') {
+		$return .= $reflink_quote . formatJapaneseNumbers($post_id) . '</a>' . $reflink_noquote . '番</a>';
+	} else {
+		$return .= $reflink_noquote . 'No.&nbsp;' . '</a>' . $reflink_quote . $post_id . '</a>';
+	}
+	
+	return $return . "\n";
 }
 
 /**
