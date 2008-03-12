@@ -79,7 +79,7 @@ if ($_GET['p']=='faq') {
 } else {
 	$content = '';
 	if (isset($kusabaorg)) {
-		$content .= '<div class="content" style=""><span style="font-size: 1.4em;"><b>Current release:</b> 1.0.3 - <a href="http://rel.kusaba.org/kusabav103.zip">Quick Download (Install)</a> - For more information/upgrading, click the Download link above.</span></div>';
+		$content .= '<div class="content" style=""><span style="font-size: 1.4em;"><b>Current release:</b> 1.0.4 - <a href="http://rel.kusaba.org/kusabav104.zip">Quick Download (Install)</a> - For more information/upgrading, click the Download link above.</span></div>';
 	}
 	$entries = 0;
 	/* Get all of the news entries, ordered with the newest one placed on top */
