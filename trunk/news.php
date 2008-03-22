@@ -83,7 +83,7 @@ if ($_GET['p']=='faq') {
 	}
 	$entries = 0;
 	/* Get all of the news entries, ordered with the newest one placed on top */
-	$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."news` ORDER BY `postedat` DESC");
+	$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."news` ORDER BY `postedat` DESC");
 	foreach($results AS $line) {
 		$entries++;
 		$content .= '<div class="content">' . "\n" .

@@ -234,41 +234,41 @@ _bindtextdomain('kusaba', KU_ROOTDIR . 'inc/lang');
 _bind_textdomain_codeset('kusaba', KU_CHARSET);
 
 /* MySQL database */
-if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
-	$tc_db = &NewADOConnection(KU_DBTYPE);
+if (!isset($db) && !isset($preconfig_db_unnecessary)) {
+	$db = &NewADOConnection(KU_DBTYPE);
 	if (KU_DBUSEPERSISTENT) {
-		$tc_db->PConnect(KU_DBHOST, KU_DBUSERNAME, KU_DBPASSWORD, KU_DBDATABASE) or die('MySQL database connection error: ' . $tc_db->ErrorMsg());
+		$db->PConnect(KU_DBHOST, KU_DBUSERNAME, KU_DBPASSWORD, KU_DBDATABASE) or die('MySQL database connection error: ' . $db->ErrorMsg());
 	} else {
-		$tc_db->Connect(KU_DBHOST, KU_DBUSERNAME, KU_DBPASSWORD, KU_DBDATABASE) or die('MySQL database connection error: ' . $tc_db->ErrorMsg());
+		$db->Connect(KU_DBHOST, KU_DBUSERNAME, KU_DBPASSWORD, KU_DBDATABASE) or die('MySQL database connection error: ' . $db->ErrorMsg());
 	}
 	
 	/* MySQL debug */
 	if (KU_DEBUG) {
-		$tc_db->debug = true;
+		$db->debug = true;
 	}
 	
-	$results_events = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "events` WHERE `at` <= " . time());
+	$results_events = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "events` WHERE `at` <= " . time());
 	if (count($results_events) > 0) {
-		if ($tc_db->ErrorMsg() == '') {
+		if ($db->ErrorMsg() == '') {
 			foreach($results_events AS $line_events) {
 				if ($line_events['name'] == 'pingback') {
-					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 43200) . " WHERE `name` = 'pingback'");
+					$db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 43200) . " WHERE `name` = 'pingback'");
 					if (KU_PINGBACK != '') {
 						$daypostcount = 0;
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 						if (count($results) > 0) {
 							foreach ($results as $line) {
-								$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
+								$posts = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
 								
 								$daypostcount += $posts;
 							}
 						}
 						
 						$totalpostcount = 0;
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 						if (count($results) > 0) {
 							foreach ($results as $line) {
-								$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
+								$posts = $db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
 								
 								$totalpostcount += $posts;
 							}
@@ -314,12 +314,12 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 						unset($ch, $pingback, $nohttpboardspath, $boards, $daypostcount, $totalpostcount);
 					}
 				} elseif ($line_events['name'] == 'sitemap') {
-					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 21600) . " WHERE `name` = 'sitemap'");
+					$db->Execute("UPDATE `" . KU_DBPREFIX . "events` SET `at` = " . (time() + 21600) . " WHERE `name` = 'sitemap'");
 					if (KU_SITEMAP) {
 						$sitemap = '<?xml version="1.0" encoding="UTF-8"?' . '>' . "\n" .
 						'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n" . "\n";
 						
-						$results = $tc_db->GetAll("SELECT `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+						$results = $db->GetAll("SELECT `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 						if (count($results) > 0) {
 							foreach($results AS $line) {
 								$sitemap .= '	<url>' . "\n" .
@@ -328,7 +328,7 @@ if (!isset($tc_db) && !isset($preconfig_db_unnecessary)) {
 								'		<changefreq>hourly</changefreq>' . "\n" .
 								'	</url>' . "\n";
 										
-								$results2 = $tc_db->GetAll("SELECT `id`, `lastbumped` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
+								$results2 = $db->GetAll("SELECT `id`, `lastbumped` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
 								if (count($results2) > 0) {
 									foreach($results2 AS $line2) {
 										$sitemap .= '	<url>' . "\n" .

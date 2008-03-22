@@ -124,7 +124,7 @@ function formatReflink($post_board, $page, $post_thread_start_id, $post_id, $loc
  * @return array Name and tripcode
  */ 
 function calculateNameAndTripcode($post_name) {
-	global $tc_db;
+	global $db;
 	
 	if(ereg("(#|!)(.*)", $post_name, $regs)){
 		$cap = $regs[2];
@@ -196,7 +196,7 @@ function calculateNameAndTripcode($post_name) {
 		
 		$name = ereg_replace("(" . $cap_delimiter . ")(.*)", "", $post_name);
 		
-		$tc_db->Execute("INSERT INTO `".KU_DBPREFIX."passcache` ( `md5` , `name` , `tripcode` ) VALUES ( '" . md5($post_name) . "' , '" . $name . "' , '" . $tripcode . "' )");
+		$db->Execute("INSERT INTO `".KU_DBPREFIX."passcache` ( `md5` , `name` , `tripcode` ) VALUES ( '" . md5($post_name) . "' , '" . $name . "' , '" . $tripcode . "' )");
 		
 		return array($name, $tripcode);
 	}
@@ -323,15 +323,15 @@ function unistr_to_ords($str, $encoding = 'UTF-8'){
 }
 
 function processPost($id, $newthreadid, $oldthreadid) {
-	global $tc_db, $board_from, $board_to;
+	global $db, $board_from, $board_to;
 	
-	$message = $tc_db->GetOne("SELECT `message` FROM " . KU_DBPREFIX . "posts_" . $board_to . " WHERE `id` = " . $id . " LIMIT 1");
+	$message = $db->GetOne("SELECT `message` FROM " . KU_DBPREFIX . "posts_" . $board_to . " WHERE `id` = " . $id . " LIMIT 1");
 	
 	if ($message != '') {
 		$message_new = str_replace('/read.php/' . $board_from . '/' . $oldthreadid, '/read.php/' . $board_to . '/' . $newthreadid, $message);
 		
 		if ($message_new != $message) {
-			$tc_db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
+			$db->GetOne("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `message` = '" . mysql_real_escape_string($message) . "' WHERE `id` = " . $id);
 		}
 	}
 }

@@ -257,12 +257,12 @@ class Board {
 	 * @return class	 	 
 	 */	  
 	function Board($board) {
-		global $tc_db;
+		global $db;
 
 		/* If the instance was created with the board argument present, get all of the board info and configuration values and save it inside of the class */
 		if ($board!='') {
 			$query = "SELECT * FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($board)."' LIMIT 1";
-			$results = $tc_db->GetAssoc($query);
+			$results = $db->GetAssoc($query);
 			foreach($results AS $line) {
 				$this->board_id                       = $line['id'];
 				$this->board_type                     = $line['type'];
@@ -297,6 +297,7 @@ class Board {
 			
 			/* Format the postbox according to this board */
 			$this->board_postboxnotice = $this->FormatPostbox(KU_POSTBOX, $this->board_dir);
+			$this->board_type_readable = boardType($this->board_type);
 			
 			if ($this->board_loadbalanceurl != '' && $this->board_loadbalancepassword != '') {
 				require_once KU_ROOTDIR . 'inc/classes/loadbalancer.class.php';
@@ -320,20 +321,20 @@ class Board {
 	 * Regenerate all pages	 
 	 */	  
 	function RegeneratePages() {
-		global $tc_db;
+		global $db;
 		
 		if ($this->board_locale != '') {
 			changeLocale($this->board_locale);
 		}
 		
 		$hide_extra = false;
-		switch ($this->board_type) {
-		case 1:
+		switch ($this->board_type_readable) {
+		case 'text':
 			$numthreadsdisplayed = KU_THREADSTXT;
 			$hide_extra = true;
 			break;
 			
-		case 3:
+		case 'upload':
 			$numthreadsdisplayed = 30;
 			break;
 			
@@ -341,7 +342,7 @@ class Board {
 			$numthreadsdisplayed = KU_THREADS;
 		}
 		
-		$results = $tc_db->GetAll("SELECT `id`, `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+		$results = $db->GetAll("SELECT `id`, `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 		$numpostsleft = count($results);
 		
 		$this->InitializeSmarty();
@@ -359,7 +360,7 @@ class Board {
 			foreach($results AS $line) {
 				/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
 				if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $threadpage >= $this->board_markpage) {
-					$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `deletedat` = '" . (time() + 7200) . "' WHERE `id` = '" . $line['id'] . "' LIMIT 1");
+					$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` SET `deletedat` = ' . (time() + 7200) . ' WHERE `id` = ' . $line['id'] . ' LIMIT 1');
 					clearPostCache($line['id'], $this->board_dir);
 					$this->RegenerateThread($line['id']);
 				}
@@ -381,14 +382,14 @@ class Board {
 					$thread_ids = $master_thread_ids[$boardpage];
 					$page = $this->pageheader_noreply . $cached_postbox;
 				
-					if ($this->board_type != 1) {
+					if ($this->board_type_readable != 'text') {
 						$page .= deletionForm($this->board_dir);
 					}
 					
 					$thread_relative_id = 0;
 					
 					
-					if ($this->board_type == 3) {
+					if ($this->board_type_readable == 'upload') {
 						$page .= '<center>' . "\n" .
 						'<table width="98%">' . "\n" .
 						'<tr>' . "\n" .
@@ -422,11 +423,11 @@ class Board {
 						'</tr>' . "\n";
 					}
 					$page .= $this->BuildThread($thread_ids, ($boardpage + 1), false, $thread_relative_id);
-					if ($this->board_type == 3) {
+					if ($this->board_type_readable == 'upload') {
 						$page .= '</table></center><br>';
 					}
 					
-					if ($this->board_type != 1) {
+					if ($this->board_type_readable != 'text') {
 						$page .= deletePostBox($this->board_type, $this->board_enablereporting) .
 						setDelPassJavascript() .
 						pageList($boardpage, $boardstooutput, $this->board_dir);
@@ -442,7 +443,7 @@ class Board {
 					
 					$page = '';
 					$boardpage++;
-					if ($this->board_type==1) {
+					if ($this->board_type_readable == 'text') {
 						$numpostsleft = 0;
 					} else {
 						$numpostsleft -= $numthreadsdisplayed;
@@ -461,8 +462,8 @@ class Board {
 			$this->PrintPage(KU_BOARDSDIR.$this->board_dir.'/'.KU_FIRSTPAGE, $page, $this->board_dir);
 		}
 		/* If text board, rebuild thread list html files */
-		if ($this->board_type == 1) {
-			$numpostsleft = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+		if ($this->board_type_readable == 'text') {
+			$numpostsleft = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 			$liststooutput = floor(($numpostsleft-1) / 40);
 			$listpage = 0;
 			$currentpostwave = 0;
@@ -481,13 +482,13 @@ class Board {
 			}
 		}
 		/* If the board has catalog mode enabled, build it */
-		if ($this->board_enablecatalog == 1 && ($this->board_type == 0 || $this->board_type == 2)) {
+		if ($this->board_enablecatalog == 1 && ($this->board_type_readable == 'image' || $this->board_type_readable == 'oekaki')) {
 			$executiontime_start_catalog = microtime_float();
 			$catalog_page = $this->PageHeader(0, 0, -1, -1, false, true) .
 			'&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n" .
 			'<table border="1" align="center">' . "\n" . '<tr>' . "\n";
 			
-			$results = $tc_db->GetAll("SELECT `id` , `subject` , `filename` , `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+			$results = $db->GetAll("SELECT `id` , `subject` , `filename` , `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
 			$numresults = count($results);
 			if ($numresults > 0) {
 				$celnum = 0;
@@ -504,7 +505,7 @@ class Board {
 						$trbreak = 1;
 					}
 					if ($row <= $maxrows) {
-						$replies = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = " . $line['id']);
+						$replies = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = " . $line['id']);
 						$catalog_page .= '<td valign="middle">' . "\n" . 
 						'<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/res/' . $line['id'] . '.html"';
 						if ($line['subject'] != '') {
@@ -553,7 +554,7 @@ class Board {
 					}
 				}
 				if (preg_match("/catalog.html/", $htmlfile)) {
-					if (!($this->board_enablecatalog == 1 && ($this->board_type == 0 || $this->board_type == 2))) {
+					if (!($this->board_enablecatalog == 1 && ($this->board_type_readable == 'image' || $this->board_type_readable == 'oekaki'))) {
 						unlink($htmlfile);
 					}
 				}
@@ -569,10 +570,10 @@ class Board {
 	 * Regenerate each thread's corresponding html file, starting with the most recently bumped 	 
 	 */
 	function RegenerateThreads() {
-		global $tc_db;
+		global $db;
 		
 		$res_threadlist = array();
-		$results = $tc_db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
+		$results = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
 		foreach($results AS $line) {
 			$res_threadlist[] = $line['id'].'.html';
 			if (KU_FIRSTLAST) {
@@ -601,8 +602,8 @@ class Board {
 	 * @param integer $thread_op_id Thread ID	 	 
 	 */	 	
 	function RegenerateThread($thread_op_id) {
-		global $tc_db, $tpl;
-		$hide_extra = ($this->board_type == 1) ? true : false;
+		global $db, $tpl;
+		$hide_extra = ($this->board_type_readable == 'text') ? true : false;
 		
 		if ($this->board_locale != '') {
 			changeLocale($this->board_locale);
@@ -611,7 +612,7 @@ class Board {
 		$this->InitializeSmarty();
 		$this->CachePageHeaderData();
 		
-		$numreplies = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE (`id` = " . mysql_real_escape_string($thread_op_id) . " OR `parentid` = " . mysql_real_escape_string($thread_op_id) . ") AND `IS_DELETED` = 0");
+		$numreplies = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE (`id` = " . mysql_real_escape_string($thread_op_id) . " OR `parentid` = " . mysql_real_escape_string($thread_op_id) . ") AND `IS_DELETED` = 0");
 		if (count($numreplies) > 0) {
 			$executiontime_start_regeneratethread = microtime_float();
 			$numreplies--;
@@ -681,7 +682,7 @@ class Board {
 	 * @return string The built thread	 	 	 	 	 	 
 	 */	 
 	function BuildThread($parentid, $page = false, $resurrect = false, $thread_relative_id = 0, $modifier = '') {
-		global $tc_db, $expandjavascript;
+		global $db, $expandjavascript;
 		$buildthread_output = '';
 		
 		// {{{ Check if an array of ID's were supplied, and if not, make it an array anyways
@@ -706,10 +707,10 @@ class Board {
 		
 		// {{{ Data-fetch for each thread ID supplied
 		
-		if ($this->board_type == 1) {
+		if ($this->board_type_readable == 'text') {
 			// {{{ Calculate the number of threads which will be displayed on the front page
 			
-			$num_threads_onfrontpage = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = 0 LIMIT 15');
+			$num_threads_onfrontpage = $db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = 0 LIMIT 15');
 			$isdeleted_check = '';
 			
 			// }}}
@@ -721,7 +722,7 @@ class Board {
 			$query_idsegment .= '`id` = ' . mysql_real_escape_string($this_parentid) . ' OR ';
 		}
 		$query_idsegment = substr($query_idsegment, 0, -4);
-		$results = $tc_db->GetAll('SELECT * FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE (' . $query_idsegment . ') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
+		$results = $db->GetAll('SELECT * FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE (' . $query_idsegment . ') ' . $isdeleted_check . 'ORDER BY `stickied` DESC, `lastbumped` DESC');
 		if (count($results) == 0) {
 			exitWithErrorPage('BuildThread(): error.  No posts in thread to build from.');
 		}
@@ -739,8 +740,8 @@ class Board {
 			$thread_id = $line['id'];
 			$expandjavascript = '';
 			
-			$numReplies = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id) . ' ' . $isdeleted_check);
-			if (($this->board_type == 0 ||$this->board_type == 2) || ($this->board_type == 3 && !$page)) {
+			$numReplies = $db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id) . ' ' . $isdeleted_check);
+			if (($this->board_type_readable == 'image' ||$this->board_type_readable == 'oekaki') || ($this->board_type_readable == 'upload' && !$page)) {
 				$buildthread_gotcache = false;
 				// {{{ Calculate the number of image replies to the thread being generated
 				
@@ -755,7 +756,7 @@ class Board {
 						$query = '';
 					}
 					if ($query != '') {
-						$numImageReplies_result = $tc_db->GetAll($query);
+						$numImageReplies_result = $db->GetAll($query);
 						foreach ($numImageReplies_result as $numImageReplies_line) {
 							if ($numImageReplies_line['filename'] != '' && $numImageReplies_line['filename'] != 'removed') {
 								$numImageReplies++;
@@ -786,7 +787,7 @@ class Board {
 				// }}}
 				// {{{ Thread-starting post
 				
-				if ($this->board_type == 1 && $page) {
+				if ($this->board_type_readable == 'text' && $page) {
 					$buildthread_output .= '<hr>';
 				}
 				$buildthread_output .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line, $numReplies, $thread_relative_id);
@@ -818,7 +819,7 @@ class Board {
 							break;
 							
 						}
-						$results_replies = $tc_db->GetAll($query);
+						$results_replies = $db->GetAll($query);
 						if ($modifier == 'last50') {
 							$results_replies = array_reverse($results_replies);
 						}
@@ -861,7 +862,7 @@ class Board {
 						}
 						/* Retrieves the three newest posts from the thread in descending order, which is backwards for what we want, so we apply array_reverse on the result */
 						$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` DESC LIMIT '.$numrepliesdisplayed;
-						$results_replies = array_reverse($tc_db->GetAll($query));
+						$results_replies = array_reverse($db->GetAll($query));
 						
 						// }}}
 						
@@ -945,7 +946,7 @@ class Board {
 				$buildthread_output .= '</div>' . "\n" . 
 				'<br clear="left">' . "\n" . 
 				'<hr>' . "\n";
-			} elseif ($this->board_type == 3 && $page) {
+			} elseif ($this->board_type_readable == 'upload' && $page) {
 				// {{{ Upload imageboard page generation
 				
 				$buildthread_output .= uploadImageboardPageRow($line, $this->board_dir, $this->board_maxage, $numReplies);
@@ -990,7 +991,7 @@ class Board {
 					
 					}
 				}
-				$results2 = $tc_db->GetAll($query);
+				$results2 = $db->GetAll($query);
 				if ($page || $modifier == 'last50') {
 					$results2 = array_reverse($results2);
 				}
@@ -1031,7 +1032,7 @@ class Board {
 			$thread_relative_id++;
 		}
 		
-		if (!$page && $this->board_type != 1) {
+		if (!$page && $this->board_type_readable != 'text') {
 			$buildthread_output .= deletePostBox($this->board_type, $this->board_enablereporting);
 			$buildthread_output .= setDelPassJavascript();			
 		}
@@ -1054,10 +1055,12 @@ class Board {
 	function BuildPost($page, $post_board, $post_board_type, $post, $thread_replies=0, $thread_relative_id='', $reply_relative_id=0, $threads_on_front_page=0) {
 		global $expandjavascript, $CURRENTLOCALE;
 		$buildpost_output = '';
+		
 		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
 		$post_is_thread = ($post['parentid']==0) ? true : false;
+		
 		$post['message'] = stripslashes($post['message']);
-		if ($post_board_type != 1) {
+		if ($this->board_type_readable != 'text') {
 			/* Build a post imageboard style */
 			$info_file = '';
 			$info_post = '';
@@ -1364,7 +1367,7 @@ class Board {
 	 * @return string The built header	 	 	 	 	 	 
 	 */	
 	function PageHeader($replythread = '0', $liststart = '0', $listpage = '-1', $liststooutput = '-1', $isoekaki = false, $hidewatchedthreads = false) {
-		global $tc_db, $kusabaorg, $tpl, $CURRENTLOCALE;
+		global $db, $kusabaorg, $tpl, $CURRENTLOCALE;
 		
 		$tpl['title'] = '';
 		if (KU_DIRTITLE) {
@@ -1428,7 +1431,7 @@ class Board {
 		}*/
 		$output = '';
 		
-		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+		if ($this->board_type_readable != 'text') {
 			$tpl['head'] .= '<link rel="stylesheet" href="' . getCLBoardPath() . 'css/img_global.css">' . "\n" .
 			$this->pageheader_css;
 		} else {
@@ -1450,11 +1453,11 @@ class Board {
 		'	var ku_boardspath = \'' . KU_BOARDSPATH . '\';' . "\n" .
 		'	var ku_cgipath = \'' . KU_CGIPATH . '\'' . "\n" .
 		'	var style_cookie';
-		if ($this->board_type==1) {
+		if ($this->board_type_readable == 'text') {
 			$tpl['head'] .= '_txt';
 		}
 		$tpl['head'] .= '="kustyle';
-		if ($this->board_type==1) {
+		if ($this->board_type_readable == 'text') {
 			$tpl['head'] .= '_txt';
 		}
 		$tpl['head'] .= '";' . "\n" .
@@ -1466,7 +1469,7 @@ class Board {
 		}
 		$tpl['head'] .= ';' . "\n" .
 		'//--></script>' . "\n";
-		if ($this->board_type == 1) {
+		if ($this->board_type_readable == 'text') {
 			if ($replythread == 0) {
 				$output .= '<body class="board">' . "\n";
 			} else {
@@ -1475,7 +1478,7 @@ class Board {
 		} else {
 			$output .= '<body>' . "\n";
 		}
-		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+		if ($this->board_type_readable != 'text') {
 			$output .= '<div class="adminbar">' . "\n";
 			if (KU_STYLESWITCHER) {
 				$styles = explode(':', KU_STYLES);
@@ -1498,17 +1501,17 @@ class Board {
 		}
 		$ad_top = 185;
 		$ad_right = 25;
-		if ($this->board_type==1)  {
+		if ($this->board_type_readable == 'text')  {
 			$ad_top -= 50;
 		} else {
 			if ($replythread!=0) {
 				$ad_top += 50;
 			}
 		}
-		if ($this->board_type==2) {
+		if ($this->board_type_readable == 'oekaki') {
 			$ad_top += 40;
 		}
-		if (isset($kusabaorg) && $this->board_type != 1) {
+		if (isset($kusabaorg) && $this->board_type_readable != 'text') {
 			$output .=  '<div id="ad" style="position: absolute;top:'.$ad_top.'px;right:'.$ad_right.'px">' . "\n" .
 			'<script type="text/javascript"><!--' . "\n" .
 			'google_ad_client = "pub-6158454562572132";' . "\n" .
@@ -1528,7 +1531,7 @@ class Board {
 			'</script>' . "\n" .
 			'</div>' . "\n";
 		}
-		if (KU_WATCHTHREADS && !$isoekaki && ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) && !$hidewatchedthreads) {
+		if (KU_WATCHTHREADS && !$isoekaki && ($this->board_type_readable != 'text') && !$hidewatchedthreads) {
 			$output .= 
 			'<script type="text/javascript"><!--' . "\n" .
 			'if (getCookie(\'showwatchedthreads\') == \'1\') {' . "\n" .
@@ -1553,7 +1556,7 @@ class Board {
 			'}' . "\n" .
 			'//--></script>' . "\n";
 		}
-		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+		if ($this->board_type_readable != 'text') {
 			$output .= '<div class="logo">';
 			if ($this->board_image=='') {
 				if (KU_HEADERURL!='') {
@@ -1568,7 +1571,7 @@ class Board {
 			$output .= $this->board_desc . '</div>' . "\n" .
 			$this->board_includeheader . "\n" .
 			'<hr>' . "\n";
-		} else if ($this->board_type == 1 && $replythread == 0) {
+		} else if ($this->board_type_readable == 'text' && $replythread == 0) {
 			/* Text board header */
 			
 			$output .= '<div class="fullhead">' . "\n" .
@@ -1663,7 +1666,7 @@ class Board {
 	 * @return string The generated thread list	 	 	 	 	 	 	 	 	 
 	 */	
 	function TextBoardThreadList($board, $liststart, $liststooutput, $ispage = false) {
-		global $tc_db;
+		global $db;
 		
 		$output = '<div class="hborder">' . "\n" . 
 		'<div class="head threadldiv"';
@@ -1690,11 +1693,11 @@ class Board {
 			$startrecord = KU_THREADSTXT;
 		}
 		
-		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC LIMIT $liststart, $startrecord");
+		$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC LIMIT $liststart, $startrecord");
 		if (count($results)>0) {
 			$relative_id = $liststart;
 			foreach($results AS $line) {
-				$results2 = $tc_db->GetAll("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = " . $line['id']);
+				$results2 = $db->GetAll("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `parentid` = " . $line['id']);
 				$replies = $results2[0][0];
 				
 				if ($this->board_compactlist && $liststooutput < 0) {
@@ -1768,12 +1771,12 @@ class Board {
 	 * @return integer The number of unique posts	 	 	 	 	 	 	 
 	 */	
 	function UniquePosts($board = '') {
-		global $tc_db;
+		global $db;
 		
 		if ($board!='') {
-			return $tc_db->GetOne("SELECT COUNT(DISTINCT `ipmd5`) FROM `" . KU_DBPREFIX . "posts_" . mysql_real_escape_string($board) . "` WHERE `IS_DELETED` = 0");
+			return $db->GetOne("SELECT COUNT(DISTINCT `ipmd5`) FROM `" . KU_DBPREFIX . "posts_" . mysql_real_escape_string($board) . "` WHERE `IS_DELETED` = 0");
 		} else {
-			/*$results = $tc_db->GetAll("SELECT COUNT(DISTINCT `ipmd5`) FROM `".KU_DBPREFIX."posts_` WHERE `IS_DELETED` = 0");
+			/*$results = $db->GetAll("SELECT COUNT(DISTINCT `ipmd5`) FROM `".KU_DBPREFIX."posts_` WHERE `IS_DELETED` = 0");
 			$numuniqueposts = mysql_fetch_row($result);
 			return $numuniqueposts[0];*/ //Devnote: Broke when switched to multiple table spanning posts, might fix later
 		}
@@ -1787,12 +1790,12 @@ class Board {
 	 * @return string The formatted postbox notice	 	 	 	 	 	 
 	 */	
 	function FormatPostbox($notice, $board) {
-		global $tc_db;
+		global $db;
 		
-		$results = $tc_db->GetAll("SELECT `maximagesize` FROM `".KU_DBPREFIX."boards` WHERE `name` = '" . mysql_real_escape_string($board) . "' LIMIT 1");
+		$results = $db->GetAll("SELECT `maximagesize` FROM `".KU_DBPREFIX."boards` WHERE `name` = '" . mysql_real_escape_string($board) . "' LIMIT 1");
 		foreach($results AS $line) {
 			$filetypes = '';
-			$filetypes_allowed = $tc_db->GetAll("SELECT ".KU_DBPREFIX."filetypes.filetype FROM ".KU_DBPREFIX."boards, ".KU_DBPREFIX."filetypes, ".KU_DBPREFIX."board_filetypes WHERE ".KU_DBPREFIX."boards.id = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.boardid = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.typeid = ".KU_DBPREFIX."filetypes.id ORDER BY ".KU_DBPREFIX."filetypes.filetype ASC;");
+			$filetypes_allowed = $db->GetAll("SELECT ".KU_DBPREFIX."filetypes.filetype FROM ".KU_DBPREFIX."boards, ".KU_DBPREFIX."filetypes, ".KU_DBPREFIX."board_filetypes WHERE ".KU_DBPREFIX."boards.id = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.boardid = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.typeid = ".KU_DBPREFIX."filetypes.id ORDER BY ".KU_DBPREFIX."filetypes.filetype ASC;");
 			if ($filetypes_allowed == '') {
 				$filetypes = _gettext('None');
 			} else {
@@ -1802,7 +1805,7 @@ class Board {
 				$filetypes = substr($filetypes, 0, (strlen($filetypes)-2));
 			}
 			
-			$catalogmsg = ($this->board_enablecatalog == 1 && $this->board_type != 1 && $this->board_type != 3) ? ' <a href="' . KU_BOARDSFOLDER . $this->board_dir . '/catalog.html">' . _gettext('View catalog') . '</a>' : '';
+			$catalogmsg = ($this->board_enablecatalog == 1 && $this->board_type_readable != 'text' && $this->board_type_readable != 'upload') ? ' <a href="' . KU_BOARDSFOLDER . $this->board_dir . '/catalog.html">' . _gettext('View catalog') . '</a>' : '';
 			
 			$patterns = array ('/\<\!tc_maxthumbwidth \/\>/', '/\<\!tc_maxthumbheight \/\>/', '/\<\!tc_uniqueposts \/\>/', '/\<\!tc_maximagekb \/\>/', '/\<\!tc_filetypes \/\>/', '/\<\!tc_catalog \/\>/');
 			$replace = array (KU_THUMBWIDTH, KU_THUMBHEIGHT, $this->UniquePosts($board), round($line['maximagesize']/1024), $filetypes, $catalogmsg);
@@ -1823,7 +1826,7 @@ class Board {
 			$this->pageheader_css = printStylesheets(KU_DEFAULTSTYLE);
 		}
 		
-		if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+		if ($this->board_type_readable != 'text') {
 			$this->pageheader_boardlist = $this->DisplayBoardList(false);
 		} else {
 			$this->pageheader_boardlist = $this->DisplayBoardList(true);
@@ -1842,7 +1845,7 @@ class Board {
 	 * @return string The generated postbox 	 	 	 	 	 
 	 */	
 	function Postbox($replythread = 0, $oekaki = '', $postboxnotice = '') {
-		global $tc_db, $sevenchanorg;
+		global $db, $sevenchanorg;
 		
 		$output = '';
 		if (isset($sevenchanorg)) {
@@ -1854,8 +1857,8 @@ class Board {
 				</div>';
 			}
 		}
-		if (!($this->board_type == 1 && $replythread != 0)) {
-			if ($this->board_type ==0 || $this->board_type == 2 || $this->board_type == 3) {
+		if (!($this->board_type_readable == 'text' && $replythread != 0)) {
+			if ($this->board_type_readable == 'image' || $this->board_type_readable == 'oekaki' || $this->board_type_readable == 'upload') {
 				$output .= '<div class="postarea">' . "\n";
 				$label_class = 'postblock';
 			} else {
@@ -1868,7 +1871,7 @@ class Board {
 			}
 			/* Create anchor to allow links to scroll directly to the post box */
 			$output .= '<a id="postbox"></a>' . "\n";
-			if ($this->board_type == 2 && $oekaki == '') {
+			if ($this->board_type_readable == 'oekaki' && $oekaki == '') {
 				$output .= '<form action="' . KU_CGIPATH . '/paint.php" method="post">' . "\n" .
 				'<input type="hidden" name="board" value="'.$this->board_dir.'">' . "\n" .
 				'<input type="hidden" name="replyto" value="'.$replythread.'">' . "\n" .
@@ -1885,11 +1888,11 @@ class Board {
 				if ($replythread != 0) {
 					$output .= '<label for="replyimage">' . _gettext('Source') . ':&nbsp;</label><select name="replyimage" id="replyimage">' . "\n" .
 					'<option value="0">' . _gettext('New image') . '</option>' . "\n";
-					$results = $tc_db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `id` = $replythread AND `filename` != '' AND `filename` != 'removed' AND `filetype` != 'swf' AND `IS_DELETED` = 0");
+					$results = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `id` = $replythread AND `filename` != '' AND `filename` != 'removed' AND `filetype` != 'swf' AND `IS_DELETED` = 0");
 					foreach($results AS $line) {
 						$output .= '<option value="'.$line['id'].'">' . _gettext('Modify') . ' No.'.$line['id'].'</option>' . "\n";
 					}
-					$results = $tc_db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = $replythread AND `filename` != '' AND `filename` != 'removed' AND `filetype` != 'swf' AND `IS_DELETED` = 0");
+					$results = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = $replythread AND `filename` != '' AND `filename` != 'removed' AND `filetype` != 'swf' AND `IS_DELETED` = 0");
 					foreach($results AS $line) {
 						$output .= '<option value="'.$line['id'].'">' . _gettext('Modify') . ' No.'.$line['id'].'</option>' . "\n";
 					}
@@ -1898,7 +1901,7 @@ class Board {
 				$output .= '<input type="submit" value="' . _gettext('Paint!') . '"></form>' . "\n" .
 				'<hr>' . "\n";
 			}
-			if (($this->board_type == 2 && $oekaki != '' && $replythread == 0) ||($this->board_type == 2 && $replythread != 0) || ($this->board_type == 0 || $this->board_type == 1 || $this->board_type == 3)) {
+			if (($this->board_type_readable == 'oekaki' && $oekaki != '' && $replythread == 0) ||($this->board_type_readable == 'oekaki' && $replythread != 0) || ($this->board_type_readable == 'image' || $this->board_type_readable == 'text' || $this->board_type_readable == 'upload')) {
 				$output .= '<form name="postform" id="postform" action="' . KU_CGIPATH . '/board.php" method="post" enctype="multipart/form-data"';
 				if ($this->board_enablecaptcha == 1) {
 					$output .= ' onsubmit="return checkcaptcha(\'postform\');"';
@@ -1910,7 +1913,7 @@ class Board {
 					$output .= '<input type="hidden" name="MAX_FILE_SIZE" value="' . $this->board_maximagesize . '">' . "\n";
 				}
 				$output .= '<input type="text" name="email" size="28" maxlength="75" value="" style="display: none;">' . "\n";
-				if ($this->board_type != 1) {
+				if ($this->board_type_readable != 'text') {
 					$output .= '<p>' . "\n" .
 					'<table class="postform">' . "\n" .
 					'<tbody>' . "\n";
@@ -1947,10 +1950,10 @@ class Board {
 					'	<td>' . "\n" .
 					'		<input type="text" name="subject" size="35" maxlength="75" accesskey="s">&nbsp;<input type="submit" value="' . _gettext('Submit') . '" accesskey="z">';
 					/* Qucik reply indicator for a postbox on a board page */
-					if (KU_QUICKREPLY && $replythread == 0 && ($this->board_type == 0 || $this->board_type == 3)) {
+					if (KU_QUICKREPLY && $replythread == 0 && ($this->board_type_readable == 'image' || $this->board_type_readable == 'upload')) {
 						$output .= '&nbsp;<small>(<span id="posttypeindicator">new thread</span>)</small>';
 					/* Qucik reply indicator for a postbox on a thread page */
-					} elseif (KU_QUICKREPLY && $replythread != 0 && ($this->board_type == 0 || $this->board_type == 3)) {
+					} elseif (KU_QUICKREPLY && $replythread != 0 && ($this->board_type_readable == 'image' || $this->board_type_readable == 'upload')) {
 						$output .= '&nbsp;<small>(<span id="posttypeindicator">reply to ' . $replythread . '</span>)</small>';
 					}
 					$output .= "\n" . '	</td>' . "\n" .
@@ -1963,7 +1966,7 @@ class Board {
 					'		<textarea name="message" cols="48" rows="4" accesskey="m"></textarea>' . "\n" .
 					'	</td>' . "\n" .
 					'</tr>' . "\n";
-					if ($this->board_type != 1) {
+					if ($this->board_type_readable != 'text') {
 						if ($this->board_uploadtype == 0 || $this->board_uploadtype == 1) {
 							$output .= '<tr>' . "\n" .
 							'	<td class="'.$label_class.'">' . "\n" .
@@ -1981,7 +1984,7 @@ class Board {
 							$output .= "\n" . '	</td>' . "\n" .
 							'</tr>' . "\n";
 						}
-						if ($replythread == 0 && $this->board_type == 3 && KU_TAGS != '') {
+						if ($replythread == 0 && $this->board_type_readable == 'upload' && KU_TAGS != '') {
 							$output .= '<tr>' . "\n" .
 							'	<td class="'.$label_class.'">' . "\n" .
 							'		' . _gettext('Tag') . "\n" .
@@ -2022,7 +2025,7 @@ class Board {
 					'		<input type="password" name="postpassword" size="8" accesskey="p">&nbsp;'._gettext('(for post and file deletion)') . "\n" .
 					'	</td>' . "\n" .
 					'</tr>' . "\n";
-					if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+					if ($this->board_type_readable != 'text') {
 						$output .= '<tr id="passwordbox"><td></td><td></td></tr>' . "\n" .
 						'<tr>' . "\n" .
 						'	<td colspan="2" class="rules">' . "\n" .
@@ -2058,7 +2061,7 @@ class Board {
 					$output .= textBoardReplyBox($this->board_dir, $this->board_forcedanon, $this->board_enablecaptcha, false, false, 'postform');
 				}
 				$output .= '</form>' . "\n";
-				if ($this->board_type == 0 || $this->board_type == 2 || $this->board_type == 3) {
+				if ($this->board_type_readable != 'text') {
 					$output .= '<hr>' . "\n";
 				}
 			}
@@ -2081,17 +2084,17 @@ class Board {
 		$div_name = ($is_textboard) ? 'topbar' : 'navbar';
 		
 		if (KU_GENERATEBOARDLIST) {
-			global $tc_db;
+			global $db;
 			
 			$output = '';
-			$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "sections` ORDER BY `order` ASC");
+			$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "sections` ORDER BY `order` ASC");
 			$board_sections = array();
 			foreach($results AS $line) {
 				$board_sections[] = $line['id'];
 			}
 			foreach ($board_sections as $board_section) {
 				$board_this_section = '';
-				$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "boards` WHERE `section` = '" .  $board_section . "' ORDER BY `order` ASC");
+				$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "boards` WHERE `section` = '" .  $board_section . "' ORDER BY `order` ASC");
 				if (count($results) > 0) {
 					$output .= '[';
 					foreach($results AS $line) {
@@ -2130,11 +2133,11 @@ class Board {
 	 * Trim the threads to the page limit and delete posts which are older than limited
 	 */	 
 	function TrimToPageLimit() {
-		global $tc_db;
+		global $db;
 		
 		if ($this->board_maxage != 0) {
 			/* If the maximum thread age setting is not zero (do not delete old threads), find posts which are older than the limit, and delete them */
-			$results = $tc_db->GetAll("SELECT `id`, `postedat` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 AND `stickied` = 0 AND ((`postedat` + " . ($this->board_maxage*3600) . ") < " . time() . ")");
+			$results = $db->GetAll("SELECT `id`, `postedat` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 AND `stickied` = 0 AND ((`postedat` + " . ($this->board_maxage*3600) . ") < " . time() . ")");
 			foreach($results AS $line) {
 				/* If it is older than the limit */
 				$post_class = new Post($line['id'], $this->board_dir);
@@ -2143,13 +2146,13 @@ class Board {
 		}
 		if ($this->board_maxpages != 0) {
 			/* If the maximum pages setting is not zero (do not limit pages), find posts which are over the limit, and delete them */
-			$results = $tc_db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = 0");
+			$results = $db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = 0");
 			$results_count = count($results);
 			if (calculatenumpages($this->board_type, $results_count) >= $this->board_maxpages) {
 				$this->board_maxthreads = ($this->board_maxpages * KU_THREADS);
 				$numthreadsover = ($results_count - $this->board_maxthreads);
 				if ($numthreadsover > 0) {
-					$resultspost = $tc_db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = 0 AND `stickied` = 0 ORDER BY `lastbumped` ASC LIMIT " . $numthreadsover);
+					$resultspost = $db->GetAll("SELECT `id`, `stickied` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND  `parentid` = 0 AND `stickied` = 0 ORDER BY `lastbumped` ASC LIMIT " . $numthreadsover);
 					foreach($resultspost AS $linepost) {
 						$post_class = new Post($linepost['id'], $this->board_dir);
 						$post_class->Delete(true);
@@ -2158,7 +2161,7 @@ class Board {
 			}
 		}
 		/* If the thread was marked for deletion more than two hours ago, delete it */
-		$results = $tc_db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 AND `stickied` = 0 AND `deletedat` > 0 AND (`deletedat` <= " . time() . ")");
+		$results = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 AND `stickied` = 0 AND `deletedat` > 0 AND (`deletedat` <= " . time() . ")");
 		foreach($results AS $line) {
 			/* If it is older than the limit */
 			$post_class = new Post($line['id'], $this->board_dir);
@@ -2175,7 +2178,7 @@ class Board {
 	 * @return string The generated footer
 	 */	 	 	 	 	 	 	
 	function Footer($noboardlist = false, $executiontime = '', $hide_extra = false) {
-		global $tc_db, $kusabaorg;
+		global $db, $kusabaorg;
 		$output = '';
 		if (!$hide_extra && !$noboardlist) {
 			$output .= '<br>' . $this->DisplayBoardList();
@@ -2291,9 +2294,9 @@ class Post extends Board {
 	var $post_isthread;
 	
 	function Post($postid, $board, $is_inserting = false) {
-		global $tc_db;
+		global $db;
 		
-		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".$board."` WHERE `id` = ".mysql_real_escape_string($postid)." LIMIT 1");
+		$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".$board."` WHERE `id` = ".mysql_real_escape_string($postid)." LIMIT 1");
 		if (count($results)==0&&!$is_inserting) {
 			exitWithErrorPage('Invalid post ID.');
 		} elseif ($is_inserting) {
@@ -2306,7 +2309,7 @@ class Post extends Board {
 				$this->post_filetype   = $line['filetype'];
 				$this->post_password   = $line['password'];
 			}
-			$results = $tc_db->GetAll("SELECT `cleared` FROM `".KU_DBPREFIX."reports` WHERE `postid` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
+			$results = $db->GetAll("SELECT `cleared` FROM `".KU_DBPREFIX."reports` WHERE `postid` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
 			if (count($results)>0) {
 				foreach($results AS $line) {
 					if ($line['cleared']==0) {
@@ -2330,7 +2333,7 @@ class Post extends Board {
 	}
 
 	function Delete($allow_archive = false) {
-		global $tc_db;
+		global $db;
 		
 		$i = 0;
 		if ($this->post_isthread == true) {
@@ -2340,7 +2343,7 @@ class Post extends Board {
 				@copy(KU_BOARDSDIR . $this->board_dir . '/src/' . $this->post_filename . '.' . $this->post_filetype, KU_BOARDSDIR . $this->board_dir . $this->archive_dir . '/src/' . $this->post_filename . '.' . $this->post_filetype);
 				@copy(KU_BOARDSDIR . $this->board_dir . '/thumb/' . $this->post_filename . 's.' . $this->post_filetype, KU_BOARDSDIR . $this->board_dir . $this->archive_dir . '/thumb/' . $this->post_filename . 's.' . $this->post_filetype);
 			}
-			$results = $tc_db->GetAll("SELECT `id`, `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = ".mysql_real_escape_string($this->post_id));
+			$results = $db->GetAll("SELECT `id`, `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = ".mysql_real_escape_string($this->post_id));
 			foreach($results AS $line) {
 				$i++;
 				if ($allow_archive && $this->board_enablearchiving == 1) {
@@ -2356,17 +2359,17 @@ class Post extends Board {
 			@unlink(KU_BOARDSDIR.$this->board_dir.'/res/'.$this->post_id.'+50.html');
 			$this->DeleteFile(false, true);
 			foreach($results AS $line) {
-				$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".$line['id']." AND `parentid` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
+				$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".$line['id']." AND `parentid` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
 				clearPostCache($line['id'], $this->board_dir);
 			}
-			$tc_db->Execute("DELETE FROM `".KU_DBPREFIX."watchedthreads` WHERE `threadid` = ".mysql_real_escape_string($this->post_id)." AND `board` = '".$this->board_dir."'");
-			$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
+			$db->Execute("DELETE FROM `".KU_DBPREFIX."watchedthreads` WHERE `threadid` = ".mysql_real_escape_string($this->post_id)." AND `board` = '".$this->board_dir."'");
+			$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
 			clearPostCache($this->post_id, $this->board_dir);
 			
 			return $i.' ';
 		} else {
 			$this->DeleteFile(false);
-			$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
+			$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `IS_DELETED` = 1 , `deletedat` = '" . time() . "' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
 			clearPostCache($this->post_id, $this->board_dir);
 			
 			return true;
@@ -2374,10 +2377,10 @@ class Post extends Board {
 	}
 
 	function DeleteFile($update_to_removed = true, $whole_thread = false) {
-		global $tc_db;
+		global $db;
 		
 		if ($whole_thread && $this->post_isthread) {
-			$results = $tc_db->GetAll("SELECT `id`, `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = ".mysql_real_escape_string($this->post_id));
+			$results = $db->GetAll("SELECT `id`, `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = ".mysql_real_escape_string($this->post_id));
 			if (count($results)>0) {
 				foreach($results AS $line) {
 					if ($line['filename'] != '' && $line['filename'] != 'removed') {
@@ -2390,7 +2393,7 @@ class Post extends Board {
 							@unlink(KU_BOARDSDIR.$this->board_dir.'/thumb/'.$line['filename'].'c.'.$line['filetype']);
 						}
 						if ($update_to_removed) {
-							$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".$line['id']." LIMIT 1");
+							$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".$line['id']." LIMIT 1");
 							clearPostCache($line['id'], $this->board_dir);
 						}
 					}
@@ -2408,7 +2411,7 @@ class Post extends Board {
 					@unlink(KU_BOARDSDIR.$this->board_dir.'/thumb/'.$this->post_filename.'c.'.$this->post_filetype);
 				}
 				if ($update_to_removed) {
-					$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
+					$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
 					clearPostCache($this->post_id, $this->board_dir);
 				}
 			}
@@ -2416,18 +2419,18 @@ class Post extends Board {
 	}
 
 	function Insert($parentid, $name, $tripcode, $email, $subject, $message, $filename, $filename_original, $filetype, $filemd5, $image_w, $image_h, $filesize, $thumb_w, $thumb_h, $password, $postedat, $lastbumped, $ip, $posterauthority, $tag, $stickied, $locked) {
-		global $tc_db;
+		global $db;
 		
 		$query = "INSERT INTO `".KU_DBPREFIX."posts_".$this->board_dir."` ( `parentid` , `name` , `tripcode` , `email` , `subject` , `message` , `filename` , `filename_original`, `filetype` , `filemd5` , `image_w` , `image_h` , `filesize` , `filesize_formatted` , `thumb_w` , `thumb_h` , `password` , `postedat` , `lastbumped` , `ip` , `ipmd5` , `posterauthority` , `tag` , `stickied` , `locked` ) VALUES ( '".mysql_real_escape_string($parentid)."', '".mysql_real_escape_string($name)."', '".mysql_real_escape_string($tripcode)."', '".mysql_real_escape_string($email)."', '".mysql_real_escape_string($subject)."', '".mysql_real_escape_string($message)."', '".mysql_real_escape_string($filename)."', '".mysql_real_escape_string($filename_original)."', '".mysql_real_escape_string($filetype)."', '".mysql_real_escape_string($filemd5)."', '".mysql_real_escape_string($image_w)."', '".mysql_real_escape_string($image_h)."', '".mysql_real_escape_string($filesize)."', '".mysql_real_escape_string(ConvertBytes($filesize))."', '".mysql_real_escape_string($thumb_w)."', '".mysql_real_escape_string($thumb_h)."', '".mysql_real_escape_string($password)."', '".mysql_real_escape_string($postedat)."', '".mysql_real_escape_string($lastbumped)."', '".mysql_real_escape_string(md5_encrypt($ip, KU_RANDOMSEED))."', '".md5($ip)."', '".mysql_real_escape_string($posterauthority)."', '".mysql_real_escape_string($tag)."', '".mysql_real_escape_string($stickied)."', '".mysql_real_escape_string($locked)."' )";
-		$tc_db->Execute($query);
+		$db->Execute($query);
 		
-		return $tc_db->Insert_Id();
+		return $db->Insert_Id();
 	}
 
 	function Report() {
-		global $tc_db;
+		global $db;
 		
-		return $tc_db->Execute("INSERT INTO `".KU_DBPREFIX."reports` ( `board` , `postid` , `when` , `ip` ) VALUES ( '" . mysql_real_escape_string($this->board_dir) . "' , " . mysql_real_escape_string($this->post_id) . " , ".time()." , '" . md5_encrypt($_SERVER['REMOTE_ADDR'], KU_RANDOMSEED) . "' )");
+		return $db->Execute("INSERT INTO `".KU_DBPREFIX."reports` ( `board` , `postid` , `when` , `ip` ) VALUES ( '" . mysql_real_escape_string($this->board_dir) . "' , " . mysql_real_escape_string($this->post_id) . " , ".time()." , '" . md5_encrypt($_SERVER['REMOTE_ADDR'], KU_RANDOMSEED) . "' )");
 	}
 }
 

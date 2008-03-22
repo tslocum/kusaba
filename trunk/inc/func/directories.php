@@ -40,7 +40,7 @@ function removeDir($path) {
  * @return boolean Result 
  */ 
 function removeBoard($dir){
-	global $tc_db;
+	global $db;
 
 	if(!isset($GLOBALS['remerror'])) {
 		$GLOBALS['remerror'] = false;

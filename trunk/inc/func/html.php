@@ -8,7 +8,7 @@
  * @return string HTML formatted stylesheet <link> tags
  */    
 function printStylesheets($prefered_stylesheet = KU_DEFAULTSTYLE) {
-	global $tc_db;
+	global $db;
 	$output_stylesheets = '';
 	$styles = explode(':', KU_STYLES);
 	
@@ -28,7 +28,7 @@ function printStylesheets($prefered_stylesheet = KU_DEFAULTSTYLE) {
 }
 
 function printStylesheetsTXT($prefered_stylesheet = KU_DEFAULTTXTSTYLE) {
-	global $tc_db;
+	global $db;
 	$output_stylesheets = '';
 	$styles = explode(':', KU_TXTSTYLES);
 	
@@ -48,7 +48,7 @@ function printStylesheetsTXT($prefered_stylesheet = KU_DEFAULTTXTSTYLE) {
 }
 
 function printStylesheetsSite($prefered_stylesheet = KU_DEFAULTMENUSTYLE, $menu = false) {
-	global $tc_db;
+	global $db;
 	$output_stylesheets = '';
 	$styles = explode(':', KU_MENUSTYLES);
 	

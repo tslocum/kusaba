@@ -37,7 +37,7 @@ class Upload {
 	var $isreply               = false;
 	
 	function HandleUpload() {
-		global $tc_db, $board_class, $is_oekaki, $oekaki;
+		global $db, $board_class, $is_oekaki, $oekaki;
 
 		if (!$is_oekaki) {
 			if ($board_class->board_type == 0 || $board_class->board_type == 2 || $board_class->board_type == 3) {
@@ -119,7 +119,7 @@ class Upload {
 					$this->file_type = strtolower($this->file_type);
 					$this->file_size = $_FILES['imagefile']['size'];
 					
-					$filetype_forcethumb = $tc_db->GetOne("SELECT " . KU_DBPREFIX . "filetypes.force_thumb FROM " . KU_DBPREFIX . "boards, " . KU_DBPREFIX . "filetypes, " . KU_DBPREFIX . "board_filetypes WHERE " . KU_DBPREFIX . "boards.id = " . KU_DBPREFIX . "board_filetypes.boardid AND " . KU_DBPREFIX . "filetypes.id = " . KU_DBPREFIX . "board_filetypes.typeid AND " . KU_DBPREFIX . "boards.name = '" . $board_class->board_dir . "' and " . KU_DBPREFIX . "filetypes.filetype = '" . substr($this->file_type, 1) . "';");
+					$filetype_forcethumb = $db->GetOne("SELECT " . KU_DBPREFIX . "filetypes.force_thumb FROM " . KU_DBPREFIX . "boards, " . KU_DBPREFIX . "filetypes, " . KU_DBPREFIX . "board_filetypes WHERE " . KU_DBPREFIX . "boards.id = " . KU_DBPREFIX . "board_filetypes.boardid AND " . KU_DBPREFIX . "filetypes.id = " . KU_DBPREFIX . "board_filetypes.typeid AND " . KU_DBPREFIX . "boards.name = '" . $board_class->board_dir . "' and " . KU_DBPREFIX . "filetypes.filetype = '" . substr($this->file_type, 1) . "';");
 					if ($filetype_forcethumb != '') {
 						if ($filetype_forcethumb == 0) {
 							$this->file_name = time() . mt_rand(1, 99);
@@ -183,7 +183,7 @@ class Upload {
 							}
 						} else {
 							/* Fetch the mime requirement for this special filetype */
-							$filetype_required_mime = $tc_db->GetOne("SELECT `mime` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string(substr($this->file_type, 1)) . "'");
+							$filetype_required_mime = $db->GetOne("SELECT `mime` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string(substr($this->file_type, 1)) . "'");
 							
 							$this->file_name = str_replace(' ', '_', $this->file_name);
 							$this->file_name = str_replace('#', '(number)', $this->file_name);
@@ -264,7 +264,7 @@ class Upload {
 								
 							}
 							
-							$results = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `filename` = '" . mysql_real_escape_string($video_id) . "' AND `IS_DELETED` = 0");
+							$results = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `filename` = '" . mysql_real_escape_string($video_id) . "' AND `IS_DELETED` = 0");
 							if ($results[0] == 0) {
 								$video_check = check_link($videourl_start . $video_id);
 								switch ($video_check[1]) {
@@ -282,7 +282,7 @@ class Upload {
 										break;
 								}
 							} else {
-								$results = $tc_db->GetAll("SELECT `id`,`threadid` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `filename` = '" . mysql_real_escape_string($video_id) . "' AND `IS_DELETED` = 0 LIMIT 1");
+								$results = $db->GetAll("SELECT `id`,`threadid` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `filename` = '" . mysql_real_escape_string($video_id) . "' AND `IS_DELETED` = 0 LIMIT 1");
 								foreach ($results as $line) {
 									$real_threadid = ($line[1] == 0) ? $line[0] : $line[1];
 									exitWithErrorPage(sprintf(_gettext('That video ID has already been posted %shere%s.'),'<a href="' . KU_BOARDSFOLDER . '/' . $board_class->board_dir . '/res/' . $real_threadid . '.html#' . $line[1] . '">','</a>'));

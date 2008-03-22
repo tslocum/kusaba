@@ -72,7 +72,7 @@ $_POST['board'] = (isset($_GET['board'])) ? $_GET['board'] : $_POST['board'];
 
 /* If the script was called using a board name: */
 if (isset($_POST['board'])) {
-	$board_name = $tc_db->GetOne("SELECT `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
+	$board_name = $db->GetOne("SELECT `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
 	if ($board_name != '') {
 		$board_class = new Board($board_name);
 		if ($board_class->board_locale != '') {
@@ -105,7 +105,7 @@ $posting_class->UTF8Strings();
 
 /* Check if the user sent a valid post (image for thread, image/message for reply, etc) */
 if ($posting_class->CheckValidPost($is_oekaki)) {
-	$tc_db->Execute("START TRANSACTION");
+	$db->Execute("START TRANSACTION");
 	$posting_class->CheckReplyTime();
 	$posting_class->CheckNewThreadTime();
 	$posting_class->CheckMessageLength();
@@ -164,7 +164,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		}
 	}
 	
-	$results = $tc_db->GetAll("SHOW TABLE STATUS LIKE '" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "'");
+	$results = $db->GetAll("SHOW TABLE STATUS LIKE '" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "'");
 	$nextid = $results[0]['Auto_increment'];
 	$parse_class->id = $nextid;
 	
@@ -266,7 +266,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			if ($thread_replyto == 0) {
 				$sticky = 1;
 			} else {
-				$result = $tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `stickied` = '1' WHERE `id` = '" . $thread_replyto . "'");
+				$result = $db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `stickied` = '1' WHERE `id` = '" . $thread_replyto . "'");
 				$sticky = 0;
 			}
 		} else {
@@ -277,7 +277,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			if ($thread_replyto == 0) {
 				$lock = 1;
 			} else {
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `locked` = '1' WHERE `id` = '" . $thread_replyto . "'");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `locked` = '1' WHERE `id` = '" . $thread_replyto . "'");
 				$lock = 0;
 			}
 		} else {
@@ -330,7 +330,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			}
 			
 			$post_class = new Post(0, $board_class->board_dir, true);
-			$post_id = $post_class->Insert($thread_replyto, $post['name'], $post['tripcode'], $post['email'], $post['subject'], addslashes($post['message']), $upload_class->file_name, $upload_class->original_file_name, $filetype_withoutdot, $upload_class->file_md5, $upload_class->imgWidth, $upload_class->imgHeight, $upload_class->file_size, $upload_class->imgWidth_thumb, $upload_class->imgHeight_thumb, $post_passwordmd5, time(), time(), $_SERVER['REMOTE_ADDR'], $user_authority_display, $post['tag'], $sticky, $lock);
+			$post_id = $post_class->Insert($thread_replyto, $post['name'], $post['tripcode'], $post['email'], $post['subject'], $post['message'], $upload_class->file_name, $upload_class->original_file_name, $filetype_withoutdot, $upload_class->file_md5, $upload_class->imgWidth, $upload_class->imgHeight, $upload_class->file_size, $upload_class->imgWidth_thumb, $upload_class->imgHeight_thumb, $post_passwordmd5, time(), time(), $_SERVER['REMOTE_ADDR'], $user_authority_display, $post['tag'], $sticky, $lock);
 			
 			if ($user_authority > 0 && $user_authority != 3) {
 				$modpost_message = 'Modposted #<a href="' . KU_BOARDSFOLDER . $board_class->board_dir . '/res/';
@@ -361,21 +361,21 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			/* And if the number of replies already in the thread are less than the maximum thread replies before perma-sage... */
 			if ($thread_replies <= $board_class->board_maxreplies) {
 				/* Bump the thread */
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `lastbumped` = '" . time() . "' WHERE `id` = '" . $thread_replyto . "'");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `lastbumped` = '" . time() . "' WHERE `id` = '" . $thread_replyto . "'");
 			}
 		}
 		
 		/* If the user replied to a thread he is watching, update it so it doesn't count his reply as unread */
 		if (KU_WATCHTHREADS && $thread_replyto != '0') {
-			$viewing_thread_is_watched = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
+			$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
 			if ($viewing_thread_is_watched > 0) {
-				$newestreplyid = $tc_db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.$thread_replyto.' ORDER BY `id` DESC LIMIT 1');
+				$newestreplyid = $db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.$thread_replyto.' ORDER BY `id` DESC LIMIT 1');
 				
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "watchedthreads` SET `lastsawreplyid` = " . $newestreplyid . " WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "watchedthreads` SET `lastsawreplyid` = " . $newestreplyid . " WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
 			}
 		}
 		
-		$tc_db->Execute("COMMIT");
+		$db->Execute("COMMIT");
 		
 		/* Trim any threads which have been pushed past the limit, or exceed the maximum age limit */
 		$board_class->TrimToPageLimit();

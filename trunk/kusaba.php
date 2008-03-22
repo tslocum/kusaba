@@ -63,9 +63,9 @@ if (isset($_GET['info'])) {
 	
 	echo '<h1>General info:</h1><ul>';
 	echo '<li>Version: kusaba ' . KU_VERSION . '</li>';
-	$bans = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."banlist`");
+	$bans = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."banlist`");
 	echo '<li>Active bans: ' . $bans . '</li>';
-	$wordfilters = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."wordfilter`");
+	$wordfilters = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."wordfilter`");
 	echo '<li>Wordfilters: ' . $wordfilters . '</li>';
 	echo '<li>Modules loaded: ';
 	$modules = modules_list();

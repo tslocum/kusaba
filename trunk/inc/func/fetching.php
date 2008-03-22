@@ -1,6 +1,6 @@
 <?php
 function getBlotter($all = false) {
-	global $tc_db;
+	global $db;
 	
 	if (KU_APC) {
 		if ($all) {
@@ -19,7 +19,7 @@ function getBlotter($all = false) {
 	} else {
 		$limit = ' LIMIT 4';
 	}
-	$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC" . $limit);
+	$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC" . $limit);
 	if (count($results) > 0) {
 		if ($all) {
 			$output .= '<pre>';
@@ -65,9 +65,9 @@ function getBlotter($all = false) {
 }
 
 function getBlotterLastUpdated() {
-	global $tc_db;
+	global $db;
 	
-	return $tc_db->GetOne("SELECT `at` FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC LIMIT 1");
+	return $db->GetOne("SELECT `at` FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC LIMIT 1");
 }
 
 /**
@@ -77,7 +77,7 @@ function getBlotterLastUpdated() {
  * @return array Filetype image, width, and height
  */
 function getfiletypeinfo($filetype) {
-	global $tc_db;
+	global $db;
 	
 	$return = '';
 	if (KU_APC) {
@@ -88,7 +88,7 @@ function getfiletypeinfo($filetype) {
 		return unserialize($return);
 	}
 	
-	$results = $tc_db->GetAll("SELECT `image`, `image_w`, `image_h` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string($filetype) . "' LIMIT 1");
+	$results = $db->GetAll("SELECT `image`, `image_w`, `image_h` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string($filetype) . "' LIMIT 1");
 	if (count($results) > 0) {
 		foreach($results AS $line) {
 			$return = array($line['image'],$line['image_w'],$line['image_h']);

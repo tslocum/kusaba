@@ -38,21 +38,21 @@ $output = '';
 if (isset($_GET['do'])) {
 	switch($_GET['do']) {
 	case 'addthread':
-		$viewing_thread_is_watched = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+		$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 		if ($viewing_thread_is_watched == 0) {
-			$newestreplyid = $tc_db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` DESC LIMIT 1');
+			$newestreplyid = $db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` DESC LIMIT 1');
 			$newestreplyid = max(0, $newestreplyid);
 			
-			$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "watchedthreads` ( `threadid` , `board` , `ip` , `lastsawreplyid` ) VALUES ( " . mysql_real_escape_string($_GET['threadid']) . " , '" . mysql_real_escape_string($_GET['board']) . "' , '" . $_SERVER['REMOTE_ADDR'] . "' , " . $newestreplyid . " )");
+			$db->Execute("INSERT INTO `" . KU_DBPREFIX . "watchedthreads` ( `threadid` , `board` , `ip` , `lastsawreplyid` ) VALUES ( " . mysql_real_escape_string($_GET['threadid']) . " , '" . mysql_real_escape_string($_GET['board']) . "' , '" . $_SERVER['REMOTE_ADDR'] . "' , " . $newestreplyid . " )");
 			
 			if (KU_APC) apc_delete('watchedthreads|' . $_SERVER['REMOTE_ADDR'] . '|' . $_GET['board']);
 		}
 		break;
 		
 	case 'removethread':
-		$viewing_thread_is_watched = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+		$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 		if ($viewing_thread_is_watched > 0) {
-			$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+			$db->Execute("DELETE FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 			
 			if (KU_APC) apc_delete('watchedthreads|' . $_SERVER['REMOTE_ADDR'] . '|' . $_GET['board']);
 		}
@@ -64,12 +64,12 @@ if (isset($_GET['do'])) {
 } else {
 	/* If the user is sending this request while viewing a thread, check if it is a thread they are watching, and if so, update it to show they have viewed all current replies */
 	if ($_GET['threadid'] > 0) {
-		$viewing_thread_is_watched = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+		$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 		if ($viewing_thread_is_watched > 0) {
-			$newestreplyid = $tc_db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` DESC LIMIT 1');
+			$newestreplyid = $db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` DESC LIMIT 1');
 			$newestreplyid = max(0, $newestreplyid);
 			
-			$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "watchedthreads` SET `lastsawreplyid` = " . $newestreplyid . " WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+			$db->Execute("UPDATE `" . KU_DBPREFIX . "watchedthreads` SET `lastsawreplyid` = " . $newestreplyid . " WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' AND `threadid` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 			
 			if (KU_APC) apc_delete('watchedthreads|' . $_SERVER['REMOTE_ADDR'] . '|' . $_GET['board']);
 		}
@@ -85,10 +85,10 @@ if (isset($_GET['do'])) {
 	}
 	
 	if (!$cached) {
-		$watched_threads = $tc_db->GetAll("SELECT `threadid` , `lastsawreplyid` FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' ORDER BY `lastsawreplyid` DESC");
+		$watched_threads = $db->GetAll("SELECT `threadid` , `lastsawreplyid` FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . mysql_real_escape_string($_GET['board']) . "' ORDER BY `lastsawreplyid` DESC");
 		if (count($watched_threads) > 0) {
 			foreach ($watched_threads as $watched_thread) {
-				$threadinfo = $tc_db->GetAll('SELECT `subject` , `name` , `tripcode` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `id` = ' . $watched_thread['threadid'] . ' LIMIT 1');
+				$threadinfo = $db->GetAll('SELECT `subject` , `name` , `tripcode` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `id` = ' . $watched_thread['threadid'] . ' LIMIT 1');
 				
 				$threadinfo = $threadinfo[0];
 				
@@ -100,7 +100,7 @@ if (isset($_GET['do'])) {
 				
 				$output .= formatNameAndTrip($threadinfo['name'], '', $threadinfo['tripcode'], 'Anonymous');
 		
-				$numnewreplies = $tc_db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = ' . $watched_thread['threadid'] . ' AND `id` >  ' . $watched_thread['lastsawreplyid'] . ' LIMIT 1');
+				$numnewreplies = $db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = ' . $watched_thread['threadid'] . ' AND `id` >  ' . $watched_thread['lastsawreplyid'] . ' LIMIT 1');
 				
 				if ($numnewreplies > 0) {
 					$output .= '<a href="' . KU_BOARDSFOLDER . mysql_real_escape_string($_GET['board']) . '/res/' . $watched_thread['threadid'] . '.html#' . $watched_thread['lastsawreplyid'] . '"><b><font color="red">' . $numnewreplies . ' new repl';

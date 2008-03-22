@@ -106,9 +106,9 @@ function array_insert(&$array, $position, $insert_array) {
 }
 
 function calculateGlobalPostingRate($board) {
-	global $tc_db;
+	global $db;
 	
-	$posts = $tc_db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
+	$posts = $db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
 	if (count($posts) > 0) {
 		$i = 0;
 		$lastpost_time = 0;
@@ -140,7 +140,7 @@ function calculateGlobalPostingRate($board) {
 }
 
 function calculateThreadLifespan($id, $threadpage, $threadposition, $board, $board_maxpages, $board_maxage) {
-	global $tc_db;
+	global $db;
 	
 	return calculateGlobalPostingRate($board);
 }
@@ -156,10 +156,10 @@ function cleanBoardName($board) {
  * @return string Board directory
  */    
 function boardid_to_dir($boardid) {
-	global $tc_db;
+	global $db;
 	
 	$query = "SELECT `name` FROM `".KU_DBPREFIX."boards` WHERE `id` = '".mysql_real_escape_string($boardid)."'";
-	$results = $tc_db->SelectLimit($query, 1);
+	$results = $db->SelectLimit($query, 1);
 	if (count($results)>0) {
 		foreach($results AS $line) {
 			return $line['name'];

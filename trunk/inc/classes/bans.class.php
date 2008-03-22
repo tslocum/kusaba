@@ -27,22 +27,22 @@ class Bans {
 
 	/* If a ban's expiration timestamp is before the current timestamp, remove it */
 	function RemoveExpiredBans() {
-		global $tc_db;
+		global $db;
 		
-		$results = $tc_db->Execute("DELETE FROM `".KU_DBPREFIX."banlist` WHERE `until` != 0 AND `until` < ".time());
-		if ($tc_db->Affected_Rows()>0) {
+		$results = $db->Execute("DELETE FROM `".KU_DBPREFIX."banlist` WHERE `until` != 0 AND `until` < ".time());
+		if ($db->Affected_Rows()>0) {
 			$this->UpdateHtaccess();
 		}
 	}
 	
 	/* Perform a check for a ban record for a specified IP address */
 	function BanCheck($ip, $board = '', $force_display = false) {
-		global $tc_db;
+		global $db;
 		
 		if (!isset($_COOKIE['tc_previousip'])) {
 			$_COOKIE['tc_previousip'] = '';
 		}
-		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '0' AND ( `ipmd5` = '" . md5($ip) . "' OR `ipmd5` = '". md5($_COOKIE['tc_previousip']) . "' ) LIMIT 1");
+		$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '0' AND ( `ipmd5` = '" . md5($ip) . "' OR `ipmd5` = '". md5($_COOKIE['tc_previousip']) . "' ) LIMIT 1");
 		if (count($results)>0) {
 			foreach($results AS $line) {
 				if ($line['globalban']!=1) {
@@ -56,7 +56,7 @@ class Bans {
 				}
 			}
 		}
-		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '1'");
+		$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '1'");
 		if (count($results)>0) {
 			foreach($results AS $line) {
 				if (strpos($ip, md5_decrypt($line['ip'], KU_RANDOMSEED)) === 0) {
@@ -76,9 +76,9 @@ class Bans {
 
 	/* Add a ip/ip range ban */
 	function BanUser($ip, $modname, $globalban, $duration, $boards, $reason, $appealat=0, $type=0, $allowread=1) {
-		global $tc_db;
+		global $db;
 		
-		$result = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."banlist` WHERE `type` = '".$type."' AND `ipmd5` = '".md5($ip)."'");
+		$result = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."banlist` WHERE `type` = '".$type."' AND `ipmd5` = '".md5($ip)."'");
 		if ($result[0]==0) {
 			if ($duration>0) {
 				$ban_globalban = '0';
@@ -91,7 +91,7 @@ class Bans {
 				$ban_until = '0';
 			}
 			
-			$tc_db->Execute("INSERT INTO `".KU_DBPREFIX."banlist` ( `ip` , `ipmd5` , `type` , `allowread` , `globalban` , `boards` , `by` , `at` , `until` , `reason`, `appealat` ) VALUES ( '".md5_encrypt($ip, KU_RANDOMSEED)."' , '".md5($ip)."' , '".$type."' , '".$allowread."' , '".$globalban."' , '".$boards."' , '".$modname."' , '".time()."' , '".$ban_until."' , '".$reason."' , '".$appealat."' )");
+			$db->Execute("INSERT INTO `".KU_DBPREFIX."banlist` ( `ip` , `ipmd5` , `type` , `allowread` , `globalban` , `boards` , `by` , `at` , `until` , `reason`, `appealat` ) VALUES ( '".md5_encrypt($ip, KU_RANDOMSEED)."' , '".md5($ip)."' , '".$type."' , '".$allowread."' , '".$globalban."' , '".$boards."' , '".$modname."' , '".time()."' , '".$ban_until."' , '".$reason."' , '".$appealat."' )");
 			
 			$this->UpdateHtaccess();
 			
@@ -152,13 +152,13 @@ class Bans {
 	}
 	
 	function UpdateHtaccess() {
-		global $tc_db;
+		global $db;
 		
 		$htaccess_contents = file_get_contents(KU_BOARDSDIR.'.htaccess');
 		$htaccess_contents_preserve = substr($htaccess_contents, 0, strpos($htaccess_contents, '## !KU_BANS:')+12)."\n";
 	
 		$htaccess_contents_bans_iplist = '';
-		$results = $tc_db->GetAll("SELECT `ip` FROM `".KU_DBPREFIX."banlist` WHERE `allowread` = 0 AND `type` = 0 ORDER BY `ip` ASC");
+		$results = $db->GetAll("SELECT `ip` FROM `".KU_DBPREFIX."banlist` WHERE `allowread` = 0 AND `type` = 0 ORDER BY `ip` ASC");
 		if (count($results) > 0) {
 			$htaccess_contents_bans_iplist .= 'RewriteCond %{REMOTE_ADDR} (';
 			foreach($results AS $line) {

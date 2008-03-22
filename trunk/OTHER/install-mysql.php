@@ -67,7 +67,7 @@ Before running this script, make sure that:<br>
 <?php
 } else {
 	require('config.php');
-	$reqiredtables = array("banlist","boards","config","iplist","loginattempts","modlog","news","passcache","reports","sections","staff","wordfilter");
+	$reqiredtables = array("banlist","boards","config","iplist","loginattempts","modlog","news","reports","sections","staff","wordfilter");
     foreach ($reqiredtables as $tablename) {
             if (mysql_table_exists(KU_DBDATABASE,KU_DBPREFIX.$tablename)) {
                     die("Table <b>".KU_DBPREFIX.$tablename."</b> already exists in the database!  Drop it, and re run this script.");
@@ -89,7 +89,7 @@ Before running this script, make sure that:<br>
 	die('An error occured. kusaba_freshinstall.sql does not exist in this directory or it is 0 bytes big :( Barring that, do you have read permissions for the directory?');
 	}
 	
-	$tc_db->Execute("ALTER DATABASE `" . KU_DBDATABASE . "` CHARACTER SET utf8 COLLATE utf8_general_ci");
+	$db->Execute("ALTER DATABASE `" . KU_DBDATABASE . "` CHARACTER SET utf8 COLLATE utf8_general_ci");
 	
 	// Explodes the array
 	$sqlarray = explode("\n", $readdata);
@@ -107,7 +107,7 @@ Before running this script, make sure that:<br>
 	$sqlarray = explode(';',$readdata);
 	echo 'File contents have been formatted for use with mysql_query.<br>';
 	// Lets drop any existing tables in the database
-	$listoftables = $tc_db->GetAll("show tables from ".KU_DBDATABASE."");
+	$listoftables = $db->GetAll("show tables from ".KU_DBDATABASE."");
 	
 	echo '<h2>Table Creation</h2>';
 	// Lets now loop through the array and create each table 
@@ -120,7 +120,7 @@ Before running this script, make sure that:<br>
 			$pos2 = strpos($sqldata, '`', $pos1 + 1);
 			$tablename = substr($sqldata, $pos1+1, ($pos2-$pos1)-1);
 			echo "Attempting to create table '$tablename'... ";
-			if($tc_db->Execute($sqldata)) {
+			if($db->Execute($sqldata)) {
 				echo "success.<br>";
 			} else {
 				echo "<font color='red'>failed</font>. Enable debugging by setting KU_DEBUG to true to see this error.<br>";
@@ -134,9 +134,9 @@ Before running this script, make sure that:<br>
 
 function mysql_table_exists($database, $tableName)
 {
-    global $tc_db;
+    global $db;
     $tables = array();
-    $tablesResults = $tc_db->GetAll("SHOW TABLES FROM `$database`;");
+    $tablesResults = $db->GetAll("SHOW TABLES FROM `$database`;");
     foreach ($tablesResults AS $row) $tables[] = $row[0];
     return(in_array($tableName, $tables));
 }

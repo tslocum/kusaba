@@ -36,10 +36,10 @@ class Posting {
 	}
 	
 	function CheckReplyTime() {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		/* Get the timestamp of the last time a reply was made by this IP address */
-		$results = $tc_db->GetAll("SELECT MAX(postedat) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` != 0 AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' AND `postedat` > " . (time() - KU_REPLYDELAY));
+		$results = $db->GetAll("SELECT MAX(postedat) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` != 0 AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' AND `postedat` > " . (time() - KU_REPLYDELAY));
 		/* If they have posted before and it was recorded... */
 		if (isset($result)) {
 		/* If the time was shorter than the minimum time distance */
@@ -50,10 +50,10 @@ class Posting {
 	}
 	
 	function CheckNewThreadTime() {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		/* Get the timestamp of the last time a new thread was made by this IP address */
-		$result = $tc_db->GetOne("SELECT MAX(postedat) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` = 0 AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' AND `postedat` > " . (time() - KU_NEWTHREADDELAY));
+		$result = $db->GetOne("SELECT MAX(postedat) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` = 0 AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' AND `postedat` > " . (time() - KU_NEWTHREADDELAY));
 		/* If they have posted before and it was recorded... */
 		if (isset($result)) {
 			/* If the time was shorter than the minimum time distance */
@@ -81,7 +81,7 @@ class Posting {
 	}
 	
 	function CheckValidPost($is_oekaki) {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		if (
 			( /* A message is set, or an image was provided */
@@ -137,12 +137,12 @@ class Posting {
 	}
 	
 	function CheckBannedHash() {
-		global $tc_db, $board_class, $bans_class;
+		global $db, $board_class, $bans_class;
 		
 		/* Banned file hash check */
 		if (isset($_FILES['imagefile'])) {
 			if ($_FILES['imagefile']['name'] != '') {
-				$results = $tc_db->GetAll("SELECT `bantime` , `description` FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `md5` = '" . mysql_real_escape_string(md5_file($_FILES['imagefile']['tmp_name'])) . "' LIMIT 1");
+				$results = $db->GetAll("SELECT `bantime` , `description` FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `md5` = '" . mysql_real_escape_string(md5_file($_FILES['imagefile']['tmp_name'])) . "' LIMIT 1");
 				if (count($results) > 0) {
 						$bans_class->BanUser($_SERVER['REMOTE_ADDR'], 'SERVER', '1', $results[0]['bantime'], '', 'Posting a banned file.<br>' . $results[0]['description'], 0, 0, 1);
 						$bans_class->BanCheck($_SERVER['REMOTE_ADDR'], $board_class->board_dir);
@@ -153,13 +153,13 @@ class Posting {
 	}
 	
 	function CheckIsReply() {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		/* If it appears this is a reply to a thread, and not a new thread... */
 		if (isset($_POST['replythread'])) {
 			if ($_POST['replythread'] != '0') {
 				/* Check if the thread id supplied really exists */
-				$results = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($_POST['replythread']) . "' AND `parentid` = '0' LIMIT 1");
+				$results = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($_POST['replythread']) . "' AND `parentid` = '0' LIMIT 1");
 				/* If it does... */
 				if ($results > 0) {
 					return true;
@@ -175,26 +175,26 @@ class Posting {
 	}
 	
 	function CheckNotDuplicateSubject($subject) {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
-		$result = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `subject` = '" . mysql_real_escape_string($subject) . "' AND `parentid` = '0'");
+		$result = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `subject` = '" . mysql_real_escape_string($subject) . "' AND `parentid` = '0'");
 		if ($result > 0) {
 			exitWithErrorPage(_gettext('Duplicate thread subject'), _gettext('Text boards may have only one thread with a unique subject.  Please pick another.'));
 		}
 	}
 	
 	function GetThreadInfo($id) {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		/* Check if the thread id supplied really exists and if it is locked */
-		$results = $tc_db->GetAll("SELECT `id`,`locked` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($id) . "' AND `parentid` = '0'");
+		$results = $db->GetAll("SELECT `id`,`locked` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($id) . "' AND `parentid` = '0'");
 		/* If it does... */
 		if (count($results) > 0) {
 			/* Get the thread's info */
 			$thread_locked = $results[0]['locked'];
 			$thread_replyto = $results[0]['id'];
 			/* Get the number of replies */
-			$result = $tc_db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "'");
+			$result = $db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "'");
 			$thread_replies = $result;
 			
 			return array($thread_replies, $thread_locked, $thread_replyto);
@@ -216,14 +216,14 @@ class Posting {
 	}
 	
 	function GetUserAuthority() {
-		global $tc_db, $board_class;
+		global $db, $board_class;
 		
 		$user_authority = 0;
 		$flags = '';
 		
 		if (isset($_POST['modpassword'])) {
 			
-			$results = $tc_db->GetAll("SELECT `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . "' LIMIT 1");
+			$results = $db->GetAll("SELECT `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . "' LIMIT 1");
 			
 			if (count($results) > 0) {
 				if ($results[0][0] == 1) {

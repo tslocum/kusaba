@@ -102,11 +102,11 @@ class Parse {
 	}
 	
 	function InterthreadQuoteCheck($matches) {
-		global $tc_db, $ispage, $thread_board_return;
+		global $db, $ispage, $thread_board_return;
 
 		if ($this->boardtype != 1) {
 			$query = "SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($thread_board_return)."` WHERE `id` = '".mysql_real_escape_string($matches[1])."'";
-			$result = $tc_db->GetOne($query);
+			$result = $db->GetOne($query);
 			if ($result !== '') {
 				if ($result == 0) {
 					$realid = $matches[1];
@@ -145,11 +145,11 @@ class Parse {
 	}
 	
 	function InterboardQuoteCheck($matches) {
-		global $tc_db;
+		global $db;
 
-		$result = $tc_db->GetOne("SELECT `type` FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($matches[1])."'");
+		$result = $db->GetOne("SELECT `type` FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($matches[1])."'");
 		if ($result != '') {
-			$result2 = $tc_db->GetOne("SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($matches[1])."` WHERE `id` = '".mysql_real_escape_string($matches[2])."'");
+			$result2 = $db->GetOne("SELECT `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($matches[1])."` WHERE `id` = '".mysql_real_escape_string($matches[2])."'");
 			if ($result2 != '') {
 				if ($result2 == 0) {
 					$realid = $matches[2];
@@ -171,10 +171,10 @@ class Parse {
 	}
 	
 	function Wordfilter($buffer, $board) {
-		global $tc_db;
+		global $db;
 		
 		$query = "SELECT * FROM `".KU_DBPREFIX."wordfilter`";
-		$results = $tc_db->GetAll($query);
+		$results = $db->GetAll($query);
 		foreach($results AS $line) {
 			$array_boards = explode('|', $line['boards']);
 			if (in_array($board, $array_boards)) {

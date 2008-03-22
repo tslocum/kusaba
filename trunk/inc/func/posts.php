@@ -27,9 +27,9 @@ function embeddedVideoBox($post) {
  * Check if the supplied md5 file hash is currently recorded inside of the database, attached to a non-deleted post
  */
 function checkMd5($md5, $board) {
-	global $tc_db;
+	global $db;
 	
-	$matches = $tc_db->GetAll("SELECT `id`, `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `IS_DELETED` = 0 AND `filemd5` = '".mysql_real_escape_string($md5)."' LIMIT 1");
+	$matches = $db->GetAll("SELECT `id`, `parentid` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($board)."` WHERE `IS_DELETED` = 0 AND `filemd5` = '".mysql_real_escape_string($md5)."' LIMIT 1");
 	if (count($matches) > 0) {
 		$real_parentid = ($matches[0][1] == 0) ? $matches[0][0] : $matches[0][1];
 		

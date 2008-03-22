@@ -23,7 +23,7 @@
 class RSS {
 	function GenerateRSS($rssboard) {
 		if (isset($rssboard)) {
-			global $tc_db;
+			global $db;
 			
 			$details = '<?xml version="1.0" encoding="UTF-8" '.'?'.'>
 			<rss version="2.0">
@@ -33,7 +33,7 @@ class RSS {
 			<description>Live RSS feed for '.KU_BOARDSPATH.'/'.$rssboard.'</description>
 			<language>'. KU_LOCALE .'</language>';
 			$items = '';
-			$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".$rssboard. "` WHERE `IS_DELETED` = '0' ORDER BY `id` DESC LIMIT 0,15");
+			$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."posts_".$rssboard. "` WHERE `IS_DELETED` = '0' ORDER BY `id` DESC LIMIT 0,15");
 			foreach($results AS $row){
 				$items .= '<item>
 				<title>'.$row['id'].'</title>
@@ -60,7 +60,7 @@ class RSS {
 	}
 	
 	function GenerateModLogRSS($entry) {
-		global $tc_db;
+		global $db;
 		
 		$details = '<?xml version="1.0" encoding="UTF-8" '.'?'.'>
 		<rss version="2.0">
@@ -69,7 +69,7 @@ class RSS {
 		<link>'.KU_WEBPATH.'</link>
 		<description>Live view of all moderative actions on '.KU_WEBPATH.'</description>
 		<language>'. KU_LOCALE .'</language>';
-		$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."modlog` ORDER BY `timestamp` DESC LIMIT 0,15");
+		$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."modlog` ORDER BY `timestamp` DESC LIMIT 0,15");
 		$items = '';
 		foreach($results AS $line) {
 			$items .= '

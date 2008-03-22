@@ -115,7 +115,7 @@ function uploadImageboardPageRow($post, $board, $maxage, $replies) {
 /* <3 coda for this wonderful snippet
 print $contents to $filename by using a temporary file and renaming it */
 function print_page($filename, $contents, $board) {
-	global $tc_db;
+	global $db;
 	
 	$tempfile = tempnam(KU_BOARDSDIR . $board . '/res', 'tmp'); /* Create the temporary file */
 	$fp = fopen($tempfile, 'w');

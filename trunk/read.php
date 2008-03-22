@@ -32,14 +32,14 @@ require KU_ROOTDIR . 'inc/classes/board-post.class.php';
 
 $executiontime_start = microtime_float();
 
-$results = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($board)."' LIMIT 1");
+$results = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_real_escape_string($board)."' LIMIT 1");
 if ($results == 0) {
 	die('Invalid board.');
 }
 $board_class = new Board($board);
 
 if ($board_class->board_type == 1) {
-	$replies = $tc_db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` = '" . mysql_real_escape_string($thread) . "'");
+	$replies = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `parentid` = '" . mysql_real_escape_string($thread) . "'");
 } else {
 	$replies = false;
 }
@@ -91,7 +91,7 @@ if ($board_class->board_type == 1) {
 	if ($posts != '0') {
 		$relative_to_normal = array();
 		
-		$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (`parentid` = 0 AND `id` = '" . mysql_real_escape_string($thread) . "') OR (`parentid` = '" . mysql_real_escape_string($thread) . "') ORDER BY `id` ASC LIMIT " . mysql_real_escape_string(max($postids)));
+		$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (`parentid` = 0 AND `id` = '" . mysql_real_escape_string($thread) . "') OR (`parentid` = '" . mysql_real_escape_string($thread) . "') ORDER BY `id` ASC LIMIT " . mysql_real_escape_string(max($postids)));
 		foreach ($results as $line) {
 			$relative_id++;
 			
@@ -107,7 +107,7 @@ if ($board_class->board_type == 1) {
 			}
 		}
 	} else {
-		$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (`parentid` = 0 AND `id` = '" . mysql_real_escape_string($thread) . "') OR (`parentid` = '" . mysql_real_escape_string($thread) . "') ORDER BY `id` ASC");
+		$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (`parentid` = 0 AND `id` = '" . mysql_real_escape_string($thread) . "') OR (`parentid` = '" . mysql_real_escape_string($thread) . "') ORDER BY `id` ASC");
 		foreach ($results as $line) {
 			$relative_id++;
 			$ids_found++;
@@ -126,7 +126,7 @@ if ($board_class->board_type == 1) {
 		$page .= '<br>' . "\n";
 	}
 	
-	$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (" . $postidquery . ") AND `IS_DELETED` = 0");
+	$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE (" . $postidquery . ") AND `IS_DELETED` = 0");
 	foreach ($results as $line) {
 		$page .= $board_class->BuildPost(false, $board_class->board_dir, $board_class->board_type, $line);
 	}

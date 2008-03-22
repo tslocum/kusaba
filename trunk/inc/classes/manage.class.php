@@ -24,7 +24,7 @@ class Manage {
 
 	/* Show the header of the manage page */
 	function Header() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if (is_file(KU_ROOTDIR . 'inc/pages/modheader.html')) {
 			$tpl_includeheader = file_get_contents(KU_ROOTDIR . 'inc/pages/modheader.html');
@@ -37,7 +37,7 @@ class Manage {
 	
 	/* Show the footer of the manage page */
 	function Footer() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		$smarty->assign('page', $tpl_page);
 		
@@ -49,16 +49,16 @@ class Manage {
 	
 	/* Validate the current session */
 	function ValidateSession($is_menu = false) {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 	
 		if (isset($_SESSION['manageusername']) && isset($_SESSION['managepassword'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' AND `password` = '" . mysql_real_escape_string($_SESSION['managepassword']) . "' LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' AND `password` = '" . mysql_real_escape_string($_SESSION['managepassword']) . "' LIMIT 1");
 			if (count($results) == 0) {
 				session_destroy();
 				exitWithErrorPage(_gettext('Invalid session.'), '<a href="manage_page.php">' . _gettext('Log in again.') . '</a>');
 			}
 			
-			$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `lastactive` = " . time() . " WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");		
+			$db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `lastactive` = " . time() . " WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");		
 			
 			return true;
 		} else {
@@ -73,7 +73,7 @@ class Manage {
 	
 	/* Show the login form and halt execution */
 	function LoginForm() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if (file_exists(KU_ROOTDIR . 'inc/pages/manage_login.html')) {
 			$tpl_page .= file_get_contents(KU_ROOTDIR . 'inc/pages/manage_login.html');
@@ -82,16 +82,16 @@ class Manage {
 	
 	/* Check login names and create session if user/pass is correct */
 	function CheckLogin() {
-		global $tc_db, $smarty, $tpl_page, $action;
+		global $db, $smarty, $tpl_page, $action;
 		
-		$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "loginattempts` WHERE `timestamp` < '" . (time() - 1200) . "'");
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `ip` FROM `" . KU_DBPREFIX . "loginattempts` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' LIMIT 6");
+		$db->Execute("DELETE FROM `" . KU_DBPREFIX . "loginattempts` WHERE `timestamp` < '" . (time() - 1200) . "'");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `ip` FROM `" . KU_DBPREFIX . "loginattempts` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' LIMIT 6");
 		if (count($results) > 5) {
 			exitWithErrorPage(_gettext('System lockout'), _gettext('Sorry, because of your numerous failed logins, you have been locked out from logging in for 20 minutes.  Please wait and then try again.'));
 		} else {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['username']) . "' AND `password` = '" . md5($_POST['password']) . "' AND `type` != 3 LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `username` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['username']) . "' AND `password` = '" . md5($_POST['password']) . "' AND `type` != 3 LIMIT 1");
 			if (count($results) > 0) {
-				$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "loginattempts` WHERE `ip` < '" . $_SERVER['REMOTE_ADDR'] . "'");
+				$db->Execute("DELETE FROM `" . KU_DBPREFIX . "loginattempts` WHERE `ip` < '" . $_SERVER['REMOTE_ADDR'] . "'");
 				$_SESSION['manageusername'] = $_POST['username'];
 				$_SESSION['managepassword'] = md5($_POST['password']);
 				$this->SetModerationCookies();
@@ -99,7 +99,7 @@ class Manage {
 				management_addlogentry(_gettext('Logged in'), 1);
 				die('<script type="text/javascript">top.location.href = \'' . KU_CGIPATH . '/manage.php\';</script>');
 			} else {
-				$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "loginattempts` ( `username` , `ip` , `timestamp` ) VALUES ( '" . mysql_real_escape_string($_POST['username']) . "' , '" . $_SERVER['REMOTE_ADDR'] . "' , '" . time() . "' )");
+				$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "loginattempts` ( `username` , `ip` , `timestamp` ) VALUES ( '" . mysql_real_escape_string($_POST['username']) . "' , '" . $_SERVER['REMOTE_ADDR'] . "' , '" . time() . "' )");
 				exitWithErrorPage(_gettext('Incorrect username/password.'));
 			}
 		}
@@ -107,12 +107,12 @@ class Manage {
 	
 	/* Set mod cookies for boards */
 	function SetModerationCookies() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if (isset($_SESSION['manageusername'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");
 			if ($this->CurrentUserIsAdministrator() || $results[0][0] == 'allboards') {
-				$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
+				$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
 				foreach ($resultsboard as $lineboard) {
 					setcookie("kumod", "yes", time() + 3600, KU_BOARDSFOLDER . $lineboard['name'] . "/", KU_DOMAIN);
 				}
@@ -131,9 +131,9 @@ class Manage {
 
 	/* Log current user out */
 	function Logout() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
-		$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
+		$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
 		foreach ($resultsboard as $lineboard) {
 			setcookie('kumod', '', 0, KU_BOARDSFOLDER . $lineboard['name'] . '/', KU_DOMAIN);
 		}
@@ -152,7 +152,7 @@ class Manage {
 
 	/* Add, view, and delete sections */
 	function editsections() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Edit sections')) . '</h2><br>';
@@ -160,7 +160,7 @@ class Manage {
 			if ($_GET['do'] == 'addsection') {
 				if (isset($_POST['name'])) {
 					if ($_POST['name'] != '' && $_POST['abbreviation'] != '') {
-						$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "sections` ( `name` , `abbreviation` , `order` , `hidden` ) VALUES ( '" . mysql_real_escape_string($_POST['name']) . "' , '" . mysql_real_escape_string($_POST['abbreviation']) . "' , '" . mysql_real_escape_string($_POST['order']) . "' , '" . (isset($_POST['hidden']) ? '1' : '0') . "' )");
+						$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "sections` ( `name` , `abbreviation` , `order` , `hidden` ) VALUES ( '" . mysql_real_escape_string($_POST['name']) . "' , '" . mysql_real_escape_string($_POST['abbreviation']) . "' , '" . mysql_real_escape_string($_POST['order']) . "' , '" . (isset($_POST['hidden']) ? '1' : '0') . "' )");
 						require_once KU_ROOTDIR . 'inc/classes/menu.class.php';
 						$menu_class = new Menu();
 						$menu_class->Generate();
@@ -180,14 +180,14 @@ class Manage {
 			if ($_GET['do'] == 'editsection' && $_GET['sectionid'] > 0) {
 				if (isset($_POST['name'])) {
 					if ($_POST['name'] != '' && $_POST['abbreviation'] != '') {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "sections` SET `name` = '" . mysql_real_escape_string($_POST['name']) . "' , `abbreviation` = '" . mysql_real_escape_string($_POST['abbreviation']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `hidden` = '" . (isset($_POST['hidden']) ? '1' : '0') . "' WHERE `id` = '" . $_GET['sectionid'] . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "sections` SET `name` = '" . mysql_real_escape_string($_POST['name']) . "' , `abbreviation` = '" . mysql_real_escape_string($_POST['abbreviation']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `hidden` = '" . (isset($_POST['hidden']) ? '1' : '0') . "' WHERE `id` = '" . $_GET['sectionid'] . "'");
 						require_once KU_ROOTDIR . 'inc/classes/menu.class.php';
 						$menu_class = new Menu();
 						$menu_class->Generate();
 						$tpl_page .= _gettext('Section updated.');
 					}
 				} else {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "sections` WHERE `id` = '" . mysql_real_escape_string($_GET['sectionid']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "sections` WHERE `id` = '" . mysql_real_escape_string($_GET['sectionid']) . "'");
 					if (count($results) > 0) {
 						foreach ($results as $line) {
 							$tpl_page .= '<form action="?action=editsections&do=editsection&sectionid=' . $_GET['sectionid'] . '" method="post">
@@ -221,7 +221,7 @@ class Manage {
 			}
 			if ($_GET['do'] == 'deletesection' && isset($_GET['sectionid'])) {
 				if ($_GET['sectionid'] > 0) {
-					$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "sections` WHERE `id` = '" . mysql_real_escape_string($_GET['sectionid']) . "'");
+					$db->Execute("DELETE FROM `" . KU_DBPREFIX . "sections` WHERE `id` = '" . mysql_real_escape_string($_GET['sectionid']) . "'");
 					require_once KU_ROOTDIR . 'inc/classes/menu.class.php';
 					$menu_class = new Menu();
 					$menu_class->Generate();
@@ -230,7 +230,7 @@ class Manage {
 			}
 		}
 		$tpl_page .= '<a href="?action=editsections&do=addsection">Add section</a><br><br>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "sections` ORDER BY `order` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "sections` ORDER BY `order` ASC");
 		if (count($results) > 0) {
 			$tpl_page .= '<table border="1" width="100%"><tr><th>'.('ID').'</th><th>'.('Order').'</th><th>Abbreviation</th><th>Name</th><th>Edit/Delete</th></tr>';
 			foreach ($results as $line) {
@@ -244,7 +244,7 @@ class Manage {
 	
 	/* Add, view, and delete filetypes */
 	function editfiletypes() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Edit filetypes')) . '</h2><br>';
@@ -252,7 +252,7 @@ class Manage {
 			if ($_GET['do'] == 'addfiletype') {
 				if (isset($_POST['filetype']) || isset($_POST['image'])) {
 					if ($_POST['filetype'] != '' && $_POST['image'] != '') {
-						$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "filetypes` ( `filetype` , `mime` , `image` , `image_w` , `image_h` ) VALUES ( '" . mysql_real_escape_string($_POST['filetype']) . "' , '" . mysql_real_escape_string($_POST['mime']) . "' , '" . mysql_real_escape_string($_POST['image']) . "' , '" . mysql_real_escape_string($_POST['image_w']) . "' , '" . mysql_real_escape_string($_POST['image_h']) . "' )");
+						$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "filetypes` ( `filetype` , `mime` , `image` , `image_w` , `image_h` ) VALUES ( '" . mysql_real_escape_string($_POST['filetype']) . "' , '" . mysql_real_escape_string($_POST['mime']) . "' , '" . mysql_real_escape_string($_POST['image']) . "' , '" . mysql_real_escape_string($_POST['image_w']) . "' , '" . mysql_real_escape_string($_POST['image_h']) . "' )");
 						$tpl_page .= _gettext('Filetype added.');
 					}
 				} else {
@@ -286,14 +286,14 @@ class Manage {
 			if ($_GET['do'] == 'editfiletype' && $_GET['filetypeid'] > 0) {
 				if (isset($_POST['filetype'])) {
 					if ($_POST['filetype'] != '' && $_POST['image'] != '') {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "filetypes` SET `filetype` = '" . mysql_real_escape_string($_POST['filetype']) . "' , `mime` = '" . mysql_real_escape_string($_POST['mime']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `image_w` = '" . mysql_real_escape_string($_POST['image_w']) . "' , `image_h` = '" . mysql_real_escape_string($_POST['image_h']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "filetypes` SET `filetype` = '" . mysql_real_escape_string($_POST['filetype']) . "' , `mime` = '" . mysql_real_escape_string($_POST['mime']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `image_w` = '" . mysql_real_escape_string($_POST['image_w']) . "' , `image_h` = '" . mysql_real_escape_string($_POST['image_h']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
 						if (KU_APC) {
 							apc_delete('filetype|' . $_POST['filetype']);
 						}
 						$tpl_page .= _gettext('Filetype updated.');
 					}
 				} else {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "filetypes` WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "filetypes` WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
 					if (count($results) > 0) {
 						foreach ($results as $line) {
 							$tpl_page .= '<form action="?action=editfiletypes&do=editfiletype&filetypeid=' . $_GET['filetypeid'] . '" method="post">
@@ -329,13 +329,13 @@ class Manage {
 				$tpl_page .= '<br><hr>';
 			}
 			if ($_GET['do'] == 'deletefiletype' && $_GET['filetypeid'] > 0) {
-				$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "filetypes` WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
+				$db->Execute("DELETE FROM `" . KU_DBPREFIX . "filetypes` WHERE `id` = '" . mysql_real_escape_string($_GET['filetypeid']) . "'");
 				$tpl_page .= _gettext('Filetype deleted.');
 				$tpl_page .= '<br><hr>';
 			}
 		}
 		$tpl_page .= '<a href="?action=editfiletypes&do=addfiletype">Add filetype</a><br><br>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
 		if (count($results) > 0) {
 			$tpl_page .= '<table border="1" width="100%"><tr><th>ID</th><th>Filetype</th><th>Image</th><th>Edit/Delete</th></tr>';
 			foreach ($results as $line) {
@@ -349,12 +349,12 @@ class Manage {
 	
 	/* Rebuild all boards */
 	function rebuildall() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 				
 		$tpl_page .= '<h2>' . ucwords(_gettext('Rebuild all html files')) . '</h2><br>';
 		$time_start = time();
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
 		foreach ($results as $line) {
 			$board_class = new Board($line['name']);
 			$board_class->RegenerateAll();
@@ -411,7 +411,7 @@ class Manage {
 	
 	/* Display an iframe with the latest version, and the current version installed above it */
 	function checkversion() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Check for new version')) . '</h2><br>';
@@ -421,7 +421,7 @@ class Manage {
 	
 	/* Display disk space used per board, and finally total in a large table */
 	function spaceused() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Disk space used')) . '</h2><br>';
@@ -434,7 +434,7 @@ class Manage {
 		$files_thumb = 0;
 		$files_total = 0;
 		$tpl_page .= '<table border="1" width="100%"><tr><th>Board</th><th>Area</th><th>Files</th><th>Space Used</th></tr>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 		foreach ($results as $line) {
 			list($spaceused_board_res, $files_board_res) = recursive_directory_size(KU_BOARDSDIR . $line['name'] . '/res');
 			list($spaceused_board_src, $files_board_src) = recursive_directory_size(KU_BOARDSDIR . $line['name'] . '/src');
@@ -470,14 +470,14 @@ class Manage {
 	
 	/* Display moderators and administrators actions which were logged */
 	function modlog() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
-		$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "modlog` WHERE `timestamp` < '" . (time() - KU_MODLOGDAYS * 86400) . "'");
+		$db->Execute("DELETE FROM `" . KU_DBPREFIX . "modlog` WHERE `timestamp` < '" . (time() - KU_MODLOGDAYS * 86400) . "'");
 		
 		$tpl_page .= '<h2>' . ('ModLog') . '</h2><br>
 		<table cellspacing="2" cellpadding="1" border="1" width="100%"><tr><th>Time</th><th>User</th><th width="100%">Action</th></tr>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "modlog` ORDER BY `timestamp` DESC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "modlog` ORDER BY `timestamp` DESC");
 		foreach ($results as $line) {
 			$tpl_page .= "<tr><td>" . date("y/m/d(D)H:i", $line['timestamp']) . "</td><td>" . $line['user'] . "</td><td>" . $line['entry'] . "</td></tr>";
 		}
@@ -486,17 +486,17 @@ class Manage {
 	
 	/* Allow SQL injection for administrators */
 	function sql() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('SQL query') . '</h2><br>';
 		if (isset($_POST['query'])) {
 			$tpl_page .= '<hr>';
-			$result = $tc_db->Execute($_POST['query']);
+			$result = $db->Execute($_POST['query']);
 			if ($result) {
 				$tpl_page .= _gettext('Query executed successfully');
 			} else {
-				$tpl_page .= 'Error: ' . $tc_db->ErrorMsg();
+				$tpl_page .= 'Error: ' . $db->ErrorMsg();
 			}
 			$tpl_page .= '<hr>';
 			management_addlogentry(_gettext('Inserted SQL'), 0);
@@ -512,17 +512,17 @@ class Manage {
 	
 	/* Add, edit, delete, and view news entries */
 	function news() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		if (isset($_GET['edit'])) {
 			if (isset($_POST['news'])) {
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "news` SET `subject` = '" . mysql_real_escape_string($_POST['subject']) . "', `message` = '" . mysql_real_escape_string($_POST['news']) . "', `postedemail` = '" . mysql_real_escape_string($_POST['email']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "news` SET `subject` = '" . mysql_real_escape_string($_POST['subject']) . "', `message` = '" . mysql_real_escape_string($_POST['news']) . "', `postedemail` = '" . mysql_real_escape_string($_POST['email']) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 				$tpl_page .= '<h3>News post edited</h3>';
 				management_addlogentry(_gettext('Edited a news entry'), 9);
 			}
 			$tpl_page .= '<h1>Edit news post</h1>';
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 			foreach ($results as $line) {
 			$tpl_page .= '<form method="post" action="?action=news&edit=' . $_GET['edit'] . '">
 			<label for="subject">' . _gettext('Subject') . ':</label>
@@ -538,7 +538,7 @@ class Manage {
 			</form>';
 			}
 		} elseif (isset($_GET['delete'])) {
-			$results = $tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['delete']) . "'");
+			$results = $db->Execute("DELETE FROM `" . KU_DBPREFIX . "news` WHERE `id` = '" . mysql_real_escape_string($_GET['delete']) . "'");
 			$tpl_page .= '<h3>News post deleted</h3>';
 			management_addlogentry(_gettext('Deleted a news entry'), 9);
 		} else {
@@ -547,7 +547,7 @@ class Manage {
 				if ($_POST['news'] != '') {
 					$tpl_page .= '<hr>';
 					if ($_POST['subject'] != '') {
-						$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "news` ( `subject` , `message` , `postedat` , `postedby` , `postedemail` ) VALUES ( '" . mysql_real_escape_string($_POST['subject']) . "' , '" . mysql_real_escape_string($_POST['news']) . "' , '" . time() . "' , '" . mysql_real_escape_string($_SESSION['manageusername']) . "' , '" . mysql_real_escape_string($_POST['email']) . "' )");
+						$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "news` ( `subject` , `message` , `postedat` , `postedby` , `postedemail` ) VALUES ( '" . mysql_real_escape_string($_POST['subject']) . "' , '" . mysql_real_escape_string($_POST['news']) . "' , '" . time() . "' , '" . mysql_real_escape_string($_SESSION['manageusername']) . "' , '" . mysql_real_escape_string($_POST['email']) . "' )");
 						$tpl_page .= '<h3>' . _gettext('News entry successfully added.') . '</h3>';
 						management_addlogentry(_gettext('Added a news entry'), 9);
 					} else {
@@ -571,7 +571,7 @@ class Manage {
 			</form>';
 			
 			$tpl_page .= '<br><hr><h1>Edit/Delete News</h1>';
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` ORDER BY `id` DESC");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "news` ORDER BY `id` DESC");
 			if (count($results) > 0) {
 				$tpl_page .= '<table border="1" width="100%"><tr><th>Date Added</th><th>Subject</th><th>Message</th><th>Edit/Delete</th></tr>';
 				foreach ($results as $line) {
@@ -585,7 +585,7 @@ class Manage {
 	}
 	
 	function blotter() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		if (!KU_BLOTTER) {
 			exitWithErrorPage(_gettext('Blotter is disabled.'));
@@ -596,15 +596,15 @@ class Manage {
 			$save_important = (isset($_POST['important'])) ? '1' : '0';
 			
 			if (isset($_POST['edit'])) {
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "blotter` SET `message` = '" . mysql_real_escape_string($_POST['message']) . "', `important` = '" . $save_important . "' WHERE `id` = '" . mysql_real_escape_string($_POST['edit']) . "'");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "blotter` SET `message` = '" . mysql_real_escape_string($_POST['message']) . "', `important` = '" . $save_important . "' WHERE `id` = '" . mysql_real_escape_string($_POST['edit']) . "'");
 				$tpl_page .= '<h3>' . _gettext('Blotter entry updated.') . '</h3>';
 			} else {
-				$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "blotter` (`at`, `message`, `important`) VALUES ('" . time() . "', '" . mysql_real_escape_string($_POST['message']) . "', '" . $save_important . "')");
+				$db->Execute("INSERT INTO `" . KU_DBPREFIX . "blotter` (`at`, `message`, `important`) VALUES ('" . time() . "', '" . mysql_real_escape_string($_POST['message']) . "', '" . $save_important . "')");
 				$tpl_page .= '<h3>' . _gettext('Blotter entry added.') . '</h3>';
 			}
 			clearBlotterCache();
 		} elseif (isset($_GET['delete'])) {
-			$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "blotter` WHERE `id` =  '" . mysql_real_escape_string($_GET['delete']) . "'");
+			$db->Execute("DELETE FROM `" . KU_DBPREFIX . "blotter` WHERE `id` =  '" . mysql_real_escape_string($_GET['delete']) . "'");
 			clearBlotterCache();
 			$tpl_page .= '<h3>' . _gettext('Blotter entry deleted.') . '</h3>';
 		}
@@ -613,7 +613,7 @@ class Manage {
 		$edit_message = '';
 		$edit_important = '';
 		if (isset($_GET['edit'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "blotter` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "' LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "blotter` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "' LIMIT 1");
 			foreach ($results as $line) {
 				$edit_id = $line['id'];
 				$edit_message = $line['message'];
@@ -649,7 +649,7 @@ class Manage {
 		
 		</form><br><br>';
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "blotter` ORDER BY `id` DESC");
 		if (count($results) > 0) {
 			$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('At') . '</th><th>' . _gettext('Message') . '</th><th>' . _gettext('Important') . '</th><th>&nbsp;</th></tr>';
 			foreach ($results as $line) {
@@ -669,7 +669,7 @@ class Manage {
 	
 	/* Edit a boards options */
 	function boardopts() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Board options')) . '</h2><br>';
@@ -677,7 +677,7 @@ class Manage {
 			if (!$this->CurrentUserIsModeratorOfBoard($_GET['updateboard'], $_SESSION['manageusername'])) {
 				exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 			}
-			$boardid = $tc_db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "' LIMIT 1");
+			$boardid = $db->GetOne("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "' LIMIT 1");
 			if ($boardid != '') {
 				if ($_POST['order'] >= 0 && $_POST['maxpages'] >= 0 && $_POST['markpage'] >= 0 && $_POST['maxage'] >= 0 && $_POST['messagelength'] >= 0 && ($_POST['defaultstyle'] == '' || in_array($_POST['defaultstyle'], explode(':', KU_STYLES)) || in_array($_POST['defaultstyle'], explode(':', KU_TXTSTYLES)))) {
 					$filetypes = array();
@@ -701,10 +701,10 @@ class Manage {
 					
 					if (($_POST['type'] == '0' || $_POST['type'] == '1' || $_POST['type'] == '2' || $_POST['type'] == '3') && ($_POST['uploadtype'] == '0' || $_POST['uploadtype'] == '1' || $_POST['uploadtype'] == '2')) {
 						if (!($_POST['uploadtype'] != '0' && $_POST['type'] == '3')) {
-							$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "boards` SET `type` = '" . mysql_real_escape_string($_POST['type']) . "' , `uploadtype` = '" . mysql_real_escape_string($_POST['uploadtype']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `section` = '" . mysql_real_escape_string($_POST['section']) . "' , `desc` = '" . mysql_real_escape_string($_POST['desc']) . "' , `locale` = '" . mysql_real_escape_string($_POST['locale']) . "' , `showid` = '" . $updateboard_showid . "' , `compactlist` = '" . $updateboard_compactlist . "' , `locked` = '" . $updateboard_locked . "' , `maximagesize` = '" . mysql_real_escape_string($_POST['maximagesize']) . "' , `messagelength` = '" . mysql_real_escape_string($_POST['messagelength']) . "' , `maxpages` = '" . mysql_real_escape_string($_POST['maxpages']) . "' , `maxage` = '" . mysql_real_escape_string($_POST['maxage']) . "' , `markpage` = '" . mysql_real_escape_string($_POST['markpage']) . "' , `maxreplies` = '" . mysql_real_escape_string($_POST['maxreplies']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `includeheader` = '" . mysql_real_escape_string($_POST['includeheader']) . "' , `redirecttothread` = '" . $updateboard_redirecttothread . "' , `anonymous` = '" . mysql_real_escape_string($_POST['anonymous']) . "' , `forcedanon` = '" . $updateboard_forcedanon . "' , `trial` = '" . $updateboard_trial . "' , `popular` = '" . $updateboard_popular . "' , `defaultstyle` = '" . mysql_real_escape_string($_POST['defaultstyle']) . "' , `enablereporting` = '" . $updateboard_enablereporting . "' , `enablecaptcha` = '" . $updateboard_enablecaptcha . "' , `enablenofile` = '" . $updateboard_enablenofile . "' , `enablearchiving` = '" . $updateboard_enablearchiving . "', `enablecatalog` = '" . $updateboard_enablecatalog . "' , `loadbalanceurl` = '" . mysql_real_escape_string($_POST['loadbalanceurl']) . "' , `loadbalancepassword` = '" . mysql_real_escape_string($_POST['loadbalancepassword']) . "' WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "'");
-							$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $boardid . "'");
+							$db->Execute("UPDATE `" . KU_DBPREFIX . "boards` SET `type` = '" . mysql_real_escape_string($_POST['type']) . "' , `uploadtype` = '" . mysql_real_escape_string($_POST['uploadtype']) . "' , `order` = '" . mysql_real_escape_string($_POST['order']) . "' , `section` = '" . mysql_real_escape_string($_POST['section']) . "' , `desc` = '" . mysql_real_escape_string($_POST['desc']) . "' , `locale` = '" . mysql_real_escape_string($_POST['locale']) . "' , `showid` = '" . $updateboard_showid . "' , `compactlist` = '" . $updateboard_compactlist . "' , `locked` = '" . $updateboard_locked . "' , `maximagesize` = '" . mysql_real_escape_string($_POST['maximagesize']) . "' , `messagelength` = '" . mysql_real_escape_string($_POST['messagelength']) . "' , `maxpages` = '" . mysql_real_escape_string($_POST['maxpages']) . "' , `maxage` = '" . mysql_real_escape_string($_POST['maxage']) . "' , `markpage` = '" . mysql_real_escape_string($_POST['markpage']) . "' , `maxreplies` = '" . mysql_real_escape_string($_POST['maxreplies']) . "' , `image` = '" . mysql_real_escape_string($_POST['image']) . "' , `includeheader` = '" . mysql_real_escape_string($_POST['includeheader']) . "' , `redirecttothread` = '" . $updateboard_redirecttothread . "' , `anonymous` = '" . mysql_real_escape_string($_POST['anonymous']) . "' , `forcedanon` = '" . $updateboard_forcedanon . "' , `trial` = '" . $updateboard_trial . "' , `popular` = '" . $updateboard_popular . "' , `defaultstyle` = '" . mysql_real_escape_string($_POST['defaultstyle']) . "' , `enablereporting` = '" . $updateboard_enablereporting . "' , `enablecaptcha` = '" . $updateboard_enablecaptcha . "' , `enablenofile` = '" . $updateboard_enablenofile . "' , `enablearchiving` = '" . $updateboard_enablearchiving . "', `enablecatalog` = '" . $updateboard_enablecatalog . "' , `loadbalanceurl` = '" . mysql_real_escape_string($_POST['loadbalanceurl']) . "' , `loadbalancepassword` = '" . mysql_real_escape_string($_POST['loadbalancepassword']) . "' WHERE `name` = '" . mysql_real_escape_string($_GET['updateboard']) . "'");
+							$db->Execute("DELETE FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $boardid . "'");
 							foreach ($filetypes as $filetype) {
-								$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid`, `typeid` ) VALUES ( '" . $boardid . "', '" . mysql_real_escape_string($filetype) . "' )");
+								$db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid`, `typeid` ) VALUES ( '" . $boardid . "', '" . mysql_real_escape_string($filetype) . "' )");
 							}
 							require_once KU_ROOTDIR . 'inc/classes/menu.class.php';
 							$menu_class = new Menu();
@@ -731,7 +731,7 @@ class Manage {
 			if (!$this->CurrentUserIsModeratorOfBoard($_POST['board'], $_SESSION['manageusername'])) {
 				exitWithErrorPage(_gettext('You are not a moderator of this board.'));
 			}
-			$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
+			$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
 			if (count($resultsboard) > 0) {
 				foreach ($resultsboard as $lineboard) {
 					$tpl_page .= '<div class="container">
@@ -812,10 +812,10 @@ class Manage {
 					/* Allowed filetypes */
 					$tpl_page .= '<label>'._gettext('Allowed filetypes').':</label>
 					<div class="desc">'._gettext('What filetypes users are allowed to upload.').'</div><br>';
-					$filetypes = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `filetype` FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
+					$filetypes = $db->GetAll("SELECT HIGH_PRIORITY `id`, `filetype` FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
 					foreach ($filetypes as $filetype) {
 						$tpl_page .= '<label for="filetype_gif">' . strtoupper($filetype['filetype']) . '</label><input type="checkbox" name="filetype_' . $filetype['id'] . '"';
-						$filetype_isenabled = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $lineboard['id'] . "' AND `typeid` = '" . $filetype['id'] . "' LIMIT 1");
+						$filetype_isenabled = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $lineboard['id'] . "' AND `typeid` = '" . $filetype['id'] . "' LIMIT 1");
 						if ($filetype_isenabled == 1) {
 							$tpl_page .= ' checked';
 						}
@@ -1020,14 +1020,14 @@ class Manage {
 	
 	/* Search for all posts by a selected IP address and delete them */
 	function deletepostsbyip() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Delete all posts by IP')) . '</h2><br>';
 		if (isset($_POST['ip'])) {
 			if ($_POST['ip'] != '') {
 				$deletion_boards = array();
 				$deletion_new_boards = array();
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 				if (isset($_POST['banfromall'])) {
 					$this->ModeratorsOnly();
 					foreach ($results as $line) {
@@ -1061,11 +1061,11 @@ class Manage {
 				}
 				$i = 0;
 				foreach ($deletion_new_boards as $deletion_board) {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($deletion_board) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($deletion_board) . "'");
 					foreach ($results as $line) {
 						$board_name = $line['name'];
 					}
-					$post_list = $tc_db->GetAll("SELECT `id` FROM `" . KU_DBPREFIX . "posts_" . $board_name . "` WHERE `IS_DELETED` = '0' AND `ipmd5` = '" . md5($_POST['ip']) . "'");
+					$post_list = $db->GetAll("SELECT `id` FROM `" . KU_DBPREFIX . "posts_" . $board_name . "` WHERE `IS_DELETED` = '0' AND `ipmd5` = '" . md5($_POST['ip']) . "'");
 					foreach ($post_list as $post) {
 						$i++;
 
@@ -1101,13 +1101,13 @@ class Manage {
 	}
 	
 	function unstickypost() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		$this->ModeratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Manage stickies')) . '</h2><br>';
 		if (isset($_GET['postid']) && isset($_GET['board'])) {
 			if ($_GET['postid'] > 0 && $_GET['board'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
 						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
@@ -1115,9 +1115,9 @@ class Manage {
 					foreach ($results as $line) {
 						$sticky_board_name = $line['name'];
 					}
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 					if (count($results) > 0) {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` SET `stickied` = '0' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` SET `stickied` = '0' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 						$board_class = new Board($sticky_board_name);
 						$board_class->RegenerateAll();
 						$tpl_page .= _gettext('Thread successfully un-stickied');
@@ -1135,13 +1135,13 @@ class Manage {
 	}
 	
 	function stickypost() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		$this->ModeratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Manage stickies')) . '</h2><br>';
 		if (isset($_GET['postid']) && isset($_GET['board'])) {
 			if ($_GET['postid'] > 0 && $_GET['board'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . $_GET['board'] . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . $_GET['board'] . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
 						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
@@ -1149,9 +1149,9 @@ class Manage {
 					foreach ($results as $line) {
 						$sticky_board_name = $line['name'];
 					}
-					$result = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+					$result = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 					if ($result > 0) {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` SET `stickied` = '1' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $sticky_board_name . "` SET `stickied` = '1' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 						$board_class = new Board($sticky_board_name);
 						$board_class->RegenerateAll();
 						$tpl_page .= _gettext('Thread successfully stickied.');
@@ -1170,7 +1170,7 @@ class Manage {
 	
 	/* Create forms for stickying a post */
 	function stickyforms() {
-		global $tc_db;
+		global $db;
 		
 		$output = '<table width="100%" border="0">
 		<tr><td width="50%"><h1>' . _gettext('Sticky') . '</h1></td><td width="50%"><h1>' . _gettext('Unsticky') . '</h1></td></tr>
@@ -1188,10 +1188,10 @@ class Manage {
 		<input name="submit" type="submit" value="'._gettext('Sticky').'">
 		</form>
 		</td><td>';
-		$results_boards = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+		$results_boards = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 		foreach ($results_boards as $line_board) {
 			$output .= '<h2>/' . $line_board['name'] . '/</h2>';
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line_board['name'] . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `stickied` = '1'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line_board['name'] . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `stickied` = '1'");
 			if (count($results) > 0) {
 				foreach ($results as $line) {
 					$output .= '<a href="?action=unstickypost&board=' . $line_board['name'] . '&postid=' . $line['id'] . '">#' . $line['id'] . '</a><br>';
@@ -1206,13 +1206,13 @@ class Manage {
 	}
 	
 	function lockpost() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		$this->ModeratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Manage locked threads')) . '</h2><br>';
 		if (isset($_GET['postid']) && isset($_GET['board'])) {
 			if ($_GET['postid'] > 0 && $_GET['board'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 				if (count($results) > 0) {
 					if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
 						exitWithErrorPage(_gettext('You are not a moderator of this board.'));
@@ -1220,9 +1220,9 @@ class Manage {
 					foreach ($results as $line) {
 						$lock_board_name = $line['name'];
 					}
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 					if (count($results) > 0) {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` SET `locked` = '1' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` SET `locked` = '1' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 						$board_class = new Board($lock_board_name);
 						$board_class->RegenerateAll();
 						$tpl_page .= _gettext('Thread successfully locked.');
@@ -1240,11 +1240,11 @@ class Manage {
 	}
 	
 	function unlockpost() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Manage locked threads')) . '</h2><br>';
 		if ($_GET['postid'] > 0 && $_GET['board'] != '') {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 			if (count($results) > 0) {
 				if (!$this->CurrentUserIsModeratorOfBoard($_GET['board'], $_SESSION['manageusername'])) {
 					exitWithErrorPage(_gettext('You are not a moderator of this board.'));
@@ -1252,9 +1252,9 @@ class Manage {
 				foreach ($results as $line) {
 					$lock_board_name = $line['name'];
 				}
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 				if (count($results) > 0) {
-					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` SET `locked` = '0' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
+					$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $lock_board_name . "` SET `locked` = '0' WHERE `parentid` = '0' AND `id` = '" . mysql_real_escape_string($_GET['postid']) . "'");
 					$board_class = new Board($lock_board_name);
 					$board_class->RegenerateAll();
 					$tpl_page .= _gettext('Thread successfully unlocked.');
@@ -1271,7 +1271,7 @@ class Manage {
 	}
 	
 	function lockforms() {
-		global $tc_db;
+		global $db;
 		
 		$output = '<table width="100%" border="0">
 		<tr><td width="50%"><h1>' . _gettext('Lock') . '</h1></td><td width="50%"><h1>' . _gettext('Unlock') . '</h1></td></tr>
@@ -1289,10 +1289,10 @@ class Manage {
 		<input name="submit" type="submit" value="'._gettext('Lock').'">
 		</form>
 		</td><td>';
-		$results_boards = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+		$results_boards = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 		foreach ($results_boards as $line_board) {
 			$output .= '<h2>/' . $line_board['name'] . '/</h2>';
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line_board['name'] . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `locked` = '1'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "posts_" . $line_board['name'] . "` WHERE `IS_DELETED` = '0' AND `parentid` = '0' AND `locked` = '1'");
 			if (count($results) > 0) {
 				foreach ($results as $line) {
 					$output .= '<a href="?action=unlockpost&board=' . $line_board['name'] . '&postid=' . $line['id'] . '">#' . $line['id'] . '</a><br>';
@@ -1308,7 +1308,7 @@ class Manage {
 	
 	/* Run delorphanreplies() verbosely, followed by delunusedimages() verbosely */
 	function cleanup() {
-		global $tc_db, $tpl_page;
+		global $db, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('Cleanup') . '</h2><br>';
@@ -1317,16 +1317,16 @@ class Manage {
 		$tpl_page .= '<hr>'._gettext('Deleting unused images.').'<hr>';
 		$this->delunusedimages(true);
 		$tpl_page .= '<hr>'._gettext('Removing posts deleted more than one week ago from the database.').'<hr>';
-		$results = $tc_db->GetAll("SELECT `name`, `type` FROM `" . KU_DBPREFIX . "boards`");
+		$results = $db->GetAll("SELECT `name`, `type` FROM `" . KU_DBPREFIX . "boards`");
 		foreach ($results AS $line) {
 			if ($line['type'] != 1) {
-				$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `IS_DELETED` = 1 AND `deletedat` < " . (time() - 604800) . "");
+				$db->Execute("DELETE FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `IS_DELETED` = 1 AND `deletedat` < " . (time() - 604800) . "");
 			}
 		}
 		$tpl_page .= _gettext('Optimizing all tables in database.').'<hr>';
-		$results = $tc_db->GetAll("SHOW TABLES");
+		$results = $db->GetAll("SHOW TABLES");
 		foreach ($results AS $line) {
-			$tc_db->Execute("OPTIMIZE TABLE `" . $line[0] . "`");
+			$db->Execute("OPTIMIZE TABLE `" . $line[0] . "`");
 		}
 		$tpl_page .= _gettext('Cleanup finished.');
 		management_addlogentry(_gettext('Ran cleanup'), 2);
@@ -1334,18 +1334,18 @@ class Manage {
 	
 	/* Addition, modification, deletion, and viewing of bans */
 	function bans() {
-		global $tc_db, $smarty, $tpl_page, $bans_class;
+		global $db, $smarty, $tpl_page, $bans_class;
 		$this->ModeratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('Bans') . '</h2><br>';
 		$ban_ip = '';
 		if (isset($_POST['ip']) && isset($_POST['seconds'])) {
 			if ($_POST['ip'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `ipmd5` = '" . md5($_POST['ip']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `ipmd5` = '" . md5($_POST['ip']) . "'");
 				if (count($results) == 0) {
 					if ($_POST['seconds'] >= 0) {
 						$banning_boards = array();
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 						foreach ($results as $line) {
 							$banning_boards = array_merge($banning_boards, array($line['name']));
 						}
@@ -1404,9 +1404,9 @@ class Manage {
 						}
 						if ($bans_class->BanUser(mysql_real_escape_string($_POST['ip']), $_SESSION['manageusername'], $ban_globalban, $ban_duration, $ban_boards, mysql_real_escape_string($_POST['reason']),  mysql_real_escape_string($ban_appealat), $ban_type, $ban_allowread)) {
 							if (KU_BANMSG != '' && isset($_POST['quickbanpostid']) && isset($_POST['addbanmsg'])) {
-								$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `parentid`, `message` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($_POST['quickbanboard'])."` WHERE `id` = ".mysql_real_escape_string($_POST['quickbanpostid'])." LIMIT 1");
+								$results = $db->GetAll("SELECT HIGH_PRIORITY `parentid`, `message` FROM `".KU_DBPREFIX."posts_".mysql_real_escape_string($_POST['quickbanboard'])."` WHERE `id` = ".mysql_real_escape_string($_POST['quickbanpostid'])." LIMIT 1");
 								foreach($results AS $line) {
-									$tc_db->Execute("UPDATE `".KU_DBPREFIX."posts_".mysql_real_escape_string($_POST['quickbanboard'])."` SET `message` = '".mysql_real_escape_string($line['message'] . KU_BANMSG)."' WHERE `id` = ".mysql_real_escape_string($_POST['quickbanpostid'])." LIMIT 1");
+									$db->Execute("UPDATE `".KU_DBPREFIX."posts_".mysql_real_escape_string($_POST['quickbanboard'])."` SET `message` = '".mysql_real_escape_string($line['message'] . KU_BANMSG)."' WHERE `id` = ".mysql_real_escape_string($_POST['quickbanpostid'])." LIMIT 1");
 									clearPostCache($_POST['quickbanpostid'], $_POST['quickbanboard']);
 									$board_class = new Board($_POST['quickbanboard']);
 									if ($line['parentid']==0) {
@@ -1437,9 +1437,9 @@ class Manage {
 						
 						if (isset($_POST['banhashtime'])) {
 							if ($_POST['banhashtime'] !== '' && $_POST['hash'] !== '' && $_POST['banhashtime'] >= 0) {
-								$results = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `".KU_DBPREFIX."bannedhashes` WHERE `md5` = '".mysql_real_escape_string($_POST['hash'])."' LIMIT 1");
+								$results = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `".KU_DBPREFIX."bannedhashes` WHERE `md5` = '".mysql_real_escape_string($_POST['hash'])."' LIMIT 1");
 								if ($results == 0) {
-									$tc_db->Execute("INSERT INTO `".KU_DBPREFIX."bannedhashes` ( `md5` , `bantime` , `description` ) VALUES ( '".mysql_real_escape_string($_POST['hash'])."' , '".mysql_real_escape_string($_POST['banhashtime'])."' , '".mysql_real_escape_string($_POST['banhashdesc'])."' )");
+									$db->Execute("INSERT INTO `".KU_DBPREFIX."bannedhashes` ( `md5` , `bantime` , `description` ) VALUES ( '".mysql_real_escape_string($_POST['hash'])."' , '".mysql_real_escape_string($_POST['banhashtime'])."' , '".mysql_real_escape_string($_POST['banhashdesc'])."' )");
 									management_addlogentry('Banned md5 hash ' . $_POST['hash'] . ' with a description of ' . $_POST['banhashdesc'], 8);
 								}
 							}
@@ -1465,12 +1465,12 @@ class Manage {
 			}
 		} elseif (isset($_GET['delban'])) {
 			if ($_GET['delban'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['delban']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['delban']) . "'");
 				if (count($results) > 0) {
 					foreach ($results as $line) {
 						$unban_ip = md5_decrypt($line['ip'], KU_RANDOMSEED);
 					}
-					$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['delban']) . "'");
+					$db->Execute("DELETE FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['delban']) . "'");
 					$bans_class->UpdateHtaccess();
 					$tpl_page .= _gettext('Ban successfully removed.');
 					management_addlogentry(_gettext('Unbanned') . ' ' . $unban_ip, 8);
@@ -1484,19 +1484,19 @@ class Manage {
 				$tpl_page .= '<hr>';
 			}
 		} elseif (isset($_GET['delhashid'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `id` = '" . mysql_real_escape_string($_GET['delhashid']) . "'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `id` = '" . mysql_real_escape_string($_GET['delhashid']) . "'");
 			if (count($results) > 0) {
-				$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `id` = '" . mysql_real_escape_string($_GET['delhashid']) . "'");
+				$db->Execute("DELETE FROM `" . KU_DBPREFIX . "bannedhashes` WHERE `id` = '" . mysql_real_escape_string($_GET['delhashid']) . "'");
 				$tpl_page .= 'Hash removed from ban list.<hr>';
 			}
 		} elseif (isset($_GET['denyappeal'])) {
 			if ($_GET['denyappeal'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
 				if (count($results) > 0) {
 					foreach ($results as $line) {
 						$unban_ip = md5_decrypt($line['ip'], KU_RANDOMSEED);
 					}
-					$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "banlist` SET `appealat` = -2 WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
+					$db->Execute("UPDATE `" . KU_DBPREFIX . "banlist` SET `appealat` = -2 WHERE `id` = '" . mysql_real_escape_string($_GET['denyappeal']) . "'");
 					$bans_class->UpdateHtaccess();
 					$tpl_page .= _gettext('Appeal successfully denied.');
 					management_addlogentry(_gettext('Denied the ban appeal for') . ' ' . $unban_ip, 8);
@@ -1511,12 +1511,12 @@ class Manage {
 			}
 		}
 		if (isset($_GET['banboard']) && isset($_GET['banpost'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['banboard']) . "'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['banboard']) . "'");
 			if (count($results) > 0) {
 				foreach ($results as $line) {
 					$ban_board_name = $line['name'];
 				}
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $ban_board_name . "` WHERE `id` = '" . mysql_real_escape_string($_GET['banpost']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $ban_board_name . "` WHERE `id` = '" . mysql_real_escape_string($_GET['banpost']) . "'");
 				if (count($results) > 0) {
 					foreach ($results as $line) {
 						$ban_ip = md5_decrypt($line['ip'], KU_RANDOMSEED);
@@ -1614,12 +1614,12 @@ class Manage {
 			}
 		
 			if (isset($_GET['allbans'])) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "' ORDER BY `id` DESC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "' ORDER BY `id` DESC");
 				$hiddenbans = 0;
 			} else {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "' ORDER BY `id` DESC LIMIT 15");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "' ORDER BY `id` DESC LIMIT 15");
 				/* Get the number of bans in the database of this type */
-				$hiddenbans = $tc_db->GetAll("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "'");
+				$hiddenbans = $db->GetAll("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '" . $i . "'");
 				/* Subtract 15 from the count, since we only want the number not shown */
 				$hiddenbans = $hiddenbans[0][0] - 15;
 			}
@@ -1666,7 +1666,7 @@ class Manage {
 			}
 		}
 		$tpl_page .= '<br><br><b>File hash bans:</b><br><table border="1" width="100%"><tr><th>Hash</th><th>Description</th><th>Ban time</th><th>&nbsp;</th></tr>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `".KU_DBPREFIX."bannedhashes`");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `".KU_DBPREFIX."bannedhashes`");
 		if (count($results) == 0) {
 			$tpl_page .= '<tr><td colspan="4">None</td></tr>';
 		} else {
@@ -1685,7 +1685,7 @@ class Manage {
 	
 	/* Delete a post, or multiple posts */
 	function delposts($multidel=false) {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Delete thread/post')) . '</h2><br>';
 		if (isset($_POST['boarddir']) || isset($_GET['boarddir'])) {
@@ -1699,7 +1699,7 @@ class Manage {
 					$_POST['delpostid'] = $_GET['delpostid'];
 				}
 			}
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['boarddir']) . "'");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['boarddir']) . "'");
 			if (count($results) > 0) {
 				if (!$this->CurrentUserIsModeratorOfBoard($_POST['boarddir'], $_SESSION['manageusername'])) {
 					exitWithErrorPage(_gettext('You are not a moderator of this board.'));
@@ -1710,7 +1710,7 @@ class Manage {
 				}
 				if (isset($_POST['delthreadid'])) {
 					if ($_POST['delthreadid'] > 0) {
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `IS_DELETED` = '0' AND  `id` = '" . mysql_real_escape_string($_POST['delthreadid']) . "' AND `parentid` = '0'");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `IS_DELETED` = '0' AND  `id` = '" . mysql_real_escape_string($_POST['delthreadid']) . "' AND `parentid` = '0'");
 						if (count($results) > 0) {
 							foreach ($results as $line) {
 								$delthread_id = $line['id'];
@@ -1736,7 +1736,7 @@ class Manage {
 					}
 				} elseif (isset($_POST['delpostid'])) {
 					if ($_POST['delpostid'] > 0) {
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `IS_DELETED` = '0' AND  `id` = '" . mysql_real_escape_string($_POST['delpostid']) . "'");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `IS_DELETED` = '0' AND  `id` = '" . mysql_real_escape_string($_POST['delpostid']) . "'");
 						if (count($results) > 0) {
 							foreach ($results as $line) {
 								$delpost_id = $line['id'];
@@ -1826,7 +1826,7 @@ class Manage {
 	
 	/* Called from a board's page using the multidel button */
 	function multidel() {
-		global $tc_db, $smarty, $tpl_page, $bans_class;
+		global $db, $smarty, $tpl_page, $bans_class;
 		
 		$multidel = TRUE;
 		$_POST['seconds'] = 0;
@@ -1846,7 +1846,7 @@ class Manage {
 			$_POST['seconds'] = '0';
 			$ban_boards = '';
 			
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `ip` FROM `".KU_DBPREFIX . "posts_".mysql_real_escape_string($_POST['board'])."` ".$multiban_query);
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `ip` FROM `".KU_DBPREFIX . "posts_".mysql_real_escape_string($_POST['board'])."` ".$multiban_query);
 			if (count($results) > 0) {
 				foreach ($results as $line) {
 					$ban_ip = md5_decrypt($line['ip'], KU_RANDOMSEED);
@@ -1873,16 +1873,16 @@ class Manage {
 	
 	/* Replace words in posts with something else */
 	function wordfilter() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('Wordfilter') . '</h2><br>';
 		if (isset($_POST['word'])) {
 			if ($_POST['word'] != '' && $_POST['replacedby'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `word` = '" . mysql_real_escape_string($_POST['word']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `word` = '" . mysql_real_escape_string($_POST['word']) . "'");
 				if (count($results) == 0) {
 					$wordfilter_boards = array();
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 					foreach ($results as $line) {
 						$wordfilter_boards = array_merge($wordfilter_boards, array($line['name']));
 					}
@@ -1900,7 +1900,7 @@ class Manage {
 					}
 					$is_regex = (isset($_POST['regex'])) ? '1' : '0';
 					
-					$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "wordfilter` ( `word` , `replacedby` , `boards` , `time` , `regex` ) VALUES ( '" . mysql_real_escape_string($_POST['word']) . "' , '" . mysql_real_escape_string($_POST['replacedby']) . "' , '" . mysql_real_escape_string(implode('|', $wordfilter_new_boards)) . "' , '" . time() . "' , '" . $is_regex . "' )");
+					$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "wordfilter` ( `word` , `replacedby` , `boards` , `time` , `regex` ) VALUES ( '" . mysql_real_escape_string($_POST['word']) . "' , '" . mysql_real_escape_string($_POST['replacedby']) . "' , '" . mysql_real_escape_string(implode('|', $wordfilter_new_boards)) . "' , '" . time() . "' , '" . $is_regex . "' )");
 					
 					$tpl_page .= _gettext('Word successfully added.');
 					management_addlogentry("Added word to wordfilter: " . $_POST['word'] . " - Changes to: " . $_POST['replacedby'] . " - Boards: /" . implode('/, /', explode('|', implode('|', $wordfilter_new_boards))) . "/", 11);
@@ -1913,12 +1913,12 @@ class Manage {
 			$tpl_page .= '<hr>';
 		} elseif (isset($_GET['delword'])) {
 			if ($_GET['delword'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['delword']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['delword']) . "'");
 				if (count($results) > 0) {
 					foreach ($results as $line) {
 						$del_word = $line['word'];
 					}
-					$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['delword']) . "'");
+					$db->Execute("DELETE FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['delword']) . "'");
 					$tpl_page .= _gettext('Word successfully removed.');
 					management_addlogentry(_gettext('Removed word from wordfilter') . ': ' . $del_word, 11);
 				} else {
@@ -1928,7 +1928,7 @@ class Manage {
 			}
 		} elseif (isset($_GET['editword'])) {
 			if ($_GET['editword'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
 				if (count($results) > 0) {
 					if (!isset($_POST['replacedby'])) {
 						foreach ($results as $line) {
@@ -1950,7 +1950,7 @@ class Manage {
 							<label>'._gettext('Boards').':</label><br>';
 							
 							$array_boards = array();
-							$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+							$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 							foreach ($resultsboard as $lineboard) {
 								$array_boards = array_merge($array_boards, array($lineboard['name']));
 							}
@@ -1968,13 +1968,13 @@ class Manage {
 							</form>';
 						}
 					} else {
-						$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
+						$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter` WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
 						if (count($results) > 0) {
 							foreach ($results as $line) {
 								$wordfilter_word = $line['word'];
 							}
 							$wordfilter_boards = array();
-							$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+							$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 							foreach ($results as $line) {
 								$wordfilter_boards = array_merge($wordfilter_boards, array($line['name']));
 							}
@@ -1992,7 +1992,7 @@ class Manage {
 							}
 							$is_regex = (isset($_POST['regex'])) ? '1' : '0';
 							
-							$tc_db->Execute("UPDATE `wordfilter` SET `replacedby` = '" . mysql_real_escape_string($_POST['replacedby']) . "' , `boards` = '" . mysql_real_escape_string(implode('|', $wordfilter_new_boards)) . "' , `regex` = '" . $is_regex . "' WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
+							$db->Execute("UPDATE `wordfilter` SET `replacedby` = '" . mysql_real_escape_string($_POST['replacedby']) . "' , `boards` = '" . mysql_real_escape_string(implode('|', $wordfilter_new_boards)) . "' , `regex` = '" . $is_regex . "' WHERE `id` = '" . mysql_real_escape_string($_GET['editword']) . "'");
 							
 							$tpl_page .= _gettext('Word successfully updated.');
 							management_addlogentry(_gettext('Updated word on wordfilter') . ': ' . $wordfilter_word, 11);
@@ -2020,7 +2020,7 @@ class Manage {
 			<label>'._gettext('Boards').':</label><br>';
 	
 			$array_boards = array();
-			$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+			$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 			foreach ($resultsboard as $lineboard) {
 				$array_boards = array_merge($array_boards, array($lineboard['name']));
 			}
@@ -2034,7 +2034,7 @@ class Manage {
 		}
 		$tpl_page .= '<br>';
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter`");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "wordfilter`");
 		if ($results > 0) {
 			$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('Word') . '</th><th>' . _gettext('Replacement') . '</th><th>' . _gettext('Boards') . '</th><th>&nbsp;</th></tr>' . "\n";
 			foreach ($results as $line) {
@@ -2051,7 +2051,7 @@ class Manage {
 	}
 	
 	function addboard() {
-		global $tc_db, $smarty, $tpl_page, $board_class;
+		global $db, $smarty, $tpl_page, $board_class;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Add board')) . '</h2><br>';
@@ -2059,16 +2059,16 @@ class Manage {
 			$_POST['directory'] = cleanBoardName($_POST['directory']);
 			if ($_POST['directory'] != '' && $_POST['desc'] != '') {
 				if (strtolower($_POST['directory']) != 'allboards') {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['directory']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['directory']) . "'");
 					if (count($results) == 0) {
 						if (mkdir(KU_BOARDSDIR . $_POST['directory'], 0777) && mkdir(KU_BOARDSDIR . $_POST['directory'] . '/res', 0777) && mkdir(KU_BOARDSDIR . $_POST['directory'] . '/src', 0777) && mkdir(KU_BOARDSDIR . $_POST['directory'] . '/thumb', 0777)) {
 							file_put_contents(KU_BOARDSDIR . $_POST['directory'] . '/.htaccess', 'DirectoryIndex board.html');
-							$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "boards` ( `name` , `desc` , `createdon` ) VALUES ( '" . mysql_real_escape_string($_POST['directory']) . "' , '" . mysql_real_escape_string($_POST['desc']) . "' , '" . time() . "' )");
-							$boardid = $tc_db->Insert_Id();
+							$db->Execute("INSERT INTO `" . KU_DBPREFIX . "boards` ( `name` , `desc` , `createdon` ) VALUES ( '" . mysql_real_escape_string($_POST['directory']) . "' , '" . mysql_real_escape_string($_POST['desc']) . "' , '" . time() . "' )");
+							$boardid = $db->Insert_Id();
 							if ($_POST['firstpostid'] < 1) {
 								$_POST['firstpostid'] = 1;
 							}
-							$tc_db->Execute("CREATE TABLE `" . KU_DBPREFIX . "posts_" . mysql_real_escape_string($_POST['directory']) . "` (
+							$db->Execute("CREATE TABLE `" . KU_DBPREFIX . "posts_" . mysql_real_escape_string($_POST['directory']) . "` (
 							  `id` int(10) NOT NULL auto_increment,
 							  `parentid` int(10) NOT NULL default '0',
 							  `name` varchar(255) NOT NULL,
@@ -2104,9 +2104,9 @@ class Manage {
 							  KEY `filemd5` (`filemd5`),
 							  KEY `stickied` (`stickied`)
 							) ENGINE=InnoDB AUTO_INCREMENT=" . mysql_real_escape_string($_POST['firstpostid']) . ";");
-							$filetypes = $tc_db->GetAll("SELECT " . KU_DBPREFIX . "filetypes.id FROM " . KU_DBPREFIX . "filetypes WHERE " . KU_DBPREFIX . "filetypes.filetype = 'JPG' OR " . KU_DBPREFIX . "filetypes.filetype = 'GIF' OR " . KU_DBPREFIX . "filetypes.filetype = 'PNG';");
+							$filetypes = $db->GetAll("SELECT " . KU_DBPREFIX . "filetypes.id FROM " . KU_DBPREFIX . "filetypes WHERE " . KU_DBPREFIX . "filetypes.filetype = 'JPG' OR " . KU_DBPREFIX . "filetypes.filetype = 'GIF' OR " . KU_DBPREFIX . "filetypes.filetype = 'PNG';");
 							foreach ($filetypes AS $filetype) {
-								$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid` , `typeid` ) VALUES ( " . $boardid . " , " . $filetype['id'] . " );");
+								$db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid` , `typeid` ) VALUES ( " . $boardid . " , " . $filetype['id'] . " );");
 							}
 							/* Sleep for five seconds, to ensure the table was created before attempting to initialize a board class with it */
 							sleep(5);
@@ -2146,13 +2146,13 @@ class Manage {
 	}
 	
 	function delboard() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Delete board')) . '</h2><br>';
 		if (isset($_POST['directory'])) {
 			if ($_POST['directory'] != '') {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['directory']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['directory']) . "'");
 				foreach ($results as $line) {
 					$board_id = $line['id'];
 					$board_dir = $line['name'];
@@ -2160,9 +2160,9 @@ class Manage {
 				if (count($results) > 0) {
 					if (isset($_POST['confirmation'])) {
 						if (removeBoard($board_dir)) {
-							$tc_db->Execute("DROP TABLE `" . KU_DBPREFIX . "posts_" . $board_dir . "`");
-							$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "boards` WHERE `id` = '" . $board_id . "'");
-							$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $board_id . "'");
+							$db->Execute("DROP TABLE `" . KU_DBPREFIX . "posts_" . $board_dir . "`");
+							$db->Execute("DELETE FROM `" . KU_DBPREFIX . "boards` WHERE `id` = '" . $board_id . "'");
+							$db->Execute("DELETE FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $board_id . "'");
 							require_once KU_ROOTDIR . 'inc/classes/menu.class.php';
 							$menu_class = new Menu();
 							$menu_class->Generate();
@@ -2201,18 +2201,18 @@ class Manage {
 	}
 	
 	function changepwd() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Change account password')) . '</h2><br>';
 		if (isset($_POST['oldpwd']) && isset($_POST['newpwd']) && isset($_POST['newpwd2'])) {
 			if ($_POST['oldpwd'] != '' && $_POST['newpwd'] != '' && $_POST['newpwd2'] != '') {
 				if ($_POST['newpwd'] == $_POST['newpwd2']) {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "'");
 					foreach ($results as $line) {
 						$staff_passwordenc = $line['password'];
 					}
 					if (md5($_POST['oldpwd']) == $staff_passwordenc) {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `password` = '" . md5($_POST['newpwd']) . "' WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `password` = '" . md5($_POST['newpwd']) . "' WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "'");
 						$_SESSION['managepassword'] = md5($_POST['newpwd']);
 						$tpl_page .= _gettext('Password successfully changed.');
 					} else {
@@ -2243,16 +2243,16 @@ class Manage {
 	}
 	
 	function staff() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('Staff') . '</h2><br>';
 		if (isset($_POST['staffusername']) && isset($_POST['staffpassword'])) {
 			if ($_POST['staffusername'] != '' && ($_POST['staffpassword'] != '' || $_POST['type'] == '3')) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['staffusername']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_POST['staffusername']) . "'");
 				if (count($results) == 0) {
 					if ($_POST['type'] == '0' || $_POST['type'] == '1' || $_POST['type'] == '2' || $_POST['type'] == '3') {
-						$tc_db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "staff` ( `username` , `password` , `type` , `addedon` ) VALUES ( '" . mysql_real_escape_string($_POST['staffusername']) . "' , '" . md5($_POST['staffpassword']) . "' , '" . $_POST['type'] . "' , '" . time() . "' )");
+						$db->Execute("INSERT HIGH_PRIORITY INTO `" . KU_DBPREFIX . "staff` ( `username` , `password` , `type` , `addedon` ) VALUES ( '" . mysql_real_escape_string($_POST['staffusername']) . "' , '" . md5($_POST['staffpassword']) . "' , '" . $_POST['type'] . "' , '" . time() . "' )");
 					} else {
 						exitWithErrorPage('Invalid type.');
 					}
@@ -2280,13 +2280,13 @@ class Manage {
 			}
 		} elseif (isset($_GET['del'])) {
 			if ($_GET['del'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['del']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['del']) . "'");
 				if (count($results) > 0) {
 					foreach ($results as $line) {
 						$staff_username = $line['username'];
 						$staff_type = $line['type'];
 					}
-					$tc_db->Execute("DELETE FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['del']) . "'");
+					$db->Execute("DELETE FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['del']) . "'");
 					$tpl_page .= _gettext('Staff successfully deleted');
 					if ($staff_type != 3) {
 						management_addlogentry(_gettext('Deleted staff member') . ': ' . $staff_username, 6);
@@ -2300,7 +2300,7 @@ class Manage {
 			}
 		} elseif (isset($_GET['edit'])) {
 			if ($_GET['edit'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 				if (count($results) > 0) {
 					if (isset($_POST['submitting'])) {
 						foreach ($results as $line) {
@@ -2311,7 +2311,7 @@ class Manage {
 						if (isset($_POST['moderatesallboards'])) {
 							$staff_new_boards = array('allboards');
 						} else {
-							$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+							$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 							foreach ($results as $line) {
 								$staff_boards = array_merge($staff_boards, array($line['name']));
 							}
@@ -2328,7 +2328,7 @@ class Manage {
 								}
 							}
 						}
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `boards` = '" . mysql_real_escape_string(implode('|', $staff_new_boards)) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "staff` SET `boards` = '" . mysql_real_escape_string(implode('|', $staff_new_boards)) . "' WHERE `id` = '" . mysql_real_escape_string($_GET['edit']) . "'");
 						$tpl_page .= _gettext('Staff successfully updated') . '<hr>';
 						if ($_POST['type'] != '3') {
 							$logentry = _gettext('Updated staff member') . ' - ';
@@ -2355,7 +2355,7 @@ class Manage {
 						}
 						management_addlogentry($logentry, 6);
 					}
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . $_GET['edit'] . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `id` = '" . $_GET['edit'] . "'");
 					foreach ($results as $line) {
 						$staff_username = $line['username'];
 						$staff_type = $line['type'];
@@ -2398,7 +2398,7 @@ class Manage {
 						$tpl_page .= ' checked';
 					}
 					$tpl_page .= '><br>' . _gettext('or') . '<br>';
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards`");
 					foreach ($results as $line) {
 						$tpl_page .= '<label for="moderate' . $line['name'] . '">' . $line['name'] . '</label><input type="checkbox" name="moderate' . $line['name'] . '" ';
 						if (in_array($line['name'], $staff_boards)) {
@@ -2440,7 +2440,7 @@ class Manage {
 		
 		$tpl_page .= '<table border="1" width="100%"><tr><th>' . _gettext('Username') . '</th><th>' . _gettext('Added on') . '</th><th>' . _gettext('Last active') . '</th><th>' . _gettext('Moderating boards') . '</th><th>&nbsp;</th></tr>' . "\n";
 		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Administrators') . '</b></font></td></tr>' . "\n";
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '1' ORDER BY `username` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '1' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
@@ -2457,7 +2457,7 @@ class Manage {
 			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
 		}
 		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Moderators') . '</b></font></td></tr>' . "\n";
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '2' ORDER BY `username` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '2' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
@@ -2484,7 +2484,7 @@ class Manage {
 			$tpl_page .= '<tr><td colspan="4">' . _gettext('None') . '</td></tr>' . "\n";
 		}
 		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>' . _gettext('Janitors') . '</b></font></td></tr>' . "\n";
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '0' ORDER BY `username` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '0' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>';
@@ -2512,7 +2512,7 @@ class Manage {
 		}
 		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>VIP</b></font></td></tr>' . "\n";
 		$tpl_page .= '<tr><th>' . _gettext('Posting password') . '</th><th colspan="3">' . _gettext('Added on') . '</th><th>&nbsp;</th>' . "\n";;
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '3' ORDER BY `username` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '3' ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td colspan="2">' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
@@ -2525,19 +2525,19 @@ class Manage {
 		
 	/* View a thread marked as deleted */
 	function viewdeletedthread() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('View deleted thread')) . '</h2><br>';
 		if (isset($_GET['threadid']) && isset($_GET['board'])) {
 			if ($_GET['threadid'] > 0) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 				foreach ($results as $line) {
 					$board_id = $line['id'];
 					$board_dir = $line['name'];
 				}
 				if (count($results) > 0) {
-					$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `id` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
+					$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "posts_" . $board_dir . "` WHERE `id` = '" . mysql_real_escape_string($_GET['threadid']) . "'");
 					if (count($results) > 0) {
 						foreach ($results as $line) {
 							$thread_isdeleted = $line['IS_DELETED'];
@@ -2578,7 +2578,7 @@ class Manage {
 	}
 	
 	function movethread() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		$tpl_page .= '<h2>' . ucwords(_gettext('Move thread')) . '</h2><br><b>Warning:  Move thread currently is only designed to work across text boards, and does not move images with threads if they come from a non text board thread.</b><br><br>';
@@ -2589,32 +2589,32 @@ class Manage {
 			$id = mysql_real_escape_string($_POST['id']);
 			$temp_id = 0;
 			
-			$tc_db->Execute("START TRANSACTION");
+			$db->Execute("START TRANSACTION");
 			
-			$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
+			$db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id . " WHERE `id` = '" . $id . "'");
 			
-			$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
-			$new_id = $tc_db->Insert_Id();
+			$db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+			$new_id = $db->Insert_Id();
 			
 			processPost($new_id, $new_id, $id);
 			
-			$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+			$db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 			
-			$results = $tc_db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
+			$results = $db->GetAll("SELECT `id` FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `parentid` = '" . $id . "' ORDER BY `id` ASC");
 			foreach ($results as $line) {
-				$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = " . $line['id']);
+				$db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_from . " SET `id` = " . $temp_id. " WHERE `id` = " . $line['id']);
 				
-				$tc_db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
-				$insert_id = $tc_db->Insert_Id();
+				$db->Execute("INSERT INTO " . KU_DBPREFIX . "posts_" . $board_to . " SELECT * FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+				$insert_id = $db->Insert_Id();
 				
 				processPost($insert_id, $new_id, $id);
 				
-				$tc_db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `parentid` = " . $new_id . " WHERE `id` = " . $insert_id);
+				$db->Execute("UPDATE " . KU_DBPREFIX . "posts_" . $board_to . " SET `parentid` = " . $new_id . " WHERE `id` = " . $insert_id);
 				
-				$tc_db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
+				$db->Execute("DELETE FROM " . KU_DBPREFIX . "posts_" . $board_from . " WHERE `id` = " . $temp_id);
 			}
 			
-			$tc_db->Execute("COMMIT");
+			$db->Execute("COMMIT");
 			
 			$tpl_page .= _gettext('Move complete.') . '  ' . _gettext('The change will not be apparent until the html files are rebuilt.') . '<br><hr>';
 		}
@@ -2638,7 +2638,7 @@ class Manage {
 	
 	/* Search for text in posts */
 	function search() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
 		if (isset($_GET['query'])) {
@@ -2666,14 +2666,14 @@ class Manage {
 				$query .= "SELECT *, '" . $board . "' as board FROM `posts_" . $board . "` WHERE `IS_DELETED` = 0 AND " . $likequery . " UNION ";
 			}
 			$query = substr($query, 0, -6) . 'ORDER BY `postedat` DESC';
-			$numresults = $tc_db->GetAll($query);
+			$numresults = $db->GetAll($query);
 			$numrows = count($numresults);
 			if ($numrows == 0) {
 				$tpl_page .= '<h4>' . _gettext('Results') . '</h4>';
 				$tpl_page .= '<p>' . _gettext('Sorry, your search returned zero results.') . '</p>';
 			} else {
 				$query .= " LIMIT $s, $limit";
-				$results = $tc_db->GetAll($query);
+				$results = $db->GetAll($query);
 				$tpl_page .= '<p style="font-size: 1.5em;">Results for: <b>' . $search_query . '</b></p>';
 				$count = 1 + $s;
 				foreach ($results as $line) {
@@ -2769,14 +2769,14 @@ class Manage {
 	
 	/* View and delete reports */
 	function reports() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->ModeratorsOnly();
 		
 		$tpl_page .= '<h2>' . _gettext('Reports') . '</h2><br>';
 		if (isset($_GET['clear'])) {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "reports` WHERE `id` = '" . mysql_real_escape_string($_GET['clear']) . "' LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `id` FROM `" . KU_DBPREFIX . "reports` WHERE `id` = '" . mysql_real_escape_string($_GET['clear']) . "' LIMIT 1");
 			if (count($results) > 0) {
-				$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "reports` SET `cleared` = '1' WHERE `id` = '" . mysql_real_escape_string($_GET['clear']) . "' LIMIT 1");
+				$db->Execute("UPDATE `" . KU_DBPREFIX . "reports` SET `cleared` = '1' WHERE `id` = '" . mysql_real_escape_string($_GET['clear']) . "' LIMIT 1");
 				$tpl_page .= 'Report successfully cleared.<hr>';
 			}
 		}
@@ -2793,11 +2793,11 @@ class Manage {
 				$tpl_page .= 'You do not moderate any boards.';
 			}
 		}
-		$resultsreport = $tc_db->GetAll($query);
+		$resultsreport = $db->GetAll($query);
 		if (count($resultsreport) > 0) {
 			$tpl_page .= '<table border="1" width="100%"><tr><th>Board</th><th>Post</th><th>File</th><th>Message</th><th>Reporter IP</th><th>Action</th></tr>';
 			foreach ($resultsreport as $linereport) {
-				$results = $tc_db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $linereport['board'] . "` WHERE `id` = " . mysql_real_escape_string($linereport['postid']) . "");
+				$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "posts_" . $linereport['board'] . "` WHERE `id` = " . mysql_real_escape_string($linereport['postid']) . "");
 				foreach ($results as $line) {
 					if ($line['IS_DELETED'] == 0) {
 						$tpl_page .= '<tr><td>/' . $linereport['board'] . '/</td><td><a href="' . KU_BOARDSPATH . '/' . $linereport['board'] . '/res/';
@@ -2826,7 +2826,7 @@ class Manage {
 						}
 						$tpl_page .= '</td><td>' . md5_decrypt($linereport['ip'], KU_RANDOMSEED) . '</td><td><a href="?action=reports&clear=' . $linereport['id'] . '">Clear</a>&nbsp;&#91;<a href="?action=delposts&boarddir=' . $linereport['board'] . '&del' . $post_threadorpost . 'id=' . $line['id'] . '" title="Delete" onclick="return confirm(\'Are you sure you want to delete this thread/post?\');">D</a>&nbsp;<a href="' . KU_CGIPATH . '/manage_page.php?action=delposts&boarddir=' . $linereport['board'] . '&del' . $post_threadorpost . 'id=' . $line['id'] . '&postid=' . $line['id'] . '" title="Delete &amp; Ban" onclick="return confirm(\'Are you sure you want to delete and ban this poster?\');">&amp;</a>&nbsp;<a href="?action=bans&banboard=' . $linereport['board'] . '&banpost=' . $line['id'] . '" title="Ban">B</a>&#93;</td></tr>';
 					} else {
-						$tc_db->Execute("UPDATE `" . KU_DBPREFIX . "reports` SET `cleared` = 1 WHERE id = " . $linereport['id'] . "");
+						$db->Execute("UPDATE `" . KU_DBPREFIX . "reports` SET `cleared` = 1 WHERE id = " . $linereport['id'] . "");
 					}
 				}
 			}
@@ -2838,7 +2838,7 @@ class Manage {
 	
 	/* View recently uploaded images */
 	function recentimages() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->ModeratorsOnly();
 		
 		if (!isset($_SESSION['imagesperpage'])) {
@@ -2860,7 +2860,7 @@ class Manage {
 					$clear_unserialized = unserialize($clear_decrypted);
 					
 					foreach ($clear_unserialized as $clear_sql) {
-						$tc_db->Execute($clear_sql);
+						$db->Execute($clear_sql);
 					}
 					$tpl_page .= 'Successfully marked previous images as reviewed.<hr>';
 				}
@@ -2874,7 +2874,7 @@ class Manage {
 		$boardlist = $this->BoardList($_SESSION['manageusername']);
 		foreach ($boardlist as $board) {
 			if ($imagesshown <= $_SESSION['imagesperpage']) {
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `parentid`, `filename`, `filetype`, `thumb_w`, `thumb_h` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . $dayago . " AND (`filetype` = 'jpg' OR `filetype` = 'gif' OR `filetype` = 'png') AND `reviewed` = 0 AND `IS_DELETED` = 0 ORDER BY RAND() LIMIT " . mysql_real_escape_string($_SESSION['imagesperpage']));
+				$results = $db->GetAll("SELECT HIGH_PRIORITY `id`, `parentid`, `filename`, `filetype`, `thumb_w`, `thumb_h` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . $dayago . " AND (`filetype` = 'jpg' OR `filetype` = 'gif' OR `filetype` = 'png') AND `reviewed` = 0 AND `IS_DELETED` = 0 ORDER BY RAND() LIMIT " . mysql_real_escape_string($_SESSION['imagesperpage']));
 				if (count($results) > 0) {
 					$reviewsql = "UPDATE `" . KU_DBPREFIX . "posts_" . $board . "` SET `reviewed` = 1 WHERE ";
 					foreach ($results as $line) {
@@ -2903,15 +2903,15 @@ class Manage {
 	
 	/* Display posting rates for the past hour */
 	function posting_rates() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		$tpl_page .= '<h2>' . _gettext('Posting rates (past hour)') . '</h2><br>';
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `order` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `order` ASC");
 		if (count($results) > 0) {
 			$tpl_page .= '<table border="1" cellspacing="2" cellpadding="2" width="100%"><tr><th>' . _gettext('Board') . '</th><th>' . _gettext('Threads') . '</th><th>' . _gettext('Replies') . '</th><th>' . _gettext('Posts') . '</th></tr>';
 			foreach ($results as $line) {
-				$rows_threads = $tc_db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `postedat` >= " . (time() - 3600));
-				$rows_replies = $tc_db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` != 0 AND `postedat` >= " . (time() - 3600));
+				$rows_threads = $db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` = 0 AND `postedat` >= " . (time() - 3600));
+				$rows_replies = $db->GetOne("SELECT HIGH_PRIORITY count(id) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `parentid` != 0 AND `postedat` >= " . (time() - 3600));
 				$rows_posts = $rows_threads + $rows_replies;
 				$threads_perminute = $rows_threads;
 				$replies_perminute = $rows_replies;
@@ -2925,7 +2925,7 @@ class Manage {
 	}
 	
 	function statistics() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		$tpl_page .= '<h2>Statistics</h2><br>';
 		$tpl_page .= '<img src="manage_page.php?graph&type=day"> 
@@ -2937,7 +2937,7 @@ class Manage {
 	
 	/* If the user logged in isn't an admin, kill the script */
 	function AdministratorsOnly() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if (!$this->CurrentUserIsAdministrator()) {
 			exitWithErrorPage('That page is for admins only.');
@@ -2946,12 +2946,12 @@ class Manage {
 	
 	/* If the user logged in isn't an moderator or higher, kill the script */
 	function ModeratorsOnly() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if ($this->CurrentUserIsAdministrator()) {
 			return true;
 		} else {
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
 			foreach ($results as $line) {
 				if ($line['type'] != 2) {
 					exitWithErrorPage('That page is for moderators and administrators only.');
@@ -2962,7 +2962,7 @@ class Manage {
 	
 	/* See if the user logged in is an admin */
 	function CurrentUserIsAdministrator() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if ($_SESSION['manageusername'] == '' || $_SESSION['managepassword'] == '') {
 			$_SESSION['manageusername'] = '';
@@ -2970,7 +2970,7 @@ class Manage {
 			return false;
 		}
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
 		foreach ($results as $line) {
 			if ($line['type'] == 1) {
 				return true;
@@ -2986,7 +2986,7 @@ class Manage {
 	
 	/* See if the user logged in is a moderator */
 	function CurrentUserIsModerator() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		if ($_SESSION['manageusername'] == '' || $_SESSION['managepassword'] == '') {
 			$_SESSION['manageusername'] = '';
@@ -2994,7 +2994,7 @@ class Manage {
 			return false;
 		}
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `type` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $_SESSION['manageusername'] . "' AND `password` = '" . $_SESSION['managepassword'] . "' LIMIT 1");
 		foreach ($results as $line) {
 			if ($line['type'] == 2) {
 				return true;
@@ -3010,9 +3010,9 @@ class Manage {
 	
 	/* See if the user logged in is a moderator of a specified board */
 	function CurrentUserIsModeratorOfBoard($board, $username) {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
 				if ($line['boards'] == 'allboards') {
@@ -3037,12 +3037,12 @@ class Manage {
 	
 	/* Generate a list of boards a moderator controls */
 	function BoardList($username) {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
 		$staff_boardsmoderated = array();
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . $username . "' LIMIT 1");
 		if ($this->CurrentUserIsAdministrator() || $results[0][0] == 'allboards') {
-			$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 			foreach ($resultsboard as $lineboard) {
 				$staff_boardsmoderated = array_merge($staff_boardsmoderated, array($lineboard['name']));
 			}
@@ -3062,9 +3062,9 @@ class Manage {
 	
 	/* Generate a list of boards in query format */
 	function sqlboardlist() {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		
-		$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+		$results = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 		$sqlboards = '';
 		foreach ($results as $line) {
 			$sqlboards .= 'posts_' . $line['name'] . ', ';
@@ -3101,16 +3101,16 @@ class Manage {
 		
 	/* Delete files without their md5 stored in the database */
 	function delunusedimages($verbose = false) {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
-		$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
+		$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
 		foreach ($resultsboard as $lineboard) {
 			if ($verbose) {
 				$tpl_page .= '<b>Looking for unused images in /' . $lineboard['name'] . '/</b><br>';
 			}
 			$filemd5list = array();
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `filemd5` FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `IS_DELETED` = 0 AND `filename` != '' AND `filename` != 'removed' AND `filemd5` != ''");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `filemd5` FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `IS_DELETED` = 0 AND `filename` != '' AND `filename` != 'removed' AND `filemd5` != ''");
 			foreach ($results as $line) {
 				$filemd5list[] = $line['filemd5'];
 			}
@@ -3137,17 +3137,17 @@ class Manage {
 	
 	/* Delete replies currently not marked as deleted who belong to a thread which is marked as deleted */
 	function delorphanreplies($verbose = false) {
-		global $tc_db, $smarty, $tpl_page;
+		global $db, $smarty, $tpl_page;
 		$this->AdministratorsOnly();
 		
-		$resultsboard = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
+		$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `id`, `name` FROM `" . KU_DBPREFIX . "boards`");
 		foreach ($resultsboard as $lineboard) {
 			if ($verbose) {
 				$tpl_page .= '<b>Looking for orphans in /' . $lineboard['name'] . '/</b><br>';
 			}
-			$results = $tc_db->GetAll("SELECT HIGH_PRIORITY `id`, `parentid` FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `parentid` != '0' AND `IS_DELETED` = 0");
+			$results = $db->GetAll("SELECT HIGH_PRIORITY `id`, `parentid` FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `parentid` != '0' AND `IS_DELETED` = 0");
 			foreach ($results as $line) {
-				$exists_rows = $tc_db->GetAll("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `id` = '" . $line['parentid'] . "' AND `IS_DELETED` = 0", 1);
+				$exists_rows = $db->GetAll("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $lineboard['name'] . "` WHERE `id` = '" . $line['parentid'] . "' AND `IS_DELETED` = 0", 1);
 				if ($exists_rows[0] == 0) {
 					$post_class = new Post($line['id'], $lineboard['name']);
 					$post_class->Delete;

@@ -3,9 +3,9 @@
  * @ignore
  */ 
 function mysql_table_exists($database, $tableName) {
-    global $tc_db;
+    global $db;
     $tables = array();
-    $tablesResults = $tc_db->GetAll("SHOW TABLES FROM `$database`;");
+    $tablesResults = $db->GetAll("SHOW TABLES FROM `$database`;");
     foreach ($tablesResults AS $row) $tables[] = $row[0];
     return(in_array($tableName, $tables));
 }
@@ -44,7 +44,7 @@ if (file_exists('config.php')) {
 	if (KU_RANDOMSEED!="ENTER RANDOM LETTERS/NUMBERS HERE"&&KU_RANDOMSEED!="") {
 		echo 'Configuration appears correct.';
 		echo '<h2>Checking database...</h2>';
-		$reqiredtables = array("banlist","bannedhashes","blotter","boards","board_filetypes","events","filetypes","loginattempts","modlog","module_settings","news","passcache","reports","sections","staff","watchedthreads","wordfilter");
+		$reqiredtables = array("banlist","bannedhashes","blotter","boards","board_filetypes","events","filetypes","loginattempts","modlog","module_settings","news","reports","sections","staff","watchedthreads","wordfilter");
 		foreach ($reqiredtables as $tablename) {
 			if (!mysql_table_exists(KU_DBDATABASE,KU_DBPREFIX.$tablename)) {
 				die("Couldn't find the table <b>".KU_DBPREFIX.$tablename."</b> in the database.  Please <a href=\"install-mysql.php\"><b><u>insert the mySQL dump</u></b></a>.");
@@ -52,9 +52,9 @@ if (file_exists('config.php')) {
 		}
 		echo 'Database appears correct.';
 		echo '<h2>Inserting default administrator account...</h2>';
-		$result_exists = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."staff` WHERE `username` = 'admin'");
+		$result_exists = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."staff` WHERE `username` = 'admin'");
 		if ($result_exists==0) {
-            $result = $tc_db->Execute("INSERT INTO `".KU_DBPREFIX."staff` ( `username` , `password` , `type` , `addedon` ) VALUES ( 'admin' , '".md5("admin")."' , '1' , '".time()."' )");
+            $result = $db->Execute("INSERT INTO `".KU_DBPREFIX."staff` ( `username` , `password` , `type` , `addedon` ) VALUES ( 'admin' , '".md5("admin")."' , '1' , '".time()."' )");
             echo 'Account inserted.';
         } else {
             echo 'There is already an administrator account inserted.';
@@ -67,7 +67,7 @@ if (file_exists('config.php')) {
 			echo '<h2>Done!</h2>Installation has finished!  The default administrator account is <b>admin</b> with the password of <b>admin</b>.<br /><br />Delete this and the install-mysql.php file from the server, then <a href="manage.php">add some boards</a>!';
 			echo '<br /><br /><br /><h1><font color="red">DELETE THIS AND install-mysql.php RIGHT NOW!</font></h1>';
 		} else {
-			echo 'Error inserting SQL.  Please add <b>$tc_db->debug = true;</b> just before ?&gt; in config.php to turn on debugging, and check the error message.';
+			echo 'Error inserting SQL.  Please add <b>$db->debug = true;</b> just before ?&gt; in config.php to turn on debugging, and check the error message.';
 		}
 	} else {
 		echo 'Please enter a random string into the <b>KU_RANDOMSEED</b> value.';

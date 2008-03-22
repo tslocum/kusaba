@@ -41,7 +41,7 @@ if ($_POST['width']>750||$_POST['height']>750) {
 require 'config.php';
 require KU_ROOTDIR . 'lib/oekaki/OekakiApplet.php';
 
-$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_escape_string($_POST['board'])."'");
+$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."boards` WHERE `name` = '".mysql_escape_string($_POST['board'])."'");
 if (count($results)==0) {
 	die();
 } else {
@@ -84,7 +84,7 @@ $OekakiApplet = new OekakiApplet;
 
 if (isset($_POST['replyimage'])) {
 	if ($_POST['replyimage']!='0') {
-		$results = $tc_db->GetAll("SELECT `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$board_dir."` WHERE `id` = '".mysql_escape_string($_POST['replyimage'])."' AND `IS_DELETED` = '0'");
+		$results = $db->GetAll("SELECT `filename`, `filetype` FROM `".KU_DBPREFIX."posts_".$board_dir."` WHERE `id` = '".mysql_escape_string($_POST['replyimage'])."' AND `IS_DELETED` = '0'");
 		if (count($results)==0) {
 			die("Invalid reply image.");
 		} else {

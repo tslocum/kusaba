@@ -36,7 +36,7 @@ $bans_class = new Bans();
 $bans_class->RemoveExpiredBans();
 
 if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
-	$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '0' AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' LIMIT 1");
+	$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '0' AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' LIMIT 1");
 	if (count($results)>0) {
 		foreach($results AS $line) {
 			if ($line['appealat'] > 0 && $line['appealat'] < time()) {
@@ -49,7 +49,7 @@ if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
 					'Unban: ' . KU_CGIPATH . '/manage_page.php?action=bans&sm=sm&delban=' . $line['id'] . "\n" .
 					'Deny appeal: ' . KU_CGIPATH . '/manage_page.php?action=bans&sm=sm&denyappeal=' . $line['id']), 70));
 				
-				$tc_db->Execute("UPDATE `".KU_DBPREFIX."banlist` SET `appealat` = '-1' WHERE `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "'");
+				$db->Execute("UPDATE `".KU_DBPREFIX."banlist` SET `appealat` = '-1' WHERE `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "'");
 				
 				echo 'Your appeal has been sent and is pending review.';
 			} else {

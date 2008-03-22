@@ -43,12 +43,12 @@ function exitWithErrorPage($errormsg, $extended = '') {
  * @param string $forceusername Username to force as the entry username
  */
 function management_addlogentry($entry, $category = 0, $forceusername = '') {
-	global $tc_db;
+	global $db;
 	
 	$username = ($forceusername == '') ? $_SESSION['manageusername'] : $forceusername;
 	
 	if ($entry != '') {
-		$tc_db->Execute("INSERT INTO `" . KU_DBPREFIX . "modlog` ( `entry` , `user` , `category` , `timestamp` ) VALUES ( '" . mysql_real_escape_string($entry) . "' , '" . $username . "' , '" . mysql_real_escape_string($category) . "' , '" . time() . "' )");
+		$db->Execute("INSERT INTO `" . KU_DBPREFIX . "modlog` ( `entry` , `user` , `category` , `timestamp` ) VALUES ( '" . mysql_real_escape_string($entry) . "' , '" . $username . "' , '" . mysql_real_escape_string($category) . "' , '" . time() . "' )");
 	}
 	if (KU_RSS) {
 		require_once(KU_ROOTDIR . 'inc/classes/rss.class.php');
@@ -83,6 +83,25 @@ function do_redirect($url, $ispost = false, $file = '') {
 			echo '---> ---> --->';
 		}
 		die('<meta http-equiv="refresh" content="1;url=' . $url . '">');
+	}
+}
+
+function boardType($boardtype) {
+	switch ($boardtype) {
+	case 1:
+		return 'text';
+		break;
+	
+	case 2:
+		return 'oekaki';
+		break;
+		
+	case 3:
+		return 'upload';
+		break;
+		
+	default:
+		return 'image';
 	}
 }
 ?>

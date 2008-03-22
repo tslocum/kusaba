@@ -94,22 +94,22 @@ function module_call_function($module, $function, $data = null) {
 }
 
 function module_setting_get($module, $key) {
-	global $tc_db;
+	global $db;
 	
 	$query = "SELECT `value` FROM `".KU_DBPREFIX."module_settings` WHERE `module` = '".mysql_real_escape_string($module)."' AND `key` = '".mysql_real_escape_string($key)."' LIMIT 1";
-	$result = $tc_db->GetOne($query);
+	$result = $db->GetOne($query);
 	
 	return $result;
 }
 
 function module_setting_set($module, $key, $value, $type = 'string') {
-	global $tc_db;
+	global $db;
 	
-	$exists = $tc_db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."module_settings` WHERE `module` = '".mysql_real_escape_string($module)."' AND `key` = '".mysql_real_escape_string($key)."' LIMIT 1");
+	$exists = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."module_settings` WHERE `module` = '".mysql_real_escape_string($module)."' AND `key` = '".mysql_real_escape_string($key)."' LIMIT 1");
 	if ($exists > 0) {
-		$result = $tc_db->Execute("UPDATE `".KU_DBPREFIX."module_settings` SET `value` = '".mysql_real_escape_string($value)."') WHERE `module` = '".mysql_real_escape_string($module)."' AND `key` = '".mysql_real_escape_string($key)."'");
+		$result = $db->Execute("UPDATE `".KU_DBPREFIX."module_settings` SET `value` = '".mysql_real_escape_string($value)."') WHERE `module` = '".mysql_real_escape_string($module)."' AND `key` = '".mysql_real_escape_string($key)."'");
 	} else {
-		$result = $tc_db->Execute("INSERT INTO `".KU_DBPREFIX."module_settings` (`module` , `key` , `value` , `type`) VALUES ('".mysql_real_escape_string($module)."', '".mysql_real_escape_string($key)."', '".mysql_real_escape_string($value)."', '".mysql_real_escape_string($type)."')");
+		$result = $db->Execute("INSERT INTO `".KU_DBPREFIX."module_settings` (`module` , `key` , `value` , `type`) VALUES ('".mysql_real_escape_string($module)."', '".mysql_real_escape_string($key)."', '".mysql_real_escape_string($value)."', '".mysql_real_escape_string($type)."')");
 	}
 	
 	return $result;

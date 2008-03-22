@@ -54,11 +54,11 @@ if (isset($_GET['graph'])) {
 			if ($_GET['type'] == 'day') {
 				$graph->setTitle('Posts per board in past 24hrs');
 				
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {
-						$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
+						$posts = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
 						
 						$data = array_merge($data, array($line['name'] => $posts));
 					}
@@ -66,11 +66,11 @@ if (isset($_GET['graph'])) {
 			} elseif ($_GET['type'] == 'week') {
 				$graph->setTitle('Posts per board in past week');
 				
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {
-						$posts = $tc_db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . "");
+						$posts = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . "");
 						
 						$data = array_merge($data, array($line['name'] => $posts));
 					}
@@ -78,11 +78,11 @@ if (isset($_GET['graph'])) {
 			} elseif ($_GET['type'] == 'postnum') {
 				$graph->setTitle('Total posts per board');
 				
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {
-						$posts = $tc_db->GetOne("SELECT `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
+						$posts = $db->GetOne("SELECT `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
 						
 						$data = array_merge($data, array($line['name'] => $posts));
 					}
@@ -90,11 +90,11 @@ if (isset($_GET['graph'])) {
 			} elseif ($_GET['type'] == 'unique') {
 				$graph->setTitle('Unique user posts per board');
 				
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {
-						$posts = $tc_db->GetOne("SELECT COUNT(DISTINCT `ipmd5`) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `IS_DELETED` = 0");
+						$posts = $db->GetOne("SELECT COUNT(DISTINCT `ipmd5`) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `IS_DELETED` = 0");
 						
 						$data = array_merge($data, array($line['name'] => $posts));
 					}
@@ -102,11 +102,11 @@ if (isset($_GET['graph'])) {
 			} elseif ($_GET['type'] == 'posttime') {
 				$graph->setTitle('Average #minutes between posts (past week), boards without posts in past week not shown');
 				
-				$results = $tc_db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+				$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
 				if (count($results) > 0) {
 					$data = array();
 					foreach ($results as $line) {
-						$posts = $tc_db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
+						$posts = $db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
 						if (count($posts) > 0) {
 							$i = 0;
 							$lastpost_time = 0;

@@ -29,7 +29,7 @@ if (!KU_EXPAND) die();
 require KU_ROOTDIR . 'inc/functions.php';
 require KU_ROOTDIR . 'inc/classes/board-post.class.php';
 
-$board_name = $tc_db->GetOne("SELECT `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
+$board_name = $db->GetOne("SELECT `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_GET['board']) . "'");
 if ($board_name != '') {
 	$board_class = new Board($board_name);
 	if ($board_class->board_locale != '') {
@@ -50,7 +50,7 @@ if (isset($_GET['preview'])) {
 	die('Error');
 }
 
-$results = $tc_db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` ASC');
+$results = $db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` ASC');
 
 global $expandjavascript;
 $output = '';

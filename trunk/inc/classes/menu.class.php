@@ -23,7 +23,7 @@
 class Menu {
 
 	function GetMenu($savetofile = false, $option = false) {
-		global $tc_db, $smarty, $kusabaorg;
+		global $db, $smarty, $kusabaorg;
 		
 		require_once KU_ROOTDIR.'lib/smarty.php';
 		
@@ -114,13 +114,13 @@ class Menu {
 		
 		for ($i = 0; $i < 2; $i++) {
 			$tpl_boards = '';
-			$results_boardsexist = $tc_db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."boards` LIMIT 1");
+			$results_boardsexist = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."boards` LIMIT 1");
 			if (count($results_boardsexist)==0) {
 				$tpl_boards .= '<ul>' . "\n" .
 				'	<li>'._gettext('No visible boards').'</li>' . "\n" .
 				'</ul>' . "\n";
 			} else {
-				$results = $tc_db->GetAll("SELECT * FROM `".KU_DBPREFIX."sections` ORDER BY `order` ASC");
+				$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."sections` ORDER BY `order` ASC");
 				foreach($results AS $line) {
 					if (KU_MENUTYPE == 'normal') {
 						$tpl_boards .= '<h2>';
@@ -145,7 +145,7 @@ class Menu {
 						$tpl_boards .= '">' . "\n";
 					}
 					$tpl_boards .= '<ul>' . "\n";
-					$resultsboard = $tc_db->GetAll("SELECT `name`, `desc`, `locked`, `trial`, `popular` FROM `".KU_DBPREFIX."boards` WHERE `section` = ".$line['id']." ORDER BY `order` ASC");
+					$resultsboard = $db->GetAll("SELECT `name`, `desc`, `locked`, `trial`, `popular` FROM `".KU_DBPREFIX."boards` WHERE `section` = ".$line['id']." ORDER BY `order` ASC");
 					if (count($resultsboard)>0) {
 						foreach($resultsboard AS $lineboard) {
 							$tpl_boards .= '	<li><a href="'.KU_BOARDSPATH.'/'.$lineboard['name'].'/" class="boardlink">';
