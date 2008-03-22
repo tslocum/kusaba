@@ -39,7 +39,7 @@ require('gettext.php');
 
 global $text_domains, $default_domain, $LC_CATEGORIES, $EMULATEGETTEXT, $CURRENTLOCALE;
 $text_domains = array();
-$default_domain = 'trevorchan';
+$default_domain = 'kusaba';
 $LC_CATEGORIES = array('LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_ALL');
 $EMULATEGETTEXT = 0;
 $CURRENTLOCALE = '';
