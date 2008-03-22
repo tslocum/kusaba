@@ -16,6 +16,7 @@ function clearPostCache($id, $board) {
 	global $db;
 	if (KU_APC) {
 		apc_delete('post|' . $board . '|' . $id);
+		apc_delete('buildthread|' . $board . '|' . $id . '|page|replies');
 	}
 	$db->Execute("DELETE FROM `" . KU_DBPREFIX . "reports` WHERE `id` = " . $id . " AND `board` = '" . mysql_real_escape_string($board) . "' LIMIT 1");
 }

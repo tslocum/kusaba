@@ -72,7 +72,7 @@ $_POST['board'] = (isset($_GET['board'])) ? $_GET['board'] : $_POST['board'];
 
 /* If the script was called using a board name: */
 if (isset($_POST['board'])) {
-	$board_name = $db->GetOne("SELECT `name` FROM `" . KU_DBPREFIX . "boards` WHERE `name` = '" . mysql_real_escape_string($_POST['board']) . "'");
+	$board_name = $db->GetOne('SELECT `name` FROM `' . KU_DBPREFIX . 'boards` WHERE `name` = \'' . mysql_real_escape_string($_POST['board']) . '\'');
 	if ($board_name != '') {
 		$board_class = new Board($board_name);
 		if ($board_class->board_locale != '') {
@@ -105,7 +105,7 @@ $posting_class->UTF8Strings();
 
 /* Check if the user sent a valid post (image for thread, image/message for reply, etc) */
 if ($posting_class->CheckValidPost($is_oekaki)) {
-	$db->Execute("START TRANSACTION");
+	$db->Execute('START TRANSACTION');
 	$posting_class->CheckReplyTime();
 	$posting_class->CheckNewThreadTime();
 	$posting_class->CheckMessageLength();
@@ -469,7 +469,7 @@ if (KU_RSS) {
 }
 
 if ($board_class->board_redirecttothread == 1 || $_POST['em'] == 'return' || $_POST['em'] == 'noko') {
-	if ($thread_replyto == "0") {
+	if ($thread_replyto == '0') {
 		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $post_id . '.html', true, $imagefile_name);
 	} else {
 		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $thread_replyto . '.html', true, $imagefile_name);

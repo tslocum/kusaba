@@ -36,7 +36,7 @@ $bans_class = new Bans();
 $bans_class->RemoveExpiredBans();
 
 if (isset($_POST['appealmessage']) && KU_APPEAL != '') {
-	$results = $db->GetAll("SELECT * FROM `".KU_DBPREFIX."banlist` WHERE `type` = '0' AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' LIMIT 1");
+	$results = $db->GetAll("SELECT * FROM `" . KU_DBPREFIX . "banlist` WHERE `type` = '0' AND `ipmd5` = '" . md5($_SERVER['REMOTE_ADDR']) . "' LIMIT 1");
 	if (count($results)>0) {
 		foreach($results AS $line) {
 			if ($line['appealat'] > 0 && $line['appealat'] < time()) {

@@ -342,22 +342,23 @@ class Board {
 			$numthreadsdisplayed = KU_THREADS;
 		}
 		
-		$results = $db->GetAll("SELECT `id`, `deletedat` FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
-		$numpostsleft = count($results);
+		$results_thread_starters = $db->GetAll('SELECT `id`, `subject` , `filename` , `filetype`, `deletedat` FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC');
+		$results_thread_starters_count = count($results_thread_starters);
 		
 		$this->InitializeSmarty();
-		$boardstooutput = calculatenumpages($this->board_type, ($numpostsleft-1));
+		$boardstooutput = calculatenumpages($this->board_type, ($results_thread_starters_count-1));
 		$this->CachePageHeaderData();
-		
 		$boardpage = 0;
-		if ($numpostsleft>0) {
+		
+		if ($results_thread_starters_count > 0) {
+			$numpostsleft = $results_thread_starters_count;
 			$cached_postbox = $this->Postbox(0, '', $this->board_postboxnotice);
 			
 			// {{{ Fetch all of the thread IDs for each page of the board and save them in an array
 			$master_thread_ids = array();
 			$threadcount = 1;
 			$threadpage = 0;
-			foreach($results AS $line) {
+			foreach($results_thread_starters AS $line) {
 				/* If the thread is on the page set to mark, and hasn't been marked yet, mark it */
 				if ($line['deletedat'] == 0 && $this->board_markpage > 0 && $threadpage >= $this->board_markpage) {
 					$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` SET `deletedat` = ' . (time() + 7200) . ' WHERE `id` = ' . $line['id'] . ' LIMIT 1');
@@ -381,7 +382,7 @@ class Board {
 				if (isset($master_thread_ids[$boardpage])) {
 					$thread_ids = $master_thread_ids[$boardpage];
 					$page = $this->pageheader_noreply . $cached_postbox;
-				
+					
 					if ($this->board_type_readable != 'text') {
 						$page .= deletionForm($this->board_dir);
 					}
@@ -463,11 +464,13 @@ class Board {
 		}
 		/* If text board, rebuild thread list html files */
 		if ($this->board_type_readable == 'text') {
-			$numpostsleft = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
+			$numpostsleft = $results_thread_starters_count;
+			
 			$liststooutput = floor(($numpostsleft-1) / 40);
 			$listpage = 0;
 			$currentpostwave = 0;
-			while ($numpostsleft>0) {
+			
+			while ($numpostsleft > 0) {
 				$executiontime_start_list = microtime_float();
 				$page = $this->PageHeader(0, $currentpostwave, $listpage, $liststooutput) .
 				$this->Footer(false, (microtime_float()-$executiontime_start_list), $hide_extra);
@@ -488,24 +491,23 @@ class Board {
 			'&#91;<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/">'._gettext('Return').'</a>&#93; <div class="catalogmode">'._gettext('Catalog Mode').'</div>' . "\n" .
 			'<table border="1" align="center">' . "\n" . '<tr>' . "\n";
 			
-			$results = $db->GetAll("SELECT `id` , `subject` , `filename` , `filetype` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = 0 ORDER BY `stickied` DESC, `lastbumped` DESC");
-			$numresults = count($results);
-			if ($numresults > 0) {
+			if ($results_thread_starters_count > 0) {
 				$celnum = 0;
 				$trbreak = 0;
 				$row = 1;
 				/* Calculate the number of rows we will actually output */
-				$maxrows = max(1, (($numresults - ($numresults % 12)) / 12));
-				foreach ($results as $line) {
+				$maxrows = max(1, (($results_thread_starters_count - ($results_thread_starters_count % 12)) / 12));
+				foreach ($results_thread_starters as $line) {
 					$celnum++;
 					$trbreak++;
-					if ($trbreak == 13 && $celnum != $numresults) {
+					if ($trbreak == 13 && $celnum != $results_thread_starters_count) {
 						$catalog_page .= '</tr>' . "\n" . '<tr>' . "\n";
 						$row++;
 						$trbreak = 1;
 					}
 					if ($row <= $maxrows) {
-						$replies = $db->GetOne("SELECT COUNT(*) FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `IS_DELETED` = 0 AND `parentid` = " . $line['id']);
+						$replies = $db->GetOne('SELECT COUNT(*) FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE `IS_DELETED` = 0 AND `parentid` = ' . $line['id']);
+						
 						$catalog_page .= '<td valign="middle">' . "\n" . 
 						'<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/res/' . $line['id'] . '.html"';
 						if ($line['subject'] != '') {
@@ -524,7 +526,9 @@ class Board {
 						} else {
 							$catalog_page .= _gettext('None');
 						}
-						$catalog_page .= '</a><br>' . "\n" . '<small>' . $replies . '</small>' . "\n" . '</td>' . "\n";
+						$catalog_page .= '</a><br>' . "\n" .
+						'<small>' . $replies . '</small>' . "\n" .
+						'</td>' . "\n";
 					}
 				}
 			} else {
@@ -573,7 +577,7 @@ class Board {
 		global $db;
 		
 		$res_threadlist = array();
-		$results = $db->GetAll("SELECT `id` FROM `".KU_DBPREFIX."posts_".$this->board_dir."` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC");
+		$results = $db->GetAll('SELECT `id` FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE `parentid` = 0 AND `IS_DELETED` = 0 ORDER BY `lastbumped` DESC');
 		foreach($results AS $line) {
 			$res_threadlist[] = $line['id'].'.html';
 			if (KU_FIRSTLAST) {
@@ -612,16 +616,16 @@ class Board {
 		$this->InitializeSmarty();
 		$this->CachePageHeaderData();
 		
-		$numreplies = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $this->board_dir . "` WHERE (`id` = " . mysql_real_escape_string($thread_op_id) . " OR `parentid` = " . mysql_real_escape_string($thread_op_id) . ") AND `IS_DELETED` = 0");
-		if (count($numreplies) > 0) {
+		$posts_in_thread = $db->GetOne('SELECT COUNT(*) FROM `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` WHERE `parentid` = ' . $thread_op_id . ' AND `IS_DELETED` = 0');
+		if (count($posts_in_thread) > 0) {
 			$executiontime_start_regeneratethread = microtime_float();
-			$numreplies--;
+			$posts_in_thread--;
 			
 			$modifier_last50 = false;
 			$modifier_first100 = false;
-			if (KU_FIRSTLAST && $numreplies > 49) {
+			if (KU_FIRSTLAST && $posts_in_thread > 49) {
 				$modifier_last50 = true;
-				if ($numreplies > 99) {
+				if ($posts_in_thread > 99) {
 					$modifier_first100 = true;
 				}
 			}
@@ -795,94 +799,75 @@ class Board {
 				// }}}
 				// {{{ Thread replies display
 				
-				if ($numReplies > 0) {
-					if (!$page) {
-						// {{{ Non-page reply fetch
-						
-						$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` ';
-						switch ($modifier) {
-						case 'last50':
-							$query .= 'DESC LIMIT 50';
-							$buildthread_output .= '<span class="omittedposts">' . "\n" .
-							'	 ' . ($numReplies - 50) . ' ';
-							$buildthread_output .= (($numReplies - 50) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
-							$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('Last 50 posts shown.') . "\n" .
-							'</span>' . "\n";
-							break;
-							
-						case 'first100':
-							$query .= 'ASC LIMIT 99';
-							break;
-							
-						default:
-							$query .= 'ASC';
-							break;
-							
-						}
-						$results_replies = $db->GetAll($query);
-						if ($modifier == 'last50') {
-							$results_replies = array_reverse($results_replies);
-						}
-						
-						// }}}
-						
-						/*if (KU_APC) {
-							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|op') == serialize($results)) {
-								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|replies') == serialize($results_replies)) {
-									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread');
-									if ($buildthread_cached != false) {
-										if (function_exists('gzcompress')) {
-											$buildthread_cached = gzuncompress($buildthread_cached);
-										}
-										$buildthread_output .= $buildthread_cached;
-										$buildthread_gotcache = true;
-									}
-								}
-							}
-						}*/
-					} else {
-						// {{{ Page reply fetch
-						
-						$buildthread_output .= '<div id="replies'.$line['id'].$this->board_dir.'">';
-						if ($line['stickied'] == 0) {
-							$numrepliesdisplayed = KU_REPLIES;
-						} else {
-							$numrepliesdisplayed = KU_REPLIESSTICKY;
-						}
-						if ($numReplies > $numrepliesdisplayed) {
-							$buildthread_output .= '<span class="omittedposts">' . "\n" .
-							'	 ' . ($numReplies-$numrepliesdisplayed) . ' ';
-							$buildthread_output .= ($numReplies-$numrepliesdisplayed != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
-							if ($numImageReplies > 0) {
-								$buildthread_output .= ' ' . _gettext('and') . ' ' . $numImageReplies . ' ';
-								$buildthread_output .= ($numImageReplies != 1) ? strtolower(_gettext('Images')) : strtolower(_gettext('Image'));
-							}
-							$buildthread_output .= ' ' . _gettext('omitted') . '. '._gettext('Click Reply to view.') . "\n" .
-							'</span>' . "\n";
-						}
-						/* Retrieves the three newest posts from the thread in descending order, which is backwards for what we want, so we apply array_reverse on the result */
-						$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` DESC LIMIT '.$numrepliesdisplayed;
-						$results_replies = array_reverse($db->GetAll($query));
-						
-						// }}}
-						
-						/*if (KU_APC) {
-							if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|op') == serialize($results)) {
-								if (apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|replies') == serialize($results_replies)) {
-									$buildthread_cached = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|thread');
-									if ($buildthread_cached != false) {
-										if (function_exists('gzcompress')) {
-											$buildthread_cached = gzuncompress($buildthread_cached);
-										}
-										$buildthread_output .= $buildthread_cached;
-										$buildthread_gotcache = true;
-									}
-								}
-							}
+				$buildthread_output_replies = '';
+				if (KU_APC && $page) {
+					$buildthread_output_replies_apc = apc_fetch('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|replies');
+					if ($buildthread_output_replies_apc !== false) {
+						$buildthread_output_replies = $buildthread_output_replies_apc;
+						/*if (function_exists('gzcompress')) {
+							$buildthread_cached = gzuncompress($buildthread_cached);
 						}*/
 					}
-					
-					if (!$buildthread_gotcache) {
+				}
+
+				if ($buildthread_output_replies == '') {
+					if ($numReplies > 0) {
+						if (!$page) {
+							// {{{ Non-page reply fetch
+							
+							$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` ';
+							switch ($modifier) {
+							case 'last50':
+								$query .= 'DESC LIMIT 50';
+								$buildthread_output_replies .= '<span class="omittedposts">' . "\n" .
+								'	 ' . ($numReplies - 50) . ' ';
+								$buildthread_output_replies .= (($numReplies - 50) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+								$buildthread_output_replies .= ' ' . _gettext('omitted') . '.  ' . _gettext('Last 50 posts shown.') . "\n" .
+								'</span>' . "\n";
+								break;
+								
+							case 'first100':
+								$query .= 'ASC LIMIT 99';
+								break;
+								
+							default:
+								$query .= 'ASC';
+								break;
+								
+							}
+							$results_replies = $db->GetAll($query);
+							if ($modifier == 'last50') {
+								$results_replies = array_reverse($results_replies);
+							}
+							
+							// }}}
+						} else {
+							// {{{ Page reply fetch
+							
+							$buildthread_output_replies .= '<div id="replies'.$line['id'].$this->board_dir.'">';
+							if ($line['stickied'] == 0) {
+								$numrepliesdisplayed = KU_REPLIES;
+							} else {
+								$numrepliesdisplayed = KU_REPLIESSTICKY;
+							}
+							if ($numReplies > $numrepliesdisplayed) {
+								$buildthread_output_replies .= '<span class="omittedposts">' . "\n" .
+								'	 ' . ($numReplies-$numrepliesdisplayed) . ' ';
+								$buildthread_output_replies .= ($numReplies-$numrepliesdisplayed != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+								if ($numImageReplies > 0) {
+									$buildthread_output_replies .= ' ' . _gettext('and') . ' ' . $numImageReplies . ' ';
+									$buildthread_output_replies .= ($numImageReplies != 1) ? strtolower(_gettext('Images')) : strtolower(_gettext('Image'));
+								}
+								$buildthread_output_replies .= ' ' . _gettext('omitted') . '. '._gettext('Click Reply to view.') . "\n" .
+								'</span>' . "\n";
+							}
+							/* Retrieves the three newest posts from the thread in descending order, which is backwards for what we want, so we apply array_reverse on the result */
+							$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` DESC LIMIT '.$numrepliesdisplayed;
+							$results_replies = array_reverse($db->GetAll($query));
+							
+							// }}}
+						}
+						
 						$buildthread_replies = '';
 						foreach($results_replies AS $line_reply) {
 							$buildthread_replies .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
@@ -892,54 +877,37 @@ class Board {
 						} else {
 							$expandjavascript = '';
 						}
-						$buildthread_output .= $expandjavascript . $buildthread_replies;
-						unset($buildthread_replies);
+						$buildthread_output_replies .= $expandjavascript . $buildthread_replies;
 						
 						if ($page) {
-							$buildthread_output .= '</div>' . "\n";
+							$buildthread_output_replies .= '</div>' . "\n";
 						} /*else {
-							$buildthread_output .= '</span>' . "\n";
+							$buildthread_output_replies .= '</span>' . "\n";
 						}*/
 						
 						if (!$page) {
 							if ($modifier == 'first100') {
-								$buildthread_output .= '<span class="omittedposts" style="float: left">' . "\n" .
+								$buildthread_output_replies .= '<span class="omittedposts" style="float: left">' . "\n" .
 								'	 ' . ($numReplies - 100) . ' ';
-								$buildthread_output .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
-								$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
+								$buildthread_output_replies .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+								$buildthread_output_replies .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
 								'</span>' . "\n";
 							}
 							
 							if ($numReplies > 2) {
-								$buildthread_output .= '<span style="float: right;">' . "\n" .
+								$buildthread_output_replies .= '<span style="float: right;">' . "\n" .
 								'	' . threadLinks('return', $thread_id, $this->board_dir, $this->board_type, ($numReplies > 49), ($numReplies > 99), true) .
 								'</span>' . "\n";
 							}
 						}
 						
-						/*if (KU_APC) {
-							if (($page && $page < 5) || !$page) {
-								$results_apc = serialize($results);
-								$results_replies_apc = serialize($results_replies);
-								$buildthread_output_apc = $buildthread_output;
-								
-								if (function_exists('gzcompress')) {
-									$buildthread_output_apc = gzcompress($buildthread_output_apc, 9);
-								}
-								
-								if ($page) {
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|op', $results_apc, 600);
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|sql|replies', $results_replies_apc, 600);
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|thread', $buildthread_output_apc, 600);
-								} else {
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|op', $results_apc, 600);
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|sql|replies', $results_replies_apc, 600);
-									apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|nonpage|thread', $buildthread_output_apc, 600);
-								}
-							}
-						}*/
+						if (KU_APC && $page) {
+							apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|replies', $buildthread_output_replies, 600);
+						}
 					}
 				}
+				
+				$buildthread_output .= $buildthread_output_replies;
 				
 				// }}}
 				
@@ -2423,6 +2391,10 @@ class Post extends Board {
 		
 		$query = "INSERT INTO `".KU_DBPREFIX."posts_".$this->board_dir."` ( `parentid` , `name` , `tripcode` , `email` , `subject` , `message` , `filename` , `filename_original`, `filetype` , `filemd5` , `image_w` , `image_h` , `filesize` , `filesize_formatted` , `thumb_w` , `thumb_h` , `password` , `postedat` , `lastbumped` , `ip` , `ipmd5` , `posterauthority` , `tag` , `stickied` , `locked` ) VALUES ( '".mysql_real_escape_string($parentid)."', '".mysql_real_escape_string($name)."', '".mysql_real_escape_string($tripcode)."', '".mysql_real_escape_string($email)."', '".mysql_real_escape_string($subject)."', '".mysql_real_escape_string($message)."', '".mysql_real_escape_string($filename)."', '".mysql_real_escape_string($filename_original)."', '".mysql_real_escape_string($filetype)."', '".mysql_real_escape_string($filemd5)."', '".mysql_real_escape_string($image_w)."', '".mysql_real_escape_string($image_h)."', '".mysql_real_escape_string($filesize)."', '".mysql_real_escape_string(ConvertBytes($filesize))."', '".mysql_real_escape_string($thumb_w)."', '".mysql_real_escape_string($thumb_h)."', '".mysql_real_escape_string($password)."', '".mysql_real_escape_string($postedat)."', '".mysql_real_escape_string($lastbumped)."', '".mysql_real_escape_string(md5_encrypt($ip, KU_RANDOMSEED))."', '".md5($ip)."', '".mysql_real_escape_string($posterauthority)."', '".mysql_real_escape_string($tag)."', '".mysql_real_escape_string($stickied)."', '".mysql_real_escape_string($locked)."' )";
 		$db->Execute($query);
+		
+		if ($parentid != 0) {
+			clearPostCache($parentid, $this->board_dir);
+		}
 		
 		return $db->Insert_Id();
 	}
