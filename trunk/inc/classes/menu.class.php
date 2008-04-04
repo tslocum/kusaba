@@ -94,17 +94,18 @@ class Menu {
 			<li><a href="http://code.google.com/p/kusaba/" target="_top">Project page</a></li>
 			<li><a href="http://kusaba.org/doc/index.html">Code Documentation</a></li>
 			</ul>
-			
-			<!-- Begin: AdBrite -->
-			<script type="text/javascript">
-			   var AdBrite_Title_Color = \'800000\';
-			   var AdBrite_Text_Color = \'CB7E46\';
-			   var AdBrite_Background_Color = \'FFFFEE\';
-			   var AdBrite_Border_Color = \'FFFFEE\';
+			<br>
+			<script type="text/javascript"><!--
+			google_ad_client = "pub-6158454562572132";
+			/* kusaba Menu */
+			google_ad_slot = "4354470416";
+			google_ad_width = 120;
+			google_ad_height = 600;
+			//-->
 			</script>
-			<script src="http://ads.adbrite.com/mb/text_group.php?sid=534855&amp;zs=3132305f363030" type="text/javascript"></script>
-			<div><a target="_top" href="http://www.adbrite.com/mb/commerce/purchase_form.php?opid=534855&amp;afsid=1" style="font-weight:bold;font-family:Arial;font-size:13px;">Your Ad Here</a></div>
-			<!-- End: AdBrite -->
+			<script type="text/javascript"
+			src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script>
 			<script language="javascript">
 			var woopra_id = \'247037172\';
 			</script>

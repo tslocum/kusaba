@@ -50,15 +50,45 @@ if (isset($_GET['preview'])) {
 	die('Error');
 }
 
-$results = $db->GetAll('SELECT * FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']).' ORDER BY `id` ASC');
+$spy = false;
+
+$query = 'SELECT * FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.mysql_real_escape_string($_GET['threadid']);
+if (KU_POSTSPY) {
+	if (isset($_GET['pastid'])) {
+		if ($_GET['pastid'] > 0) {
+			$spy = true;
+			$query .= ' AND `id` > ' . mysql_real_escape_string($_GET['pastid']);
+		}
+	}
+}
+$query .= ' ORDER BY `id` ASC';
+
+$results = $db->GetAll($query);
 
 global $expandjavascript;
 $output = '';
 $expandjavascript = '';
-foreach($results AS $line_reply) {
-	$output .= $board_class->BuildPost(true, $board_class->board_dir, $board_class->board_type, $line_reply);
+
+if ($spy) {
+	$page = false;
+} else {
+	$page = true;
 }
-if ($expandjavascript != '') {
+
+foreach($results AS $line_reply) {
+	$output .= $board_class->BuildPost($page, $board_class->board_dir, $board_class->board_type, $line_reply);
+	$newlastid = $line_reply['id'];
+}
+
+if ($spy) {
+	if (!isset($newlastid)) {
+		die();
+	}
+	
+	echo $newlastid . '|';
+}
+
+if ($expandjavascript != '' && !$spy) {
 	$output = '<a href="#" onclick="javascript:' . $expandjavascript . 'return false;">' . _gettext('Expand all images') . '</a>' . $output;
 }
 

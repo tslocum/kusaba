@@ -91,7 +91,7 @@ function getfiletypeinfo($filetype) {
 	$results = $db->GetAll("SELECT `image`, `image_w`, `image_h` FROM `" . KU_DBPREFIX . "filetypes` WHERE `filetype` = '" . mysql_real_escape_string($filetype) . "' LIMIT 1");
 	if (count($results) > 0) {
 		foreach($results AS $line) {
-			$return = array($line['image'],$line['image_w'],$line['image_h']);
+			$return = array($line['image'], $line['image_w'], $line['image_h']);
 		}
 	} else {
 		/* No info was found, return the generic icon */

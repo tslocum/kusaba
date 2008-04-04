@@ -112,18 +112,13 @@ class Manage {
 		if (isset($_SESSION['manageusername'])) {
 			$results = $db->GetAll("SELECT HIGH_PRIORITY `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . mysql_real_escape_string($_SESSION['manageusername']) . "' LIMIT 1");
 			if ($this->CurrentUserIsAdministrator() || $results[0][0] == 'allboards') {
-				$resultsboard = $db->GetAll("SELECT HIGH_PRIORITY `name` FROM `" . KU_DBPREFIX . "boards`");
-				foreach ($resultsboard as $lineboard) {
-					setcookie("kumod", "yes", time() + 3600, KU_BOARDSFOLDER . $lineboard['name'] . "/", KU_DOMAIN);
+				setcookie('kumod', 'yes', time() + 3600, KU_BOARDSFOLDER, KU_DOMAIN);
+			} elseif ($results[0][0] != '') {
+				foreach ($results as $line) {
+					$array_boards = explode('|', $line['boards']);
 				}
-			} else {
-				if ($results[0][0] != '') {
-					foreach ($results as $line) {
-						$array_boards = explode('|', $line['boards']);
-					}
-					foreach ($array_boards as $this_board_name) {
-						setcookie("kumod", "yes", time() + 3600, KU_BOARDSFOLDER . $this_board_name . "/", KU_DOMAIN);
-					}
+				foreach ($array_boards as $this_board_name) {
+					setcookie("kumod", "yes", time() + 3600, KU_BOARDSFOLDER . $this_board_name . "/", KU_DOMAIN);
 				}
 			}
 		}
@@ -752,148 +747,6 @@ class Manage {
 					<input type="text" name="locale" value="'.$lineboard['locale'].'">
 					<div class="desc">Locale to use on this board.  Leave blank to use the locale defined in config.php</div><br>';
 					
-					/* Board type */
-					$tpl_page .= '<label for="type">'._gettext('Board type:').'</label>
-					<select name="type">
-					<option value="0"';
-					if ($lineboard['type'] == '0') { $tpl_page .= ' selected'; }
-					$tpl_page .= '>'._gettext('Normal imageboard').'</option>
-					<option value="1"';
-					if ($lineboard['type'] == '1') { $tpl_page .= ' selected'; }
-					$tpl_page .= '>'._gettext('Text board').'</option><option value="2"';
-					if ($lineboard['type'] == '2') { $tpl_page .= ' selected'; }
-					$tpl_page .= '>'._gettext('Oekaki imageboard').'</option><option value="3"';
-					if ($lineboard['type'] == '3') { $tpl_page .= ' selected'; }
-					$tpl_page .= '>'._gettext('Upload imageboard').'</option>
-					</select>
-					<div class="desc">'._gettext('The type of posts which will be accepted on this board.  A normal imageboard will feature image and extended format posts, a text board will have no images, an Oekaki board will allow users to draw images and use them in their posts, and an Upload imageboard will be styled more towards file uploads.').' '._gettext('Default').': <b>Normal Imageboard</b></div><br>';
-					
-					/* Upload type */
-					$tpl_page .= '<label for="uploadtype">'._gettext('Upload type:').'</label>
-					<select name="uploadtype">
-					<option value="0"';
-					if ($lineboard['uploadtype'] == '0') {
-						$tpl_page .= ' selected';
-					}
-					$tpl_page .= '>'._gettext('No embedding').'</option>
-					<option value="1"';
-					if ($lineboard['uploadtype'] == '1') {
-						$tpl_page .= ' selected';
-					}
-					$tpl_page .= '>'._gettext('Images and embedding').'</option>
-					<option value="2"';
-					if ($lineboard['uploadtype'] == '2') {
-						$tpl_page .= ' selected';
-					}
-					$tpl_page .= '>'._gettext('Embedding only').'</option>
-					</select>
-					<div class="desc">'._gettext('Whether or not to allow embedding of videos.').' '._gettext('Default').'.: <b>No Embedding</b></div><br>';
-					
-					/* Order */
-					$tpl_page .= '<label for="order">'._gettext('Order').':</label>
-					<input type="text" name="order" value="'.$lineboard['order'].'">
-					<div class="desc">'._gettext('Order to show board in menu list, in ascending order.').' '._gettext('Default').': <b>0</b></div><br>';
-					
-					/* Section */
-					$tpl_page .= '<label for="section">'._gettext('Section').':</label>
-					<input type="text" name="section" value="'.$lineboard['section'].'">
-					<div class="desc">'._gettext('The section the board is in.  This is used for displaying the list of boards on the top and bottom of pages.').'<br>If this is set to 0, <b>it will not be shown in the menu</b>.</div><br>';
-					
-					/* Load balancer URL */
-					$tpl_page .= '<label for="loadbalanceurl">Load balance URL:</label>
-					<input type="text" name="loadbalanceurl" value="'.$lineboard['loadbalanceurl'].'">
-					<div class="desc">The full http:// URL to the load balance script for this board.  The script will handle file uploads, and creation of thumbnails.  Only one script per board can be used, and there must be a src and thumb dir in the same folder as the script.  Set to nothing to disable.</div><br>';
-					
-					/* Load balancer password */
-					$tpl_page .= '<label for="loadbalancepassword">Load balance password:</label>
-					<input type="text" name="loadbalancepassword" value="'.$lineboard['loadbalancepassword'].'">
-					<div class="desc">The password which will be passed to the script above.  The script must have this same password entered at the top, in the configuration area.</div><br>';
-					
-					/* Allowed filetypes */
-					$tpl_page .= '<label>'._gettext('Allowed filetypes').':</label>
-					<div class="desc">'._gettext('What filetypes users are allowed to upload.').'</div><br>';
-					$filetypes = $db->GetAll("SELECT HIGH_PRIORITY `id`, `filetype` FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
-					foreach ($filetypes as $filetype) {
-						$tpl_page .= '<label for="filetype_gif">' . strtoupper($filetype['filetype']) . '</label><input type="checkbox" name="filetype_' . $filetype['id'] . '"';
-						$filetype_isenabled = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $lineboard['id'] . "' AND `typeid` = '" . $filetype['id'] . "' LIMIT 1");
-						if ($filetype_isenabled == 1) {
-							$tpl_page .= ' checked';
-						}
-						$tpl_page .= '><br>';
-					}
-	
-					/* Maximum image size */
-					$tpl_page .= '<label for="maximagesize">'._gettext('Maximum image size').':</label>
-					<input type="text" name="maximagesize" value="'.$lineboard['maximagesize'].'">
-					<div class="desc">'._gettext('Maxmimum size of uploaded images, in <b>bytes</b>.') . ' ' . _gettext('Default').': <b>1024000</b></div><br>';
-					
-					/* Maximum message length */
-					$tpl_page .= '<label for="messagelength">'._gettext('Maximum message length').':</label>
-					<input type="text" name="messagelength" value="'.$lineboard['messagelength'].'">
-					<div class="desc">'._gettext('Default').': <b>8192</b></div><br>';
-					
-					/* Maximum board pages */
-					$tpl_page .= '<label for="maxpages">'._gettext('Maximum board pages').':</label>
-					<input type="text" name="maxpages" value="'.$lineboard['maxpages'].'">
-					<div class="desc">'._gettext('Default').': <b>10</b></div><br>';
-	
-					/* Maximum thread age */
-					$tpl_page .= '<label for="maxage">'._gettext('Maximum thread age (Hours)').':</label>
-					<input type="text" name="maxage" value="'.$lineboard['maxage'].'">
-					<div class="desc">'._gettext('Default').': <b>0</b></div><br>';
-					
-					/* Mark page */
-					$tpl_page .= '<label for="maxage">Mark page:</label>
-					<input type="text" name="markpage" value="'.$lineboard['markpage'].'">
-					<div class="desc">Threads which reach this page or further will be marked to be deleted in two hours. '._gettext('Default').': <b>9</b></div><br>';
-					
-					/* Maximum thread replies */
-					$tpl_page .= '<label for="maxreplies">'._gettext('Maximum thread replies').':</label>
-					<input type="text" name="maxreplies" value="'.$lineboard['maxreplies'].'">
-					<div class="desc">'._gettext('The number of replies a thread can have before autosaging to the back of the board.') . ' ' . _gettext('Default').': <b>200</b></div><br>';
-					
-					/* Header image */
-					$tpl_page .= '<label for="image">'._gettext('Header image').':</label>
-					<input type="text" name="image" value="'.$lineboard['image'].'">
-					<div class="desc">'._gettext('Overrides the header set in the config file.  Leave blank to use configured global header image.  Needs to be a full url including http://.  Set to none to show no header image.').'</div><br>';
-	
-					/* Include header */
-					$tpl_page .= '<label for="includeheader">'._gettext('Include header').':</label>
-					<textarea name="includeheader" rows="12" cols="80">'.$lineboard['includeheader'].'</textarea>
-					<div class="desc">'._gettext('Raw HTML which will be inserted at the top of each page of the board.').'</div><br>';
-					
-					/* Anonymous */
-					$tpl_page .= '<label for="anonymous">Anonymous:</label>
-					<input type="text" name="anonymous" value="' . $lineboard['anonymous'] . '">
-					<div class="desc">'._gettext('Name to display when a name is not attached to a post.') . ' ' . _gettext('Default').': <b>Anonymous</b></div><br>';
-					
-					/* Locked */
-					$tpl_page .= '<label for="locked">'._gettext('Locked').':</label>
-					<input type="checkbox" name="locked" ';
-					if ($lineboard['locked'] == '1') {
-						$tpl_page .= 'checked ';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('Only moderators of the board and admins can make new posts/replies').'</div><br>';
-					
-					/* Show ID */
-					$tpl_page .= '<label for="showid">Show ID:</label>
-					<input type="checkbox" name="showid" ';
-					if ($lineboard['showid'] == '1') {
-						$tpl_page .= 'checked ';
-					}
-					$tpl_page .= '>
-					<div class="desc">If enabled, each post will display the poster\'s ID, which is a representation of their IP address.</div><br>';
-					
-					/* Show ID */
-					$tpl_page .= '<label for="compactlist">Compact list:</label>
-					<input type="checkbox" name="compactlist" ';
-					if ($lineboard['compactlist'] == '1') {
-						$tpl_page .= 'checked ';
-					}
-					$tpl_page .= '>
-					<div class="desc">' . _gettext('Text boards only.  If enabled, the list of threads displayed on the front page will be formatted differently to be compact.') . '</div><br>';
-					
 					/* Enable reporting */
 					$tpl_page .= '<label for="enablereporting">'._gettext('Enable reporting:').'</label>
 					<input type="checkbox" name="enablereporting"';
@@ -902,15 +755,6 @@ class Manage {
 					}
 					$tpl_page .= '>' . "\n" .
 					'<div class="desc">'._gettext('Reporting allows users to report posts, adding the post to the report list.').' '._gettext('Default').': <b>'._gettext('Yes').'</b></div><br>';
-					
-					/* Enable captcha */
-					$tpl_page .= '<label for="enablecaptcha">'._gettext('Enable captcha:').'</label>
-					<input type="checkbox" name="enablecaptcha"';
-					if ($lineboard['enablecaptcha'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('Enable/disable captcha system for this board.  If captcha is enabled, in order for a user to post, they must first correctly enter the text on an image.').' '._gettext('Default').': <b>'._gettext('No').'</b></div><br>';
 					
 					/* Enable archiving */
 					$tpl_page .= '<label for="enablearchiving">Enable archiving:</label>
@@ -929,51 +773,6 @@ class Manage {
 					}
 					$tpl_page .= '>
 					<div class="desc">If set to yes, a catalog.html file will be built with the other files, displaying the original picture of every thread in a box.  This will only work on normal/oekaki imageboards. ' . _gettext('Default').': <b>'._gettext('Yes').'</b></div><br>';
-					
-					/* Enable "no file" posting */
-					$tpl_page .= '<label for="enablenofile">'._gettext('Enable "no file" posting').':</label>
-					<input type="checkbox" name="enablenofile"';
-					if ($lineboard['enablenofile'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('If set to yes, new threads will not require an image to be posted.') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
-	
-					/* Redirect to thread */
-					$tpl_page .= '<label for="redirecttothread">'._gettext('Redirect to thread').':</label>
-					<input type="checkbox" name="redirecttothread"';
-					if ($lineboard['redirecttothread'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('If set to yes, users will be redirected to the thread they replied to/posted after posting.  If set to no, users will be redirected to the first page of the board.') . ' ' . _gettext('Default').': <b>'.('No').'</b></div><br>';
-					
-					/* Forced anonymous */
-					$tpl_page .= '<label for="forcedanon">'._gettext('Forced anonymous').':</label>
-					<input type="checkbox" name="forcedanon"';
-					if ($lineboard['forcedanon'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('If set to yes, users will not be allowed to enter a name, making everyone appear as Anonymous') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
-	
-					/* Trial */
-					$tpl_page .= '<label for="trial">'._gettext('Trial').':</label>
-					<input type="checkbox" name="trial"';
-					if ($lineboard['trial'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('If set to yes, this board will appear in italics in the menu') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
-					
-					/* Popular */
-					$tpl_page .= '<label for="popular">'._gettext('Popular').':</label>
-					<input type="checkbox" name="popular"';
-					if ($lineboard['popular'] == '1') {
-						$tpl_page .= ' checked';
-					}
-					$tpl_page .= '>
-					<div class="desc">'._gettext('If set to yes, this board will appear in bold in the menu') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
 					
 					/* Default style */
 					$tpl_page .= '<label for="defaultstyle">'._gettext('Default style:').'</label>
@@ -999,6 +798,232 @@ class Manage {
 					
 					$tpl_page .= '</select>
 					<div class="desc">'._gettext('The style which will be set when the user first visits the board.').' '._gettext('Default').': <b>Use Default</b></div><br>';
+					
+					/* Page layout opts */
+					$tpl_page .= '<fieldset>
+					<legend>Page Layout</legend>';
+					
+						/* Board type */
+						$tpl_page .= '<label for="type">'._gettext('Board type:').'</label>
+						<select name="type">
+						<option value="0"';
+						if ($lineboard['type'] == '0') { $tpl_page .= ' selected'; }
+						$tpl_page .= '>'._gettext('Normal imageboard').'</option>
+						<option value="1"';
+						if ($lineboard['type'] == '1') { $tpl_page .= ' selected'; }
+						$tpl_page .= '>'._gettext('Text board').'</option><option value="2"';
+						if ($lineboard['type'] == '2') { $tpl_page .= ' selected'; }
+						$tpl_page .= '>'._gettext('Oekaki imageboard').'</option><option value="3"';
+						if ($lineboard['type'] == '3') { $tpl_page .= ' selected'; }
+						$tpl_page .= '>'._gettext('Upload imageboard').'</option>
+						</select>
+						<div class="desc">'._gettext('The type of posts which will be accepted on this board.  A normal imageboard will feature image and extended format posts, a text board will have no images, an Oekaki board will allow users to draw images and use them in their posts, and an Upload imageboard will be styled more towards file uploads.').' '._gettext('Default').': <b>Normal Imageboard</b></div><br>';
+						
+						/* Include header */
+						$tpl_page .= '<label for="includeheader">'._gettext('Include header').':</label>
+						<textarea name="includeheader" rows="12" cols="80">'.$lineboard['includeheader'].'</textarea>
+						<div class="desc">'._gettext('Raw HTML which will be inserted at the top of each page of the board.').'</div><br>';
+						
+						/* Anonymous */
+						$tpl_page .= '<label for="anonymous">Anonymous:</label>
+						<input type="text" name="anonymous" value="' . $lineboard['anonymous'] . '">
+						<div class="desc">'._gettext('Name to display when a name is not attached to a post.') . ' ' . _gettext('Default').': <b>Anonymous</b></div><br>';
+						
+						/* Show ID */
+						$tpl_page .= '<label for="showid">Show ID:</label>
+						<input type="checkbox" name="showid" ';
+						if ($lineboard['showid'] == '1') {
+							$tpl_page .= 'checked ';
+						}
+						$tpl_page .= '>
+						<div class="desc">If enabled, each post will display the poster\'s ID, which is a representation of their IP address.</div><br>';
+						
+					$tpl_page .= '</fieldset>';
+					
+					/* Posting configuration opts */
+					$tpl_page .= '<fieldset>
+					<legend>Posting Configuration</legend>';
+					
+						/* Maximum message length */
+						$tpl_page .= '<label for="messagelength">'._gettext('Maximum message length').':</label>
+						<input type="text" name="messagelength" value="'.$lineboard['messagelength'].'">
+						<div class="desc">'._gettext('Default').': <b>8192</b></div><br>';
+						
+						/* Maximum board pages */
+						$tpl_page .= '<label for="maxpages">'._gettext('Maximum board pages').':</label>
+						<input type="text" name="maxpages" value="'.$lineboard['maxpages'].'">
+						<div class="desc">'._gettext('Default').': <b>10</b></div><br>';
+		
+						/* Maximum thread age */
+						$tpl_page .= '<label for="maxage">'._gettext('Maximum thread age (Hours)').':</label>
+						<input type="text" name="maxage" value="'.$lineboard['maxage'].'">
+						<div class="desc">'._gettext('Default').': <b>0</b></div><br>';
+						
+						/* Mark page */
+						$tpl_page .= '<label for="maxage">Mark page:</label>
+						<input type="text" name="markpage" value="'.$lineboard['markpage'].'">
+						<div class="desc">Threads which reach this page or further will be marked to be deleted in two hours. '._gettext('Default').': <b>9</b></div><br>';
+						
+						/* Maximum thread replies */
+						$tpl_page .= '<label for="maxreplies">'._gettext('Maximum thread replies').':</label>
+						<input type="text" name="maxreplies" value="'.$lineboard['maxreplies'].'">
+						<div class="desc">'._gettext('The number of replies a thread can have before autosaging to the back of the board.') . ' ' . _gettext('Default').': <b>200</b></div><br>';
+						
+						/* Locked */
+						$tpl_page .= '<label for="locked">'._gettext('Locked').':</label>
+						<input type="checkbox" name="locked" ';
+						if ($lineboard['locked'] == '1') {
+							$tpl_page .= 'checked ';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('Only moderators of the board and admins can make new posts/replies').'</div><br>';
+						
+						/* Enable captcha */
+						$tpl_page .= '<label for="enablecaptcha">'._gettext('Enable captcha:').'</label>
+						<input type="checkbox" name="enablecaptcha"';
+						if ($lineboard['enablecaptcha'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('Enable/disable captcha system for this board.  If captcha is enabled, in order for a user to post, they must first correctly enter the text on an image.').' '._gettext('Default').': <b>'._gettext('No').'</b></div><br>';
+						
+						/* Redirect to thread */
+						$tpl_page .= '<label for="redirecttothread">'._gettext('Redirect to thread').':</label>
+						<input type="checkbox" name="redirecttothread"';
+						if ($lineboard['redirecttothread'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('If set to yes, users will be redirected to the thread they replied to/posted after posting.  If set to no, users will be redirected to the first page of the board.') . ' ' . _gettext('Default').': <b>'.('No').'</b></div><br>';
+						
+						/* Forced anonymous */
+						$tpl_page .= '<label for="forcedanon">'._gettext('Forced anonymous').':</label>
+						<input type="checkbox" name="forcedanon"';
+						if ($lineboard['forcedanon'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('If set to yes, users will not be allowed to enter a name, making everyone appear as Anonymous') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
+
+					$tpl_page .= '</fieldset>';
+					
+					/* Menu opts */
+					$tpl_page .= '<fieldset>
+					<legend>Menu</legend>';
+					
+						/* Order */
+						$tpl_page .= '<label for="order">'._gettext('Order').':</label>
+						<input type="text" name="order" value="'.$lineboard['order'].'">
+						<div class="desc">'._gettext('Order to show board in menu list, in ascending order.').' '._gettext('Default').': <b>0</b></div><br>';
+						
+						/* Section */
+						$tpl_page .= '<label for="section">'._gettext('Section').':</label>
+						<input type="text" name="section" value="'.$lineboard['section'].'">
+						<div class="desc">'._gettext('The section the board is in.  This is used for displaying the list of boards on the top and bottom of pages.').' If this is set to 0, <b>it will not be shown in the menu</b>.</div><br>';
+						
+						/* Trial */
+						$tpl_page .= '<label for="trial">'._gettext('Trial').':</label>
+						<input type="checkbox" name="trial"';
+						if ($lineboard['trial'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('If set to yes, this board will appear in italics in the menu') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
+						
+						/* Popular */
+						$tpl_page .= '<label for="popular">'._gettext('Popular').':</label>
+						<input type="checkbox" name="popular"';
+						if ($lineboard['popular'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('If set to yes, this board will appear in bold in the menu') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
+
+					$tpl_page .= '</fieldset>';
+					
+					/* Imageboard opts */
+					$tpl_page .= '<fieldset>
+					<legend>Imageboards</legend>';
+					
+						/* Upload type */
+						$tpl_page .= '<label for="uploadtype">'._gettext('Upload type:').'</label>
+						<select name="uploadtype">
+						<option value="0"';
+						if ($lineboard['uploadtype'] == '0') {
+							$tpl_page .= ' selected';
+						}
+						$tpl_page .= '>'._gettext('No embedding').'</option>
+						<option value="1"';
+						if ($lineboard['uploadtype'] == '1') {
+							$tpl_page .= ' selected';
+						}
+						$tpl_page .= '>'._gettext('Images and embedding').'</option>
+						<option value="2"';
+						if ($lineboard['uploadtype'] == '2') {
+							$tpl_page .= ' selected';
+						}
+						$tpl_page .= '>'._gettext('Embedding only').'</option>
+						</select>
+						<div class="desc">'._gettext('Whether or not to allow embedding of videos.').' '._gettext('Default').'.: <b>No Embedding</b></div><br>';
+						
+						/* Load balancer URL */
+						$tpl_page .= '<label for="loadbalanceurl">Load balance URL:</label>
+						<input type="text" name="loadbalanceurl" value="'.$lineboard['loadbalanceurl'].'">
+						<div class="desc">The full http:// URL to the load balance script for this board.  The script will handle file uploads, and creation of thumbnails.  Only one script per board can be used, and there must be a src and thumb dir in the same folder as the script.  Set to nothing to disable.</div><br>';
+						
+						/* Load balancer password */
+						$tpl_page .= '<label for="loadbalancepassword">Load balance password:</label>
+						<input type="text" name="loadbalancepassword" value="'.$lineboard['loadbalancepassword'].'">
+						<div class="desc">The password which will be passed to the script above.  The script must have this same password entered at the top, in the configuration area.</div><br>';
+						
+						/* Allowed filetypes */
+						$tpl_page .= '<label>'._gettext('Allowed filetypes').':</label>
+						<div class="desc">'._gettext('What filetypes users are allowed to upload.').'</div><br>';
+						$filetypes = $db->GetAll("SELECT HIGH_PRIORITY `id`, `filetype` FROM `" . KU_DBPREFIX . "filetypes` ORDER BY `filetype` ASC");
+						foreach ($filetypes as $filetype) {
+							$tpl_page .= '<label for="filetype_gif">' . strtoupper($filetype['filetype']) . '</label><input type="checkbox" name="filetype_' . $filetype['id'] . '"';
+							$filetype_isenabled = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "board_filetypes` WHERE `boardid` = '" . $lineboard['id'] . "' AND `typeid` = '" . $filetype['id'] . "' LIMIT 1");
+							if ($filetype_isenabled == 1) {
+								$tpl_page .= ' checked';
+							}
+							$tpl_page .= '><br>';
+						}
+		
+						/* Maximum image size */
+						$tpl_page .= '<label for="maximagesize">'._gettext('Maximum image size').':</label>
+						<input type="text" name="maximagesize" value="'.$lineboard['maximagesize'].'">
+						<div class="desc">'._gettext('Maxmimum size of uploaded images, in <b>bytes</b>.') . ' ' . _gettext('Default').': <b>1024000</b></div><br>';
+						
+						/* Header image */
+						$tpl_page .= '<label for="image">'._gettext('Header image').':</label>
+						<input type="text" name="image" value="'.$lineboard['image'].'">
+						<div class="desc">'._gettext('Overrides the header set in the config file.  Leave blank to use configured global header image.  Needs to be a full url including http://.  Set to none to show no header image.').'</div><br>';
+		
+						/* Enable "no file" posting */
+						$tpl_page .= '<label for="enablenofile">'._gettext('Enable "no file" posting').':</label>
+						<input type="checkbox" name="enablenofile"';
+						if ($lineboard['enablenofile'] == '1') {
+							$tpl_page .= ' checked';
+						}
+						$tpl_page .= '>
+						<div class="desc">'._gettext('If set to yes, new threads will not require an image to be posted.') . ' ' . _gettext('Default').': <b>'._gettext('No').'</b></div><br>';
+						
+					$tpl_page .= '</fieldset>';
+					
+					/* Text board opts */
+					$tpl_page .= '<fieldset>
+					<legend>Text Boards</legend>';
+					
+						/* Compact list */
+						$tpl_page .= '<label for="compactlist">Compact list:</label>
+						<input type="checkbox" name="compactlist" ';
+						if ($lineboard['compactlist'] == '1') {
+							$tpl_page .= 'checked ';
+						}
+						$tpl_page .= '>
+						<div class="desc">' . _gettext('Text boards only.  If enabled, the list of threads displayed on the front page will be formatted differently to be compact.') . '</div><br>';
+						
+					$tpl_page .= '</fieldset>';
 					
 					/* Submit form */
 					$tpl_page .= '<input type="submit" name="submit_regenerate" value="'._gettext('Update and regenerate board').'"><br><input type="submit" name="submit_noregenerate" value="'._gettext('Update without regenerating board').'">
@@ -1715,13 +1740,13 @@ class Manage {
 							foreach ($results as $line) {
 								$delthread_id = $line['id'];
 							}
+							$board_class = new Board($board_dir);
 							$post_class = new Post($delthread_id, $board_dir);
 							if (isset($_POST['archive'])) {
 								$numposts_deleted = $post_class->Delete(true);
 							} else {
 								$numposts_deleted = $post_class->Delete();
 							}
-							$board_class = new Board($board_dir);
 							$board_class->RegenerateAll();
 							$tpl_page .= _gettext('Thread '.$delthread_id.' successfully deleted.');
 							management_addlogentry(_gettext('Deleted thread') . ' #<a href="?action=viewdeletedthread&threadid=' . $delthread_id . '&board=' . $_POST['boarddir'] . '">' . $delthread_id . '</a> (' . $numposts_deleted . ' replies) - /' . $board_dir . '/', 7);
@@ -1742,9 +1767,9 @@ class Manage {
 								$delpost_id = $line['id'];
 								$delpost_parentid = $line['parentid'];
 							}
+							$board_class = new Board($board_dir);
 							$post_class = new Post($delpost_id, $board_dir);
 							$post_class->Delete();
-							$board_class = new Board($board_dir);
 							$board_class->RegenerateThread($delpost_parentid);
 							$board_class->RegeneratePages();
 							$tpl_page .= _gettext('Post '.$delpost_id.' successfully deleted.');
@@ -2104,7 +2129,7 @@ class Manage {
 							  KEY `filemd5` (`filemd5`),
 							  KEY `stickied` (`stickied`)
 							) ENGINE=InnoDB AUTO_INCREMENT=" . mysql_real_escape_string($_POST['firstpostid']) . ";");
-							$filetypes = $db->GetAll("SELECT " . KU_DBPREFIX . "filetypes.id FROM " . KU_DBPREFIX . "filetypes WHERE " . KU_DBPREFIX . "filetypes.filetype = 'JPG' OR " . KU_DBPREFIX . "filetypes.filetype = 'GIF' OR " . KU_DBPREFIX . "filetypes.filetype = 'PNG';");
+							$filetypes = $db->GetAll('SELECT `' . KU_DBPREFIX . 'filetypes`.`id` FROM `' . KU_DBPREFIX . 'filetypes` WHERE `' . KU_DBPREFIX . 'filetypes`.`filetype` = \'JPG\' OR `' . KU_DBPREFIX . 'filetypes`.`filetype` = \'GIF\' OR `' . KU_DBPREFIX . 'filetypes`.`filetype` = \'PNG\'');
 							foreach ($filetypes AS $filetype) {
 								$db->Execute("INSERT INTO `" . KU_DBPREFIX . "board_filetypes` ( `boardid` , `typeid` ) VALUES ( " . $boardid . " , " . $filetype['id'] . " );");
 							}
@@ -2928,11 +2953,147 @@ class Manage {
 		global $db, $smarty, $tpl_page;
 		
 		$tpl_page .= '<h2>Statistics</h2><br>';
-		$tpl_page .= '<img src="manage_page.php?graph&type=day"> 
+		/*$tpl_page .= '<img src="manage_page.php?graph&type=day"> 
 		<img src="manage_page.php?graph&type=week"> 
 		<img src="manage_page.php?graph&type=postnum"> 
 		<img src="manage_page.php?graph&type=unique"> 
-		<img src="manage_page.php?graph&type=posttime">';
+		<img src="manage_page.php?graph&type=posttime">';*/
+		
+		require KU_ROOTDIR . 'lib/fusioncharts/FusionCharts.php';
+		$tpl_page .= '<SCRIPT LANGUAGE="Javascript" SRC="' . KU_WEBPATH . '/lib/fusioncharts/FusionCharts.js"></SCRIPT>';
+		
+		$graph_width = 1000;
+		$graph_height = 550;
+		$graph_swf = KU_WEBPATH . '/lib/fusioncharts/FCF_Column3D.swf';
+		
+		/* Day */
+			$data = array();
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			if (count($results) > 0) {
+				$data = array();
+				foreach ($results as $line) {
+					$posts = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 86400) . "");
+					
+					$data = array_merge($data, array($line['name'] => $posts));
+				}
+			}
+			arsort($data, SORT_NUMERIC);
+			
+			$strXML = "<graph caption='Posts per board in past 24hrs' xAxisName='Board' yAxisName='Posts' decimalPrecision='0' formatNumberScale='0'>";
+			foreach ($data as $key => $value) {
+				$strXML .= '<set name=\'' . $key . '\' value=\'' . $value . '\' />';
+			}
+			$strXML .= '</graph>';
+			
+			$tpl_page .= renderChart($graph_swf, '', $strXML, '24hrs', $graph_width, $graph_height);
+			
+		/* Week */
+			$data = array();
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			if (count($results) > 0) {
+				$data = array();
+				foreach ($results as $line) {
+					$posts = $db->GetOne("SELECT HIGH_PRIORITY COUNT(*) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . "");
+					
+					$data = array_merge($data, array($line['name'] => $posts));
+				}
+			}
+			arsort($data, SORT_NUMERIC);
+			
+			$strXML = "<graph caption='Posts per board in past week' xAxisName='Board' yAxisName='Posts' decimalPrecision='0' formatNumberScale='0'>";
+			foreach ($data as $key => $value) {
+				$strXML .= '<set name=\'' . $key . '\' value=\'' . $value . '\' />';
+			}
+			$strXML .= '</graph>';
+			
+			$tpl_page .= renderChart($graph_swf, '', $strXML, 'week', $graph_width, $graph_height);
+			
+		/* Total Posts */
+			$data = array();
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			if (count($results) > 0) {
+				$data = array();
+				foreach ($results as $line) {
+					$posts = $db->GetOne("SELECT `id` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` ORDER BY `id` DESC LIMIT 1");
+					
+					$data = array_merge($data, array($line['name'] => $posts));
+				}
+			}
+			arsort($data, SORT_NUMERIC);
+			
+			$strXML = "<graph caption='Total posts per board' xAxisName='Board' yAxisName='Posts' decimalPrecision='0' formatNumberScale='0'>";
+			foreach ($data as $key => $value) {
+				$strXML .= '<set name=\'' . $key . '\' value=\'' . $value . '\' />';
+			}
+			$strXML .= '</graph>';
+			
+			$tpl_page .= renderChart($graph_swf, '', $strXML, 'total', $graph_width, $graph_height);
+			
+		/* Unique Posts */
+			$data = array();
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			if (count($results) > 0) {
+				$data = array();
+				foreach ($results as $line) {
+					$posts = $db->GetOne("SELECT COUNT(DISTINCT `ipmd5`) FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `IS_DELETED` = 0");
+					
+					$data = array_merge($data, array($line['name'] => $posts));
+				}
+			}
+			arsort($data, SORT_NUMERIC);
+			
+			$strXML = "<graph caption='Unique posts per board' xAxisName='Board' yAxisName='Unique Posts' decimalPrecision='0' formatNumberScale='0'>";
+			foreach ($data as $key => $value) {
+				$strXML .= '<set name=\'' . $key . '\' value=\'' . $value . '\' />';
+			}
+			$strXML .= '</graph>';
+			
+			$tpl_page .= renderChart($graph_swf, '', $strXML, 'unique', $graph_width, $graph_height);
+			
+		/* #Minutes Delay */
+			$data = array();
+			$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "boards` ORDER BY `name` ASC");
+			if (count($results) > 0) {
+				$data = array();
+				foreach ($results as $line) {
+					$posts = $db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $line['name'] . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
+					if (count($posts) > 0) {
+						$i = 0;
+						$lastpost_time = 0;
+						$times = array();
+						foreach ($posts as $post) {
+							$i++;
+							if ($i > 1) {
+								$times[] = ($post['postedat'] - $lastpost_time);
+							}
+							$lastpost_time = $post['postedat'];
+						}
+						
+						$times_sum = array_sum($times);
+						if ($times_sum > 0) {
+							$times_sum = ($times_sum / 60);
+							$times_avg = ($times_sum / count($times));
+						} else {
+							$times_avg = 0;
+						}
+					} else {
+						$times_avg = 0;
+					}
+					
+					if ($times_avg > 0) {
+						$data = array_merge($data, array($line['name'] => $times_avg));
+					}
+				}
+			}
+			arsort($data, SORT_NUMERIC);
+			
+			$strXML = "<graph caption='Average time between posts' xAxisName='Board' yAxisName='Minutes' decimalPrecision='0' formatNumberScale='0'>";
+			foreach ($data as $key => $value) {
+				$strXML .= '<set name=\'' . $key . '\' value=\'' . $value . '\' />';
+			}
+			$strXML .= '</graph>';
+			
+			$tpl_page .= renderChart($graph_swf, '', $strXML, 'minutes', $graph_width, $graph_height);
 	}
 	
 	/* If the user logged in isn't an admin, kill the script */

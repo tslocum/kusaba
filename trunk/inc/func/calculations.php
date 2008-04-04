@@ -146,7 +146,7 @@ function calculateThreadLifespan($id, $threadpage, $threadposition, $board, $boa
 }
 
 function cleanBoardName($board) {
-	return trim(str_replace('/', '', str_replace('|', '', str_replace(' ', '', $board))));
+	return trim(str_replace('/', '', str_replace('|', '', str_replace(' ', '', str_replace('.', '', $board)))));
 }
 
 /**

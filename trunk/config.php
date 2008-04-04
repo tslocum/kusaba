@@ -169,16 +169,17 @@ if (!$cache_loaded) {
 		                       'Other'    => '*'); /* Used only in Upload imageboards.  These are the tags which a user may choose to use as they are posting a file.  If you wish to disable tagging on Upload imageboards, set this to '' */
 	
 	/* Special Tripcodes */
-		$cf['KU_TRIPS'] = array('#changeme'  => 'changeme',
-		                        '#changeme2' => 'changeme2'); /* Special tripcodes which can have a predefined output.  Do not include the initial ! in the output.  Maximum length for the output is 30 characters.  Set to array(); to disable */
+		$cf['KU_TRIPS'] = array(); /* Special tripcodes which can have a predefined output.  Do not include the initial ! in the output.  Maximum length for the output is 30 characters.  Example: array('#changeme'  => 'changeme', '#changeme2' => 'changeme2'); Set to array(); to disable */
 	
 	/* Extra features */
-		$cf['KU_RSS']             = true; /* Whether or not to enable the generation of rss for each board and modlog */
-		$cf['KU_EXPAND']          = true; /* Whether or not to add the expand button to threads viewed on board pages */
-		$cf['KU_QUICKREPLY']      = true; /* Whether or not to add quick reply links on posts */
-		$cf['KU_WATCHTHREADS']    = true; /* Whether or not to add thread watching capabilities */
-		$cf['KU_FIRSTLAST']       = true; /* Whether or not to generate extra files for the first 100 posts/last 50 posts */
-		$cf['KU_BLOTTER']         = true; /* Whether or not to enable the blotter feature */
+		$cf['KU_RSS']             = false; /* Whether or not to enable the generation of rss for each board and modlog */
+		$cf['KU_HIDE']            = false; /* Whether or not to add the hide thread button to pages */
+		$cf['KU_EXPAND']          = false; /* Whether or not to add the expand button to threads viewed on board pages */
+		$cf['KU_QUICKREPLY']      = false; /* Whether or not to add quick reply links on posts */
+		$cf['KU_WATCHTHREADS']    = false; /* Whether or not to add thread watching capabilities */
+		$cf['KU_POSTSPY']         = false; /* Whether or not to allow users to enable the Post Spy feature */
+		$cf['KU_FIRSTLAST']       = false; /* Whether or not to generate extra files for the first 100 posts/last 50 posts */
+		$cf['KU_BLOTTER']         = false; /* Whether or not to enable the blotter feature */
 		$cf['KU_SITEMAP']         = false; /* Whether or not to enable automatic sitemap generation (you will still need to link the search engine sites to the sitemap.xml file) */
 		$cf['KU_APPEAL']          = ''; /* List of email addresses separated by colons to send ban appeal messages to.  Set to '' to disable the ban appeal system */
 		$cf['KU_PINGBACK']        = ''; /* The password to use when making a ping to the chan directory.  Set to '' to disable */

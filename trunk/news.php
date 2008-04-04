@@ -56,16 +56,17 @@ $linkbar .= ($_GET['p']=='rules') ? _gettext('Rules') : '<a href="news.php?p=rul
 
 /* Don't worry about this, it only applies to my personal installation of kusaba */
 if (isset($kusabaorg)) {
-	$linkbar .= '<br><!-- Begin: AdBrite -->
-	<script type="text/javascript">
-	   var AdBrite_Title_Color = \'CC1105\';
-	   var AdBrite_Text_Color = \'800000\';
-	   var AdBrite_Background_Color = \'FFFFEE\';
-	   var AdBrite_Border_Color = \'FFFFEE\';
-	</script>
-	<span style="white-space:nowrap;"><script src="http://ads.adbrite.com/mb/text_group.php?sid=568716&amp;zs=3732385f3930" type="text/javascript"></script><!--
-	--><a target="_top" href="http://www.adbrite.com/mb/commerce/purchase_form.php?opid=568716&amp;afsid=1"><img src="http://files.adbrite.com/mb/images/adbrite-your-ad-here-leaderboard.gif" style="background-color:#FFFFEE;border:none;padding:0;margin:0;" alt="Your Ad Here" width="14" height="90" border="0"></a></span>
-	<!-- End: AdBrite --><br>';
+	$linkbar .= '<br><br><script type="text/javascript"><!--' . "\n" .
+	'google_ad_client = "pub-6158454562572132";' . "\n" .
+	'/* kusaba Front Page */' . "\n" .
+	'google_ad_slot = "5351882175";' . "\n" .
+	'google_ad_width = 728;' . "\n" .
+	'google_ad_height = 90;' . "\n" .
+	'//-->' . "\n" .
+	'</script>' . "\n" .
+	'<script type="text/javascript"' . "\n" .
+	'src="http://pagead2.googlesyndication.com/pagead/show_ads.js">' . "\n" .
+	'</script><br>' . "\n";
 }
 
 $smarty->assign('linkbar', $linkbar);

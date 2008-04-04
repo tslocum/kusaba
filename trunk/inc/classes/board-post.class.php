@@ -42,6 +42,12 @@ class Board {
 	 */	 
 	var $board_type;
 	/**
+	 * Human-readable representation of the board type
+	 * 
+	 * @var string Board type (readable)
+	 */	 
+	var $board_type_readable;
+	/**
 	 * Upload types are: 0 - File upload only, 1 - File upload and video
 	 * embedding allowed, 2 - Video embedding only
 	 * 	 	 	
@@ -872,7 +878,7 @@ class Board {
 						foreach($results_replies AS $line_reply) {
 							$buildthread_replies .= $this->BuildPost($page, $this->board_dir, $this->board_type, $line_reply);
 						}
-						if (!$page && $expandjavascript != '') {
+						if (KU_EXPAND && !$page && $expandjavascript != '') {
 							$expandjavascript = '<a href="#" onclick="javascript:' . $expandjavascript . 'return false;">' . _gettext('Expand all images') . '</a>';
 						} else {
 							$expandjavascript = '';
@@ -885,22 +891,6 @@ class Board {
 							$buildthread_output_replies .= '</span>' . "\n";
 						}*/
 						
-						if (!$page) {
-							if ($modifier == 'first100') {
-								$buildthread_output_replies .= '<span class="omittedposts" style="float: left">' . "\n" .
-								'	 ' . ($numReplies - 100) . ' ';
-								$buildthread_output_replies .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
-								$buildthread_output_replies .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
-								'</span>' . "\n";
-							}
-							
-							if ($numReplies > 2) {
-								$buildthread_output_replies .= '<span style="float: right;">' . "\n" .
-								'	' . threadLinks('return', $thread_id, $this->board_dir, $this->board_type, ($numReplies > 49), ($numReplies > 99), true) .
-								'</span>' . "\n";
-							}
-						}
-						
 						if (KU_APC && $page) {
 							apc_store('buildthread|' . $this->board_dir . '|' . $thread_id . '|page|replies', $buildthread_output_replies, 600);
 						}
@@ -911,9 +901,38 @@ class Board {
 				
 				// }}}
 				
-				$buildthread_output .= '</div>' . "\n" . 
-				'<br clear="left">' . "\n" . 
+				$buildthread_output .= '</div>' . "\n";
+				if (!$page) {
+					if ($modifier == 'first100') {
+						$buildthread_output .= '<span class="omittedposts" style="float: left">' . "\n" .
+						'	 ' . ($numReplies - 100) . ' ';
+						$buildthread_output .= (($numReplies - 100) != 1) ? strtolower(_gettext('Posts')) : strtolower(_gettext('Post'));
+						$buildthread_output .= ' ' . _gettext('omitted') . '.  ' . _gettext('First 100 posts shown.') . "\n" .
+						'</span>' . "\n";
+					}
+					
+					if ($numReplies > 2) {
+						$buildthread_output .= '<span style="float: right;">' . "\n" .
+						'	' . threadLinks('return', $thread_id, $this->board_dir, $this->board_type, ($numReplies > 49), ($numReplies > 99), true) .
+						'</span>' . "\n";
+					}
+				}
+				$buildthread_output .= '<br clear="left">' . "\n" . 
 				'<hr>' . "\n";
+				
+				if (KU_POSTSPY) {
+					if (!$page && $this->board_type_readable != 'text') {
+						$lastid = $db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.$this->board_dir.'` WHERE `parentid` = '.mysql_real_escape_string($thread_id).' ' . $isdeleted_check . 'ORDER BY `id` DESC LIMIT 1');
+						
+						if ($lastid == '') {
+							$lastid = $thread_id;
+						}
+						
+						$buildthread_output .= '<script type="text/javascript"><!--' . "\n" .
+						'startPostSpyTimeout(\'' . $thread_id . '\', \'' . $this->board_dir . '\', \'' . $lastid . '\');' . "\n" .
+						'//--></script>' . "\n";
+					}
+				}
 			} elseif ($this->board_type_readable == 'upload' && $page) {
 				// {{{ Upload imageboard page generation
 				
@@ -1153,13 +1172,13 @@ class Board {
 				$info_post .= ' Estimated lifespan: ' . calculateThreadLifespan($post['id'], $page, $thread_relative_id, $this->board_dir, $this->board_maxpages, $this->board_maxage) . "\n";
 			}*/
 			$info_post .= '<span class="extrabtns">' . "\n";
-			if ($post['locked']==1) {
+			if ($post['locked'] == 1) {
 				$info_post .= '	 <img style="border: 0;" src="' . getCLBoardPath() . 'css/locked.gif" alt="'._gettext('Locked').'">' . "\n";
 			}
-			if ($post['stickied']==1) {
+			if ($post['stickied'] == 1) {
 				$info_post .= '	<img style="border: 0;" src="' . getCLBoardPath() . 'css/sticky.gif" alt="'._gettext('Stickied').'">' . "\n";
 			}
-			if ($page && $post_is_thread) {
+			if (KU_HIDE && $page && $post_is_thread) {
 				$info_post .= '	 <span id="hide' . $post['id'] . '"><a href="#" onclick="javascript:togglethread(\'' . $post_thread_start_id . $this->board_dir . '\');return false;" title="Hide Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidethread" alt="hide"></a></span>' . "\n";
 			}
 			if (KU_WATCHTHREADS && $post_is_thread) {
@@ -1459,11 +1478,17 @@ class Board {
 					$output .= '-&nbsp;';
 				}
 			}
+			$output .= '[<a href="'.KU_WEBPATH.'" target="_top">' . _gettext('Home') . '</a>]&nbsp;[<a href="' . KU_CGIPATH . '/manage.php" target="_top">' . _gettext('Manage') . '</a>]';
 			if (KU_WATCHTHREADS) {
-				$output .= '[<a href="#" onclick="javascript:showwatchedthreads();return false" title="' . _gettext('Watched Threads') . '">WT</a>]&nbsp;';
+				$output .= '&nbsp;[<a href="#" onclick="javascript:showwatchedthreads();return false" title="' . _gettext('Watched Threads') . '">WT</a>]';
 			}
-			$output .= '[<a href="'.KU_WEBPATH.'" target="_top">' . _gettext('Home') . '</a>]&nbsp;[<a href="' . KU_CGIPATH . '/manage.php" target="_top">' . _gettext('Manage') . '</a>]</div>' . "\n" .
+			if (KU_POSTSPY) {
+				$output .= '&nbsp;[<a href="#" onclick="javascript:togglePostSpy();return false" title="' . _gettext('Post Spy') . '">PS</a>]';
+			}
+			$output .='</div>' .
 			$this->DisplayBoardList(false);
+			
+			
 		} else {
 			$output .= $this->DisplayBoardList(true);
 		}
@@ -1483,17 +1508,12 @@ class Board {
 			$output .=  '<div id="ad" style="position: absolute;top:'.$ad_top.'px;right:'.$ad_right.'px">' . "\n" .
 			'<script type="text/javascript"><!--' . "\n" .
 			'google_ad_client = "pub-6158454562572132";' . "\n" .
+			'/* kusaba Imageboard */' . "\n" .
+			'google_ad_slot = "8847654193";' . "\n" .
 			'google_ad_width = 120;' . "\n" .
 			'google_ad_height = 240;' . "\n" .
-			'google_ad_format = "120x240_as";' . "\n" .
-			'google_ad_type = "text_image";' . "\n" .
-			'google_ad_channel = "7008956366";' . "\n" .
-			'google_color_border = "FFFFEE";' . "\n" .
-			'google_color_bg = "FFFFEE";' . "\n" .
-			'google_color_link = "800000";' . "\n" .
-			'google_color_text = "CB7E46";' . "\n" .
-			'google_color_url = "800000";' . "\n" .
-			'--></script>' . "\n" .
+			'//-->' . "\n" .
+			'</script>' . "\n" .
 			'<script type="text/javascript"' . "\n" .
 			'src="http://pagead2.googlesyndication.com/pagead/show_ads.js">' . "\n" .
 			'</script>' . "\n" .
@@ -1763,7 +1783,7 @@ class Board {
 		$results = $db->GetAll("SELECT `maximagesize` FROM `".KU_DBPREFIX."boards` WHERE `name` = '" . mysql_real_escape_string($board) . "' LIMIT 1");
 		foreach($results AS $line) {
 			$filetypes = '';
-			$filetypes_allowed = $db->GetAll("SELECT ".KU_DBPREFIX."filetypes.filetype FROM ".KU_DBPREFIX."boards, ".KU_DBPREFIX."filetypes, ".KU_DBPREFIX."board_filetypes WHERE ".KU_DBPREFIX."boards.id = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.boardid = " . $this->board_id . " AND ".KU_DBPREFIX."board_filetypes.typeid = ".KU_DBPREFIX."filetypes.id ORDER BY ".KU_DBPREFIX."filetypes.filetype ASC;");
+			$filetypes_allowed = $db->GetAll("SELECT `".KU_DBPREFIX."filetypes`.`filetype` FROM `".KU_DBPREFIX."boards`, `".KU_DBPREFIX."filetypes`, `".KU_DBPREFIX."board_filetypes` WHERE `".KU_DBPREFIX."boards`.`id` = " . $this->board_id . " AND `".KU_DBPREFIX."board_filetypes`.`boardid` = " . $this->board_id . " AND `".KU_DBPREFIX."board_filetypes`.`typeid` = `".KU_DBPREFIX."filetypes`.`id` ORDER BY `".KU_DBPREFIX."filetypes`.`filetype` ASC");
 			if ($filetypes_allowed == '') {
 				$filetypes = _gettext('None');
 			} else {
@@ -1813,9 +1833,10 @@ class Board {
 	 * @return string The generated postbox 	 	 	 	 	 
 	 */	
 	function Postbox($replythread = 0, $oekaki = '', $postboxnotice = '') {
-		global $db, $sevenchanorg;
+		global $db, $kusabaorg, $sevenchanorg;
 		
 		$output = '';
+		
 		if (isset($sevenchanorg)) {
 			if ($this->board_dir == 'test') { // Only NSFW boards
 				$output .= '<div id="ad" style="display: inline;position: absolute;right: 5px;">
@@ -1823,6 +1844,25 @@ class Board {
 				<script language="javascript" type="text/javascript" charset="utf-8" src="http://pages.etology.com/js2/43663.php"></script>
 				<!--End AVN Ads Code-->
 				</div>';
+			}
+		} elseif (isset($kusabaorg)) {
+			if ($this->board_type_readable == 'text') {
+				if ($replythread == 0) {
+					$output .= '<div style="height: 32px;">&nbsp;</div>' . "\n";
+				}
+				$output .= '<div style="text-align: center;">' . "\n" .
+				'<script type="text/javascript"><!--' . "\n" .
+				'google_ad_client = "pub-6158454562572132";' . "\n" .
+				'/* kusaba Text Board */' . "\n" .
+				'google_ad_slot = "3973302108";' . "\n" .
+				'google_ad_width = 728;' . "\n" .
+				'google_ad_height = 90;' . "\n" .
+				'//-->' . "\n" .
+				'</script>' . "\n" .
+				'<script type="text/javascript"' . "\n" .
+				'src="http://pagead2.googlesyndication.com/pagead/show_ads.js">' . "\n" .
+				'</script>' . "\n" .
+				'</div>' . "\n";
 			}
 		}
 		if (!($this->board_type_readable == 'text' && $replythread != 0)) {
@@ -2166,7 +2206,16 @@ class Board {
 		}
 		
 		if (isset($kusabaorg)) {
-			$output .= '<script language="javascript"><!--
+			$output .= '<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src=\'" + gaJsHost + "google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+			</script>
+			<script type="text/javascript">
+			var pageTracker = _gat._getTracker("UA-71983-11");
+			pageTracker._initData();
+			pageTracker._trackPageview();
+			</script>
+			<script language="javascript"><!--
 			var woopra_id = \'228219709\';
 			//--></script>
 			<script src="http://static.woopra.com/js/woopra.js"></script>';
@@ -2362,11 +2411,13 @@ class Post extends Board {
 						}
 						if ($update_to_removed) {
 							$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".$line['id']." LIMIT 1");
-							clearPostCache($line['id'], $this->board_dir);
 						}
 					}
+					
+					clearPostCache($line['id'], $this->board_dir);
 				}
 			}
+			
 			$this->DeleteFile($update_to_removed);
 		} else {
 			if ($this->post_filename!=''&&$this->post_filename!='removed') {
@@ -2380,9 +2431,14 @@ class Post extends Board {
 				}
 				if ($update_to_removed) {
 					$db->Execute("UPDATE `".KU_DBPREFIX."posts_".$this->board_dir."` SET `filename` = 'removed', `filemd5` = '' WHERE `id` = ".mysql_real_escape_string($this->post_id)." LIMIT 1");
-					clearPostCache($this->post_id, $this->board_dir);
 				}
 			}
+			
+			clearPostCache($this->post_id, $this->board_dir);
+		}
+		
+		if ($this->post_parentid != 0) {
+			clearPostCache($this->post_parentid, $this->board_dir);
 		}
 	}
 
@@ -2392,11 +2448,13 @@ class Post extends Board {
 		$query = "INSERT INTO `".KU_DBPREFIX."posts_".$this->board_dir."` ( `parentid` , `name` , `tripcode` , `email` , `subject` , `message` , `filename` , `filename_original`, `filetype` , `filemd5` , `image_w` , `image_h` , `filesize` , `filesize_formatted` , `thumb_w` , `thumb_h` , `password` , `postedat` , `lastbumped` , `ip` , `ipmd5` , `posterauthority` , `tag` , `stickied` , `locked` ) VALUES ( '".mysql_real_escape_string($parentid)."', '".mysql_real_escape_string($name)."', '".mysql_real_escape_string($tripcode)."', '".mysql_real_escape_string($email)."', '".mysql_real_escape_string($subject)."', '".mysql_real_escape_string($message)."', '".mysql_real_escape_string($filename)."', '".mysql_real_escape_string($filename_original)."', '".mysql_real_escape_string($filetype)."', '".mysql_real_escape_string($filemd5)."', '".mysql_real_escape_string($image_w)."', '".mysql_real_escape_string($image_h)."', '".mysql_real_escape_string($filesize)."', '".mysql_real_escape_string(ConvertBytes($filesize))."', '".mysql_real_escape_string($thumb_w)."', '".mysql_real_escape_string($thumb_h)."', '".mysql_real_escape_string($password)."', '".mysql_real_escape_string($postedat)."', '".mysql_real_escape_string($lastbumped)."', '".mysql_real_escape_string(md5_encrypt($ip, KU_RANDOMSEED))."', '".md5($ip)."', '".mysql_real_escape_string($posterauthority)."', '".mysql_real_escape_string($tag)."', '".mysql_real_escape_string($stickied)."', '".mysql_real_escape_string($locked)."' )";
 		$db->Execute($query);
 		
+		$insert_id = $db->Insert_Id();
+		
 		if ($parentid != 0) {
 			clearPostCache($parentid, $this->board_dir);
 		}
 		
-		return $db->Insert_Id();
+		return $insert_id;
 	}
 
 	function Report() {

@@ -187,15 +187,14 @@ class Posting {
 		global $db, $board_class;
 		
 		/* Check if the thread id supplied really exists and if it is locked */
-		$results = $db->GetAll("SELECT `id`,`locked` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($id) . "' AND `parentid` = '0'");
+		$results = $db->GetAll("SELECT `id`,`locked` FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `id` = '" . mysql_real_escape_string($id) . "' AND `parentid` = '0' LIMIT 1");
 		/* If it does... */
 		if (count($results) > 0) {
 			/* Get the thread's info */
 			$thread_locked = $results[0]['locked'];
 			$thread_replyto = $results[0]['id'];
 			/* Get the number of replies */
-			$result = $db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "'");
-			$thread_replies = $result;
+			$thread_replies = $db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "' LIMI 1");
 			
 			return array($thread_replies, $thread_locked, $thread_replyto);
 		} else {

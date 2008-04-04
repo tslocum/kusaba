@@ -119,7 +119,7 @@ class Upload {
 					$this->file_type = strtolower($this->file_type);
 					$this->file_size = $_FILES['imagefile']['size'];
 					
-					$filetype_forcethumb = $db->GetOne("SELECT " . KU_DBPREFIX . "filetypes.force_thumb FROM " . KU_DBPREFIX . "boards, " . KU_DBPREFIX . "filetypes, " . KU_DBPREFIX . "board_filetypes WHERE " . KU_DBPREFIX . "boards.id = " . KU_DBPREFIX . "board_filetypes.boardid AND " . KU_DBPREFIX . "filetypes.id = " . KU_DBPREFIX . "board_filetypes.typeid AND " . KU_DBPREFIX . "boards.name = '" . $board_class->board_dir . "' and " . KU_DBPREFIX . "filetypes.filetype = '" . substr($this->file_type, 1) . "';");
+					$filetype_forcethumb = $db->GetOne("SELECT `" . KU_DBPREFIX . "filetypes`.`force_thumb` FROM `" . KU_DBPREFIX . "boards`, `" . KU_DBPREFIX . "filetypes`, `" . KU_DBPREFIX . "board_filetypes` WHERE `" . KU_DBPREFIX . "boards`.`id` = `" . KU_DBPREFIX . "board_filetypes`.`boardid` AND `" . KU_DBPREFIX . "filetypes`.`id` = `" . KU_DBPREFIX . "board_filetypes`.`typeid` AND `" . KU_DBPREFIX . "boards`.`name` = '" . $board_class->board_dir . "' AND `" . KU_DBPREFIX . "filetypes`.`filetype` = '" . substr($this->file_type, 1) . "'");
 					if ($filetype_forcethumb != '') {
 						if ($filetype_forcethumb == 0) {
 							$this->file_name = time() . mt_rand(1, 99);

@@ -3,6 +3,7 @@ var style_cookie_txt;
 var style_cookie_site;
 var kumod_set = false;
 var ispage;
+var lastid;
 
 /* IE/Opera fix, because they need to go learn a book on how to use indexOf with arrays */
 if (!Array.prototype.indexOf) {
@@ -389,6 +390,43 @@ function quickreply(threadid) {
 	document.postform.replythread.value = threadid;
 }
 
+function startPostSpyTimeout(threadid, board, thelastid) {
+	var postspy = getCookie('postspy');
+	if (postspy == '1') {
+		if (document.getElementById('thread' + threadid + board)) {
+			lastid = thelastid;
+			
+			setTimeout('postSpy(' + threadid + ', "' + board + '");', 10000);
+		}
+	}
+}
+
+function postSpy(threadid, board) {
+	var threadblock = document.getElementById('thread' + threadid + board);
+	
+	new Ajax.Request(ku_boardspath + '/expand.php?board=' + board + '&threadid=' + threadid + '&pastid=' + lastid,
+	{
+		method:'get',
+		onSuccess: function(transport){
+			var response = transport.responseText;
+			var response_split = response.split('|');
+			newlastid = response_split[0];
+			
+			if (newlastid != '') {
+				lastid = newlastid;
+				response = response.substr((newlastid.length + 1));
+				
+				threadblock.innerHTML += response;
+				addpreviewevents();
+				delandbanlinks();
+			}
+			
+			setTimeout('postSpy(' + threadid + ', "' + board + '");', 5000);
+		},
+		onFailure: function(){ alert('Something went wrong...') }
+	});
+}
+
 function getwatchedthreads(threadid, board) {
 	if (document.getElementById('watchedthreadlist')) {
 		var watchedthreadbox = document.getElementById('watchedthreadlist');
@@ -446,6 +484,17 @@ function hidewatchedthreads() {
 function showwatchedthreads() {
 	set_cookie('showwatchedthreads','1',30);
 	window.location.reload(true);
+}
+
+function togglePostSpy() {
+	var postspy = getCookie('postspy');
+	if (postspy == '1') {
+		set_cookie('postspy', '0', 30);
+		alert('Post Spy disabled.  Any pages loaded from now on will not utilize the Post Spy feature.');
+	} else {
+		set_cookie('postspy', '1', 30);
+		alert('Post Spy enabled.  Any pages loaded from now on will utilize the Post Spy feature.');
+	}
 }
 
 function checkcaptcha(formid) {

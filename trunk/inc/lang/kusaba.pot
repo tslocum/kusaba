@@ -330,6 +330,9 @@ msgstr ""
 msgid "Watched Threads"
 msgstr ""
 
+msgid "Post Spy"
+msgstr ""
+
 msgid "Hide the watched threads box"
 msgstr ""
 
