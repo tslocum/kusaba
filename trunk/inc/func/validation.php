@@ -7,7 +7,7 @@
 function validateIds($ids) {
 	foreach ($ids AS $id) {
 		if ($id <= 0) {
-			die("error.  parentid <= 0");
+			die('error.  parentid <= 0');
 		}
 	}
 }

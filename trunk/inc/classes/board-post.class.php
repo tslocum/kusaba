@@ -2450,8 +2450,8 @@ class Post extends Board {
 		$db->Execute($query);
 		$insert_id = $db->Insert_Id();
 		
-		if ($parentid != 0) {
-			clearPostCache($parentid, $this->board_dir);
+		if ($posting_class->thread_replyto != 0) {
+			clearPostCache($posting_class->thread_replyto, $this->board_dir);
 		}
 		
 		return $insert_id;

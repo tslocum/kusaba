@@ -371,6 +371,8 @@ function expandthread(threadid, board) {
 			onSuccess: function(transport){
 				var response = transport.responseText || "something went wrong (blank response)";
 				repliesblock.innerHTML = response;
+				
+				addpreviewevents();
 				delandbanlinks();
 			},
 			onFailure: function(){ alert('Something went wrong...') }
@@ -414,9 +416,10 @@ function postSpy(threadid, board) {
 			
 			if (newlastid != '') {
 				lastid = newlastid;
-				response = response.substr((newlastid.length + 1));
 				
+				response = response.substr((newlastid.length + 1));
 				threadblock.innerHTML += response;
+				
 				addpreviewevents();
 				delandbanlinks();
 			}
