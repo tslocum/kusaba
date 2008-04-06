@@ -2442,12 +2442,12 @@ class Post extends Board {
 		}
 	}
 
-	function Insert($parentid, $name, $tripcode, $email, $subject, $message, $filename, $filename_original, $filetype, $filemd5, $image_w, $image_h, $filesize, $thumb_w, $thumb_h, $password, $postedat, $lastbumped, $ip, $posterauthority, $tag, $stickied, $locked) {
-		global $db;
+	function Insert($post) {
+		global $db, $posting_class;
 		
-		$query = "INSERT INTO `".KU_DBPREFIX."posts_".$this->board_dir."` ( `parentid` , `name` , `tripcode` , `email` , `subject` , `message` , `filename` , `filename_original`, `filetype` , `filemd5` , `image_w` , `image_h` , `filesize` , `filesize_formatted` , `thumb_w` , `thumb_h` , `password` , `postedat` , `lastbumped` , `ip` , `ipmd5` , `posterauthority` , `tag` , `stickied` , `locked` ) VALUES ( '".mysql_real_escape_string($parentid)."', '".mysql_real_escape_string($name)."', '".mysql_real_escape_string($tripcode)."', '".mysql_real_escape_string($email)."', '".mysql_real_escape_string($subject)."', '".mysql_real_escape_string($message)."', '".mysql_real_escape_string($filename)."', '".mysql_real_escape_string($filename_original)."', '".mysql_real_escape_string($filetype)."', '".mysql_real_escape_string($filemd5)."', '".mysql_real_escape_string($image_w)."', '".mysql_real_escape_string($image_h)."', '".mysql_real_escape_string($filesize)."', '".mysql_real_escape_string(ConvertBytes($filesize))."', '".mysql_real_escape_string($thumb_w)."', '".mysql_real_escape_string($thumb_h)."', '".mysql_real_escape_string($password)."', '".mysql_real_escape_string($postedat)."', '".mysql_real_escape_string($lastbumped)."', '".mysql_real_escape_string(md5_encrypt($ip, KU_RANDOMSEED))."', '".md5($ip)."', '".mysql_real_escape_string($posterauthority)."', '".mysql_real_escape_string($tag)."', '".mysql_real_escape_string($stickied)."', '".mysql_real_escape_string($locked)."' )";
+		$query = 'INSERT INTO `' . KU_DBPREFIX . 'posts_' . $this->board_dir . '` ( `parentid` , `name` , `tripcode` , `email` , `subject` , `message` , `filename` , `filename_original`, `filetype` , `filemd5` , `image_w` , `image_h` , `filesize` , `filesize_formatted` , `thumb_w` , `thumb_h` , `password` , `postedat` , `lastbumped` , `ip` , `ipmd5` , `posterauthority` , `tag` , `stickied` , `locked` ) VALUES ' .
+		'( \'' . mysql_real_escape_string($posting_class->thread_replyto) . '\', \'' . mysql_real_escape_string($post['name']) . '\', \'' . mysql_real_escape_string($post['tripcode']) . '\', \'' . mysql_real_escape_string($post['email']) . '\', \'' . mysql_real_escape_string($post['subject']) . '\', \'' . mysql_real_escape_string($post['message']) . '\', \'' . mysql_real_escape_string($post['filename']) . '\', \'' . mysql_real_escape_string($post['filename_original']) . '\', \'' . mysql_real_escape_string($post['filetype']) . '\', \'' . mysql_real_escape_string($post['filemd5']) . '\', \'' . mysql_real_escape_string($post['image_w']) . '\', \'' . mysql_real_escape_string($post['image_h']) . '\', \'' . mysql_real_escape_string($post['filesize']) . '\', \'' . mysql_real_escape_string(ConvertBytes($post['filesize'])) . '\', \'' . mysql_real_escape_string($post['thumb_w']) . '\', \'' . mysql_real_escape_string($post['thumb_h']) . '\', \'' . mysql_real_escape_string($post['password']) . '\', ' . time() . ', ' . time() . ', \'' . mysql_real_escape_string(md5_encrypt($post['ip'], KU_RANDOMSEED)) . '\', \'' . md5($post['ip']) . '\', \'' . mysql_real_escape_string($post['posterauthority']) . '\', \'' . mysql_real_escape_string($post['tag']) . '\', \'' . mysql_real_escape_string($post['stickied']) . '\', \'' . mysql_real_escape_string($post['locked']) . '\' )';
 		$db->Execute($query);
-		
 		$insert_id = $db->Insert_Id();
 		
 		if ($parentid != 0) {
@@ -2460,7 +2460,7 @@ class Post extends Board {
 	function Report() {
 		global $db;
 		
-		return $db->Execute("INSERT INTO `".KU_DBPREFIX."reports` ( `board` , `postid` , `when` , `ip` ) VALUES ( '" . mysql_real_escape_string($this->board_dir) . "' , " . mysql_real_escape_string($this->post_id) . " , ".time()." , '" . md5_encrypt($_SERVER['REMOTE_ADDR'], KU_RANDOMSEED) . "' )");
+		return $db->Execute('INSERT INTO `' . KU_DBPREFIX . 'reports` ( `board` , `postid` , `when` , `ip` ) VALUES ( \'' . mysql_real_escape_string($this->board_dir) . '\' , ' . mysql_real_escape_string($this->post_id) . ' , ' . time() . ' , \'' . md5_encrypt($_SERVER['REMOTE_ADDR'], KU_RANDOMSEED) . '\' )');
 	}
 }
 

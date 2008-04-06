@@ -19,6 +19,35 @@
  * +------------------------------------------------------------------------------+
  */
 class Posting {
+
+	var $authority;
+	var $post_flags;
+	var $post_autosticky;
+	var $post_autolock;
+	
+	var $thread_replies;
+	var $thread_locked;
+	var $thread_replyto;
+	
+	function ValidateBoard() {
+		global $db, $board_class;
+		
+		if (isset($_POST['board'])) {
+			$board_name = $db->GetOne('SELECT `name` FROM `' . KU_DBPREFIX . 'boards` WHERE `name` = \'' . mysql_real_escape_string($_POST['board']) . '\'');
+			if ($board_name != '') {
+				$board_class = new Board($board_name);
+				if ($board_class->board_locale != '') {
+					changeLocale($board_class->board_locale);
+				}
+			} else {
+				do_redirect(KU_WEBPATH);
+			}
+		} else {
+			do_redirect(KU_WEBPATH);
+		}
+		
+		return true;
+	}
 	
 	function CheckOekaki() {
 		global $board_class;
@@ -33,6 +62,18 @@ class Posting {
 		}
 		
 		return '';
+	}
+	
+	function CheckFormatting() {
+		if (isset($_POST['formatting'])) {
+			if ($_POST['formatting'] == 'aa') {
+				$_POST['message'] = '[aa]' . $_POST['message'] . '[/aa]';
+			}
+			
+			if (isset($_POST['rememberformatting'])) {
+				setcookie('kuformatting', urldecode($_POST['formatting']), time() + 31556926, '/', KU_DOMAIN);
+			}
+		}
 	}
 	
 	function CheckReplyTime() {
@@ -183,7 +224,7 @@ class Posting {
 		}
 	}
 	
-	function GetThreadInfo($id) {
+	function SetThreadInfo($id) {
 		global $db, $board_class;
 		
 		/* Check if the thread id supplied really exists and if it is locked */
@@ -191,12 +232,10 @@ class Posting {
 		/* If it does... */
 		if (count($results) > 0) {
 			/* Get the thread's info */
-			$thread_locked = $results[0]['locked'];
-			$thread_replyto = $results[0]['id'];
+			$this->thread_locked = $results[0]['locked'];
+			$this->thread_replyto = $results[0]['id'];
 			/* Get the number of replies */
-			$thread_replies = $db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "' LIMI 1");
-			
-			return array($thread_replies, $thread_locked, $thread_replyto);
+			$this->thread_replies = $db->GetOne("SELECT COUNT(id) FROM `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` WHERE `IS_DELETED` = '0' AND `parentid` = '" . mysql_real_escape_string($id) . "' LIMI 1");
 		} else {
 			/* If it doesn't, kill the script, stopping the posting process */
 			exitWithErrorPage(_gettext('Invalid thread ID.'), _gettext('That thread may have been recently deleted.'));
@@ -214,7 +253,7 @@ class Posting {
 		return array($post_name, $post_email, $post_subject);
 	}
 	
-	function GetUserAuthority() {
+	function CheckAuthority() {
 		global $db, $board_class;
 		
 		$user_authority = 0;
@@ -222,7 +261,7 @@ class Posting {
 		
 		if (isset($_POST['modpassword'])) {
 			
-			$results = $db->GetAll("SELECT `type`, `boards` FROM `" . KU_DBPREFIX . "staff` WHERE `username` = '" . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . "' LIMIT 1");
+			$results = $db->GetAll('SELECT `type`, `boards` FROM `' . KU_DBPREFIX . 'staff` WHERE `username` = \'' . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . '\' LIMIT 1');
 			
 			if (count($results) > 0) {
 				if ($results[0][0] == 1) {
@@ -244,7 +283,15 @@ class Posting {
 			}
 		}
 		
-		return array($user_authority, $flags);
+		$this->authority = $user_authority;
+		$this->post_flags = $flags;
+	}
+	
+	function GetNextID($board) {
+		global $db;
+		
+		$results = $db->GetAll('SHOW TABLE STATUS LIKE \'' . KU_DBPREFIX . 'posts_' . $board . '\'');
+		return $results[0]['Auto_increment'];
 	}
 	
 	function CheckBadUnicode($post_name, $post_email, $post_subject, $post_message) {
@@ -285,7 +332,7 @@ class Posting {
 		}
 	}
 	
-	function GetPostTag() {
+	function SetPostTag() {
 		global $board_class;
 		
 		/* Check for and parse tags if one was provided, and they are enabled */
@@ -305,7 +352,37 @@ class Posting {
 			}
 		}
 		
-		return $post_tag;
+		$this->post_tag = $post_tag;
+	}
+	
+	function CheckAutoSticky() {
+		global $board_class;
+		
+		if ($this->post_autosticky == true) {
+			if ($posting_class->thread_replyto == 0) {
+				$this->post_autosticky = 1;
+			} else {
+				StickyThread($board_class->board_dir, $this->thread_replyto);
+				$this->post_autosticky = 0;
+			}
+		} else {
+			$this->post_autosticky = 0;
+		}
+	}
+	
+	function CheckAutoLock() {
+		global $board_class;
+		
+		if ($this->post_autolock == true) {
+			if ($posting_class->thread_replyto == 0) {
+				$this->post_autolock = 1;
+			} else {
+				LockThread($board_class->board_dir, $this->thread_replyto);
+				$this->post_autolock = 0;
+			}
+		} else {
+			$this->post_autolock = 0;
+		}
 	}
 	
 	function CheckBlacklistedText() {

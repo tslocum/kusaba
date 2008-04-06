@@ -182,6 +182,14 @@ function checkMarkedForDeletion($post, $maxage) {
 	return false;
 }
 
+function StickyThread($board, $thread) {
+	$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $board . '` SET `stickied` = 1 WHERE `id` = ' . $thread);
+}
+
+function LockThread($board, $thread) {
+	$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $board . '` SET `locked` = 1 WHERE `id` = ' . $thread);
+}
+
 function textBoardReplyBox($board, $forcedanon, $enablecaptcha, $numreplies = false, $threadid = false, $formid = '') {
 	if ($threadid === false) {
 		$threadid = '0';

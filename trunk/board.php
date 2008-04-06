@@ -70,21 +70,8 @@ $_POST['board'] = (isset($_GET['board'])) ? $_GET['board'] : $_POST['board'];
 
 // }}}
 
-/* If the script was called using a board name: */
-if (isset($_POST['board'])) {
-	$board_name = $db->GetOne('SELECT `name` FROM `' . KU_DBPREFIX . 'boards` WHERE `name` = \'' . mysql_real_escape_string($_POST['board']) . '\'');
-	if ($board_name != '') {
-		$board_class = new Board($board_name);
-		if ($board_class->board_locale != '') {
-			changeLocale($board_class->board_locale);
-		}
-	} else {
-		do_redirect(KU_WEBPATH);
-	}
-} else {
-	/* A board being supplied is required for this script to function */
-	do_redirect(KU_WEBPATH);
-}
+/* Check to see the board supplied exists */
+$posting_class->ValidateBoard();
 
 // {{{ Expired ban removal, and then existing ban check on the current user
 
@@ -106,17 +93,25 @@ $posting_class->UTF8Strings();
 /* Check if the user sent a valid post (image for thread, image/message for reply, etc) */
 if ($posting_class->CheckValidPost($is_oekaki)) {
 	$db->Execute('START TRANSACTION');
+	
 	$posting_class->CheckReplyTime();
 	$posting_class->CheckNewThreadTime();
 	$posting_class->CheckMessageLength();
 	$posting_class->CheckCaptcha();
 	$posting_class->CheckBannedHash();
 	$posting_class->CheckBlacklistedText();
+	$posting_class->CheckFormatting();
+	$posting_class->CheckAuthority();
+	$posting_class->SetPostTag();
+	
 	$post_isreply = $posting_class->CheckIsReply();
 	$imagefile_name = isset($_FILES['imagefile']) ? $_FILES['imagefile']['name'] : '';
 	
+	$posting_class->thread_replies = 0;
+	$posting_class->thread_locked  = 0;
+	$posting_class->thread_replyto = 0;
 	if ($post_isreply) {
-		list($thread_replies, $thread_locked, $thread_replyto) = $posting_class->GetThreadInfo($_POST['replythread']);
+		$posting_class->SetThreadInfo($_POST['replythread']);
 	} else {
 		if ($board_class->board_type != 1 && ($board_class->board_uploadtype == '1' || $board_class->board_uploadtype == '2')) {
 			if (isset($_POST['embed'])) {
@@ -129,16 +124,12 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 				exitWithErrorPage('Please enter an embed ID.');
 			}
 		}
-		
-		$thread_replies = 0;
-		$thread_locked = 0;
-		$thread_replyto = 0;
 	}
 	
 	list($post_name, $post_email, $post_subject) = $posting_class->GetFields();
 	$post_password = isset($_POST['postpassword']) ? $_POST['postpassword'] : '';
 	
-	if ($board_class->board_type == 1) {
+	if ($board_class->board_type_readable == 'text') {
 		if ($post_isreply) {
 			$post_subject = '';
 		} else {
@@ -146,37 +137,20 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		}
 	}
 	
-	list($user_authority, $flags) = $posting_class->GetUserAuthority();
+	$parse_class->id = $posting_class->GetNextID($board_class->board_dir);
 	
-	$post_fileused = false;
-	$post_autosticky = false;
-	$post_autolock = false;
 	$post_displaystaffstatus = false;
-	$file_is_special = false;
-	
-	if (isset($_POST['formatting'])) {
-		if ($_POST['formatting'] == 'aa') {
-			$_POST['message'] = '[aa]' . $_POST['message'] . '[/aa]';
-		}
-		
-		if (isset($_POST['rememberformatting'])) {
-			setcookie('kuformatting', urldecode($_POST['formatting']), time() + 31556926, '/', KU_DOMAIN);
-		}
-	}
-	
-	$results = $db->GetAll("SHOW TABLE STATUS LIKE '" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "'");
-	$nextid = $results[0]['Auto_increment'];
-	$parse_class->id = $nextid;
+	$file_is_special         = false;
 	
 	/* If they are just a normal user, or vip... */
-	if (isNormalUser($user_authority)) {
+	if (isNormalUser($posting_class->authority)) {
 		/* If the thread is locked */
-		if ($thread_locked == 1) {
+		if ($posting_class->thread_locked == 1) {
 			/* Don't let the user post */
 			exitWithErrorPage(_gettext('Sorry, this thread is locked and can not be replied to.'));
 		}
 		
-		$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $thread_replyto);
+		$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $posting_class->thread_replyto);
 	/* Or, if they are a moderator/administrator... */
 	} else {
 		/* If they checked the D checkbox, set the variable to tell the script to display their staff status (Admin/Mod) on the post during insertion */
@@ -189,17 +163,17 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 			$post_message = $_POST['message'];
 		/* Otherwise, parse it as usual... */
 		} else {
-			$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $thread_replyto);
+			$post_message = $parse_class->ParsePost($_POST['message'], $board_class->board_dir, $board_class->board_type, $posting_class->thread_replyto);
 		}
 		
 		/* If they checked the L checkbox, set the variable to tell the script to lock the post after insertion */
 		if (isset($_POST['lockonpost'])) {
-			$post_autolock = true;
+			$posting_class->post_autolock = true;
 		}
 		
 		/* If they checked the S checkbox, set the variable to tell the script to sticky the post after insertion */
 		if (isset($_POST['stickyonpost'])) {
-			$post_autosticky = true;
+			$posting_class->post_autosticky = true;
 		}
 		if (isset($_POST['usestaffname'])) {
 			$_POST['name'] = md5_decrypt($_POST['modpassword'], KU_RANDOMSEED);
@@ -208,9 +182,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 	}
 	
 	$posting_class->CheckBadUnicode($post_name, $post_email, $post_subject, $post_message);
-	
-	$post_tag = $posting_class->GetPostTag();
-	
+
 	if ($post_isreply) {
 		if ($imagefile_name == '' && !$is_oekaki && $post_message == '') {
 			exitWithErrorPage(_gettext('An image, or message, is required for a reply.'));
@@ -233,7 +205,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		exitWithErrorPage('A subject is required to make a new thread.');
 	}
 	
-	if ($board_class->board_locked == 0 || ($user_authority > 0 && $user_authority != 3)) {
+	if ($board_class->board_locked == 0 || ($posting_class->authority > 0 && $posting_class->authority != 3)) {
 		require_once KU_ROOTDIR . 'inc/classes/upload.class.php';
 		$upload_class = new Upload();
 		if ($post_isreply) {
@@ -245,7 +217,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		}
 		
 		if ($board_class->board_forcedanon == '1') {
-			if ($user_authority == 0 || $user_authority == 3) {
+			if ($posting_class->authority == 0 || $posting_class->authority == 3) {
 				$post_name = '';
 			}
 		}
@@ -261,133 +233,124 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		
 		$filetype_withoutdot = substr($upload_class->file_type, 1);
 		$post_passwordmd5 = ($post_password == '') ? '' : md5($post_password);
+		$posting_class->CheckAutoSticky();
+		$posting_class->CheckAutoLock();
 		
-		if ($post_autosticky == true) {
-			if ($thread_replyto == 0) {
-				$sticky = 1;
-			} else {
-				$result = $db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `stickied` = '1' WHERE `id` = '" . $thread_replyto . "'");
-				$sticky = 0;
-			}
+		if (!$post_displaystaffstatus && $posting_class->authority > 0 && $posting_class->authority != 3) {
+			$posting_class->authority_display = 0;
+		} elseif ($posting_class->authority > 0) {
+			$posting_class->authority_display = $posting_class->authority;
 		} else {
-			$sticky = 0;
+			$posting_class->authority_display = 0;
 		}
 		
-		if ($post_autolock == true) {
-			if ($thread_replyto == 0) {
-				$lock = 1;
-			} else {
-				$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `locked` = '1' WHERE `id` = '" . $thread_replyto . "'");
-				$lock = 0;
-			}
+		$post = array();
+		
+		/* First array is the converted form of the japanese characters meaning sage, second meaning age */
+		$ords_email = unistr_to_ords($post_email);
+		if (strtolower($_POST['em']) != 'sage' && $ords_email != array(19979, 12370) && strtolower($_POST['em']) != 'age' && $ords_email != array(19978, 12370) && $_POST['em'] != 'return' && $_POST['em'] != 'noko') {
+			$post['email_save'] = true;
 		} else {
-			$lock = 0;
+			$post['email_save'] = false;
 		}
 		
-		if (!$post_displaystaffstatus && $user_authority > 0 && $user_authority != 3) {
-			$user_authority_display = 0;
-		} elseif ($user_authority > 0) {
-			$user_authority_display = $user_authority;
-		} else {
-			$user_authority_display = 0;
+		$post['board']             = $board_class->board_dir;
+		$post['name']              = substr($name, 0, 100);
+		$post['name_save']         = true;
+		$post['tripcode']          = $tripcode;
+		$post['email']             = substr($post_email, 0, 100);
+		$post['subject']           = substr($post_subject, 0, 100);
+		$post['message']           = $post_message;
+		$post['filename']          = $upload_class->file_name;
+		$post['filename_original'] = $upload_class->original_file_name;
+		$post['filetype']          = $filetype_withoutdot;
+		$post['filemd5']           = $upload_class->file_md5;
+		$post['image_w']           = $upload_class->imgWidth;
+		$post['image_h']           = $upload_class->imgHeight;
+		$post['filesize']          = $upload_class->file_size;
+		$post['thumb_w']           = $upload_class->imgWidth_thumb;
+		$post['thumb_h']           = $upload_class->imgHeight_thumb;
+		$post['password']          = $post_passwordmd5;
+		$post['ip']                = $_SERVER['REMOTE_ADDR'];
+		$post['posterauthority']   = $posting_class->authority_display;
+		$post['tag']               = $posting_class->post_tag;
+		$post['stickied']          = $posting_class->post_autosticky;
+		$post['locked']            = $posting_class->post_autolock;
+		
+		$post = hook_process('posting', $post);
+		
+		if ($is_oekaki) {
+			if (file_exists(KU_BOARDSDIR . $board_class->board_dir . '/src/' . $upload_class->file_name . '.pch')) {
+				$post['message'] .= '<br><small><a href="' . KU_CGIPATH . '/animation.php?board=' . $board_class->board_dir . '&id=' . $upload_class->file_name . '">' . _gettext('View animation') . '</a></small>';
+			}
 		}
 		
-		if ((file_exists(KU_BOARDSDIR . $board_class->board_dir . '/src/' . $upload_class->file_name . $upload_class->file_type) && file_exists(KU_BOARDSDIR . $board_class->board_dir . '/thumb/' . $upload_class->file_name . 's' . $upload_class->file_type)) || ($file_is_special && file_exists(KU_BOARDSDIR . $board_class->board_dir . '/src/' . $upload_class->file_name . $upload_class->file_type)) || $post_fileused == false) {
-			$post = array();
-			
-			$post['board'] = $board_class->board_dir;
-			$post['name'] = substr($name, 0, 100);
-			$post['name_save'] = true;
-			$post['tripcode'] = $tripcode;
-			$post['email'] = substr($post_email, 0, 100);
-			/* First array is the converted form of the japanese characters meaning sage, second meaning age */
-			$ords_email = unistr_to_ords($post_email);
-			if (strtolower($_POST['em']) != 'sage' && $ords_email != array(19979, 12370) && strtolower($_POST['em']) != 'age' && $ords_email != array(19978, 12370) && $_POST['em'] != 'return' && $_POST['em'] != 'noko') {
-				$post['email_save'] = true;
-			} else {
-				$post['email_save'] = false;
+		if ($posting_class->thread_replyto != '0') {
+			if ($post['message'] == '' && KU_NOMESSAGEREPLY != '') {
+				$post['message'] = KU_NOMESSAGEREPLY;
 			}
-			$post['subject'] = substr($post_subject, 0, 100);
-			$post['message'] = $post_message;
-			$post['tag'] = $post_tag;
-			
-			$post = hook_process('posting', $post);
-			
-			if ($is_oekaki) {
-				if (file_exists(KU_BOARDSDIR . $board_class->board_dir . '/src/' . $upload_class->file_name . '.pch')) {
-					$post['message'] .= '<br><small><a href="' . KU_CGIPATH . '/animation.php?board=' . $board_class->board_dir . '&id=' . $upload_class->file_name . '">' . _gettext('View animation') . '</a></small>';
-				}
-			}
-			
-			if ($thread_replyto != '0') {
-				if ($post['message'] == '' && KU_NOMESSAGEREPLY != '') {
-					$post['message'] = KU_NOMESSAGEREPLY;
-				}
-			} else {
-				if ($post['message'] == '' && KU_NOMESSAGETHREAD != '') {
-					$post['message'] = KU_NOMESSAGETHREAD;
-				}
-			}
-			
-			$post_class = new Post(0, $board_class->board_dir, true);
-			$post_id = $post_class->Insert($thread_replyto, $post['name'], $post['tripcode'], $post['email'], $post['subject'], $post['message'], $upload_class->file_name, $upload_class->original_file_name, $filetype_withoutdot, $upload_class->file_md5, $upload_class->imgWidth, $upload_class->imgHeight, $upload_class->file_size, $upload_class->imgWidth_thumb, $upload_class->imgHeight_thumb, $post_passwordmd5, time(), time(), $_SERVER['REMOTE_ADDR'], $user_authority_display, $post['tag'], $sticky, $lock);
-			
-			if ($user_authority > 0 && $user_authority != 3) {
-				$modpost_message = 'Modposted #<a href="' . KU_BOARDSFOLDER . $board_class->board_dir . '/res/';
-				if ($post_isreply) {
-					$modpost_message .= $thread_replyto;
-				} else {
-					$modpost_message .= $post_id;
-				}
-				$modpost_message .= '.html#' . $post_id . '">' . $post_id . '</a> in /'.$_POST['board'].'/ with flags: ' . $flags . '.';
-				management_addlogentry($modpost_message, 1, md5_decrypt($_POST['modpassword'], KU_RANDOMSEED));
-			}
-			
-			if ($post['name_save'] && isset($_POST['name'])) {
-				setcookie('name', urldecode($_POST['name']), time() + 31556926, '/', KU_DOMAIN);
-			}
-			
-			if ($post['email_save']) {
-				setcookie('email', urldecode($post['email']), time() + 31556926, '/', KU_DOMAIN);
-			}
-			
-			setcookie('postpassword', urldecode($_POST['postpassword']), time() + 31556926, '/');
 		} else {
-			exitWithErrorPage(_gettext('Could not copy uploaded image.'));
+			if ($post['message'] == '' && KU_NOMESSAGETHREAD != '') {
+				$post['message'] = KU_NOMESSAGETHREAD;
+			}
 		}
+		
+		$post_class = new Post(0, $board_class->board_dir, true);
+		$post_id = $post_class->Insert($post);
+		
+		if ($posting_class->authority > 0 && $posting_class->authority != 3) {
+			$modpost_message = 'Modposted #<a href="' . KU_BOARDSFOLDER . $board_class->board_dir . '/res/';
+			if ($post_isreply) {
+				$modpost_message .= $posting_class->thread_replyto;
+			} else {
+				$modpost_message .= $post_id;
+			}
+			$modpost_message .= '.html#' . $post_id . '">' . $post_id . '</a> in /' . $_POST['board'] . '/ with flags: ' . $posting_class->post_flags . '.';
+			management_addlogentry($modpost_message, 1, md5_decrypt($_POST['modpassword'], KU_RANDOMSEED));
+		}
+		
+		if ($post['name_save'] && isset($_POST['name'])) {
+			setcookie('name', urldecode($_POST['name']), time() + 31556926, '/', KU_DOMAIN);
+		}
+		
+		if ($post['email_save']) {
+			setcookie('email', urldecode($post['email']), time() + 31556926, '/', KU_DOMAIN);
+		}
+		
+		setcookie('postpassword', urldecode($_POST['postpassword']), time() + 31556926, '/');
 		
 		/* If the user replied to a thread, and they weren't sage-ing it... */
-		if ($thread_replyto != '0' && strtolower($_POST['em']) != 'sage' && unistr_to_ords($_POST['em']) != array(19979, 12370)) {
+		if ($posting_class->thread_replyto != '0' && strtolower($_POST['em']) != 'sage' && unistr_to_ords($_POST['em']) != array(19979, 12370)) {
 			/* And if the number of replies already in the thread are less than the maximum thread replies before perma-sage... */
-			if ($thread_replies <= $board_class->board_maxreplies) {
+			if ($posting_class->thread_replies <= $board_class->board_maxreplies) {
 				/* Bump the thread */
-				$db->Execute("UPDATE `" . KU_DBPREFIX . "posts_" . $board_class->board_dir . "` SET `lastbumped` = '" . time() . "' WHERE `id` = '" . $thread_replyto . "'");
+				$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $board_class->board_dir . '` SET `lastbumped` = ' . time() . ' WHERE `id` = ' . $posting_class->thread_replyto);
 			}
 		}
 		
 		/* If the user replied to a thread he is watching, update it so it doesn't count his reply as unread */
-		if (KU_WATCHTHREADS && $thread_replyto != '0') {
-			$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
+		if (KU_WATCHTHREADS && $posting_class->thread_replyto != '0') {
+			$viewing_thread_is_watched = $db->GetOne("SELECT COUNT(*) FROM `" . KU_DBPREFIX . "watchedthreads` WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $posting_class->thread_replyto . "'");
 			if ($viewing_thread_is_watched > 0) {
-				$newestreplyid = $db->GetOne('SELECT `id` FROM `'.KU_DBPREFIX.'posts_'.$board_class->board_dir.'` WHERE `IS_DELETED` = 0 AND `parentid` = '.$thread_replyto.' ORDER BY `id` DESC LIMIT 1');
+				$newestreplyid = $db->GetOne('SELECT `id` FROM `' . KU_DBPREFIX . 'posts_' . $board_class->board_dir . '` WHERE `IS_DELETED` = 0 AND `parentid` = ' . $posting_class->thread_replyto . ' ORDER BY `id` DESC LIMIT 1');
 				
-				$db->Execute("UPDATE `" . KU_DBPREFIX . "watchedthreads` SET `lastsawreplyid` = " . $newestreplyid . " WHERE `ip` = '" . $_SERVER['REMOTE_ADDR'] . "' AND `board` = '" . $board_class->board_dir . "' AND `threadid` = '" . $thread_replyto . "'");
+				$db->Execute('UPDATE `' . KU_DBPREFIX . 'watchedthreads` SET `lastsawreplyid` = ' . $newestreplyid . ' WHERE `ip` = \'' . $_SERVER['REMOTE_ADDR'] . '\' AND `board` = \'' . $board_class->board_dir . '\' AND `threadid` = ' . $posting_class->thread_replyto);
 			}
 		}
 		
-		$db->Execute("COMMIT");
+		$db->Execute('COMMIT');
 		
 		/* Trim any threads which have been pushed past the limit, or exceed the maximum age limit */
 		$board_class->TrimToPageLimit();
 		
 		/* Regenerate board pages */
 		$board_class->RegeneratePages();
-		if ($thread_replyto == '0') {
+		if ($posting_class->thread_replyto == '0') {
 			/* Regenerate the thread */
 			$board_class->RegenerateThread($post_id);
 		} else {
 			/* Regenerate the thread */
-			$board_class->RegenerateThread($thread_replyto);
+			$board_class->RegenerateThread($posting_class->thread_replyto);
 		}
 	} else {
 		exitWithErrorPage(_gettext('Sorry, this board is locked and can not be posted in.'));
@@ -469,10 +432,10 @@ if (KU_RSS) {
 }
 
 if ($board_class->board_redirecttothread == 1 || $_POST['em'] == 'return' || $_POST['em'] == 'noko') {
-	if ($thread_replyto == '0') {
+	if ($posting_class->thread_replyto == '0') {
 		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $post_id . '.html', true, $imagefile_name);
 	} else {
-		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $thread_replyto . '.html', true, $imagefile_name);
+		do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/res/' . $posting_class->thread_replyto . '.html', true, $imagefile_name);
 	}
 } else {
 	do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/', true, $imagefile_name);
