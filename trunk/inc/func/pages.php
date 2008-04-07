@@ -84,7 +84,7 @@ function uploadImageboardPageRow($post, $board, $maxage, $replies) {
 	'		' . $post['id'] . "\n" .
 	'	</td>' . "\n" .
 	'	<td>' . "\n" .
-	'		' . formatNameAndTrip($post['name'], $post['email'], $post['tripcode']) .
+	'		' . formatNameAndTrip($post) .
 	'	</td>' . "\n" .
 	'	<td align="center">' . "\n" .
 	'		[<a href="' . KU_BOARDSFOLDER . $board . '/src/' . $post['filename'] . '.' . $post['filetype'] . '" target="_blank">' . $post['filename'] . '.' . $post['filetype'] . '</a>]' . "\n" .

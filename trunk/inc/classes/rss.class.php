@@ -46,7 +46,7 @@ class RSS {
 				$items .= '<description><![CDATA[';
 				if ($row['filename']!='') $items .= '['.KU_BOARDSPATH.'/'.$rssboard.'/src/'.$row['filename'].'.'.$row['filetype'].'] <br /><br>';
 				if (trim($row['message'])!='') {
-					$items .= stripslashes($row['message']).'<br>';
+					$items .= $row['message'].'<br>';
 				}
 				$items .= ']]></description>
 				</item>';

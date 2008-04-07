@@ -1043,10 +1043,13 @@ class Board {
 		global $expandjavascript, $CURRENTLOCALE;
 		$buildpost_output = '';
 		
+		/* Depreciating */
 		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
 		$post_is_thread = ($post['parentid']==0) ? true : false;
 		
-		$post['message'] = stripslashes($post['message']);
+		$post['op_id'] = $post_thread_start_id;
+		$post['is_op'] = $post_is_thread;
+		
 		if ($this->board_type_readable != 'text') {
 			/* Build a post imageboard style */
 			$info_file = '';
@@ -1058,11 +1061,11 @@ class Board {
 			$post_thumb = $file_path . '/thumb/' . $post['filename'] . 's.' . $post['filetype'];
 			if ($post['filename'] != '' || $post['filetype'] != '' || $post_is_thread != '') {
 				$post_is_nofile = false;
-				if ($post['filename']=='removed') {
+				if ($post['filename'] == 'removed') {
 					$post_thumb = 'removed';
 				} else {
 					/* Check if the filetype is not a default type */
-					if ($post['filetype']!='jpg'&&$post['filetype']!='gif'&&$post['filetype']!='png'&&$post['filetype']!='you'&&$post['filetype']!='goo') {
+					if (!isDefaultFileType($post['filetype'])) {
 						$post_is_standard = false;
 						$filetype_info = getfiletypeinfo($post['filetype']);
 						$post_thumb = KU_WEBPATH . '/inc/filetypes/' . $filetype_info[0];
@@ -1144,23 +1147,9 @@ class Board {
 				'				</span> ' . "\n";
 			}
 			
-			$info_post .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode'], $this->board_anonymous);
-			
-			if ($post['posterauthority'] == 1) {
-				$info_post .= ' <span class="admin">' . "\n" .
-				'	##&nbsp;' . _gettext('Admin') . '&nbsp;##' . "\n" .
-				'</span>' . "\n";
-			} else if ($post['posterauthority'] == 2) {
-				$info_post .= ' <span class="mod">' . "\n" .
-				'	##&nbsp;'._gettext('Mod').'&nbsp;##' . "\n" .
-				'</span>' . "\n";
-			} else if ($post['posterauthority'] == 3) {
-				$info_post .= ' <span class="vip">' . "\n" .
-				'	##&nbsp;VIP&nbsp;##' . "\n" .
-				'</span>' . "\n";
-			}
-			
-			$info_post .= ' ' . formatDate($post['postedat'], 'post', $CURRENTLOCALE) . "\n" .
+			$info_post .= formatNameAndTrip($post, $this->board_anonymous) .
+			$this->AuthorityDisplay($post) .
+			' ' . formatDate($post['postedat'], 'post', $CURRENTLOCALE) . "\n" .
 			'		</label>' . "\n" .
 			' <span class="reflink">' . "\n" .
 			formatReflink($post_board, $page, $post_thread_start_id, $post['id'], $CURRENTLOCALE) .
@@ -1168,31 +1157,11 @@ class Board {
 			if ($this->board_showid) {
 				$info_post .= ' ID: ' . substr($post['ipmd5'], 0, 6) . "\n";
 			}
-			/*if ($page && $post_is_thread && $thread_relative_id !== '' && $post['stickied'] == 0 && $post['locked'] == 0) {
-				$info_post .= ' Estimated lifespan: ' . calculateThreadLifespan($post['id'], $page, $thread_relative_id, $this->board_dir, $this->board_maxpages, $this->board_maxage) . "\n";
+			/* I want to implement this as a possible feature, but I have yet to devise a practical way to give a correct calculation
+			if ($page && $post_is_thread && $thread_relative_id !== '' && $post['stickied'] == 0 && $post['locked'] == 0) {
+				$info_post .= ' Estimated lifespan: ' . calculateThreadLifespan($post['id'], $page, $thread_replies, $thread_relative_id, $this->board_dir, $this->board_maxpages, $this->board_maxage) . "\n";
 			}*/
-			$info_post .= '<span class="extrabtns">' . "\n";
-			if ($post['locked'] == 1) {
-				$info_post .= '	 <img style="border: 0;" src="' . getCLBoardPath() . 'css/locked.gif" alt="'._gettext('Locked').'">' . "\n";
-			}
-			if ($post['stickied'] == 1) {
-				$info_post .= '	<img style="border: 0;" src="' . getCLBoardPath() . 'css/sticky.gif" alt="'._gettext('Stickied').'">' . "\n";
-			}
-			if (KU_HIDE && $page && $post_is_thread) {
-				$info_post .= '	 <span id="hide' . $post['id'] . '"><a href="#" onclick="javascript:togglethread(\'' . $post_thread_start_id . $this->board_dir . '\');return false;" title="Hide Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidethread" alt="hide"></a></span>' . "\n";
-			}
-			if (KU_WATCHTHREADS && $post_is_thread) {
-				$info_post .= '	 <a href="#" onclick="javascript:addtowatchedthreads(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Watch Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="watchthread" alt="watch"></a>' . "\n";
-			}
-			if ($page && $post_is_thread) {
-				if (KU_EXPAND && $thread_replies > KU_REPLIES && $thread_replies < 300) {
-					$info_post .= '	 <a href="#" onclick="javascript:expandthread(\'' . $post_thread_start_id . '\', \'' . $this->board_dir . '\');return false;" title="Expand Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="expandthread" alt="expand"></a>' . "\n";
-				}
-				if (KU_QUICKREPLY) {
-					$info_post .= '	 <a href="#postbox" onclick="javascript:quickreply(\'' . $post_thread_start_id . '\');" title="' . _gettext('Quick Reply') . '"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="quickreply" alt="quickreply"></a>' . "\n";
-				}
-			}
-			$info_post .= '</span>' . "\n" .
+			$info_post .= $this->ExtraButtons($post, $page, $thread_replies) .
 			$this->DeleteAndBanLinks($post['id'], $post_is_thread);
 			
 			if ($page && $post_is_thread) {
@@ -1266,7 +1235,7 @@ class Board {
 				if ($page) {
 					$buildpost_output .= '<span class="navlinks">' . "\n" .
 					'	<a href="#';
-					if (($thread_relative_id-1)==-1) {
+					if (($thread_relative_id - 1) == -1) {
 						$buildpost_output .= ($threads_on_front_page-1);
 					} else {
 						$buildpost_output .= ($thread_relative_id-1);
@@ -1321,7 +1290,7 @@ class Board {
 			'<span class="postinfo">' .
 			_gettext('Name') . ': ';
 			
-			$buildpost_output .= formatNameAndTrip($post['name'], $post['email'], $post['tripcode'], $this->board_anonymous);
+			$buildpost_output .= formatNameAndTrip($post, $this->board_anonymous);
 			
 			$buildpost_output .= ' @ ' . date('Y-m-d H:i', $post['postedat']);
 			if ($this->board_showid) {
@@ -2290,6 +2259,65 @@ class Board {
 		} else {
 			$this->archive_dir = '';
 		}
+	}
+	
+	function ExtraButtons($post, $page, $replies) {
+		$output = '';
+		if ($post['locked'] == 1) {
+			$output .= '	 <img style="border: 0;" src="' . getCLBoardPath() . 'css/locked.gif" alt="'._gettext('Locked').'">' . "\n";
+		}
+		if ($post['stickied'] == 1) {
+			$output .= '	<img style="border: 0;" src="' . getCLBoardPath() . 'css/sticky.gif" alt="'._gettext('Stickied').'">' . "\n";
+		}
+		if (KU_HIDE && $page && $post['is_op']) {
+			$output .= '	 <span id="hide' . $post['id'] . '"><a href="#" onclick="javascript:togglethread(\'' . $post['op_id'] . $this->board_dir . '\');return false;" title="Hide Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="hidethread" alt="hide"></a></span>' . "\n";
+		}
+		if (KU_WATCHTHREADS && $post['is_op']) {
+			$output .= '	 <a href="#" onclick="javascript:addtowatchedthreads(\'' . $post['op_id'] . '\', \'' . $this->board_dir . '\');return false;" title="Watch Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="watchthread" alt="watch"></a>' . "\n";
+		}
+		if ($page && $post['is_op']) {
+			if (KU_EXPAND && ($replies > KU_REPLIES) && ($replies < 300)) {
+				$output .= '	 <a href="#" onclick="javascript:expandthread(\'' . $post['op_id'] . '\', \'' . $this->board_dir . '\');return false;" title="Expand Thread"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="expandthread" alt="expand"></a>' . "\n";
+			}
+			if (KU_QUICKREPLY) {
+				$output .= '	 <a href="#postbox" onclick="javascript:quickreply(\'' . $post['op_id'] . '\');" title="' . _gettext('Quick Reply') . '"><img src="' . getCLBoardPath() . 'css/icons/blank.gif" border="0" class="quickreply" alt="quickreply"></a>' . "\n";
+			}
+		}
+		
+		if ($output != '') {
+			$output = '<span class="extrabtns">' . "\n" . $output . '</span>' . "\n";
+		}
+		
+		return $output;
+	}
+	
+	function AuthorityDisplay($post) {
+		switch ($post['posterauthority']) {
+		case 1:
+			$return = ' <span class="admin">' . "\n" .
+			'	##&nbsp;' . _gettext('Admin') . '&nbsp;##' . "\n" .
+			'</span>' . "\n";
+			break;
+			
+		case 2:
+			$return = ' <span class="mod">' . "\n" .
+			'	##&nbsp;'._gettext('Mod').'&nbsp;##' . "\n" .
+			'</span>' . "\n";
+			break;
+			
+		case 3:
+			$return = ' <span class="vip">' . "\n" .
+			'	##&nbsp;VIP&nbsp;##' . "\n" .
+			'</span>' . "\n";
+			break;
+			
+		default:
+			$return = '';
+			break;
+			
+		}
+		
+		return $return;
 	}
 }
 

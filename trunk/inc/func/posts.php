@@ -182,6 +182,14 @@ function checkMarkedForDeletion($post, $maxage) {
 	return false;
 }
 
+function isDefaultFileType($filetype) {
+	if ($filetype == 'jpg' || $filetype == 'gif' || $filetype == 'png' || $filetype == 'you' || $filetype == 'goo') {
+		return true;
+	} else {
+		return false;
+	}		
+}
+
 function StickyThread($board, $thread) {
 	$db->Execute('UPDATE `' . KU_DBPREFIX . 'posts_' . $board . '` SET `stickied` = 1 WHERE `id` = ' . $thread);
 }

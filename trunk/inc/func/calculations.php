@@ -105,10 +105,16 @@ function array_insert(&$array, $position, $insert_array) {
     $array = array_merge($first_array, $insert_array, $array);
 }
 
-function calculateGlobalPostingRate($board) {
+function calculatePostingRate($board, $thread = 0) {
 	global $db;
 	
-	$posts = $db->GetAll("SELECT `postedat` FROM `" . KU_DBPREFIX . "posts_" . $board . "` WHERE `postedat` > " . (time() - 604800) . " ORDER BY `id` ASC");
+	$query = 'SELECT `postedat` FROM `' . KU_DBPREFIX . 'posts_' . $board . '` WHERE `postedat` > ' . (time() - 604800);
+	if ($thread > 0) {
+		$query .= ' AND `parentid` = ' . $thread;
+	}
+	$query .= ' ORDER BY `id` ASC LIMIT 100';
+	$posts = $db->GetAll($query);
+	
 	if (count($posts) > 0) {
 		$i = 0;
 		$lastpost_time = 0;
@@ -139,10 +145,10 @@ function calculateGlobalPostingRate($board) {
 	return 0;
 }
 
-function calculateThreadLifespan($id, $threadpage, $threadposition, $board, $board_maxpages, $board_maxage) {
+function calculateThreadLifespan($id, $threadpage, $threadreplies, $threadposition, $board, $board_maxpages, $board_maxage) {
 	global $db;
 	
-	return calculateGlobalPostingRate($board);
+	return calculatePostingRate($board, $id) . '!' . $threadposition;
 }
 
 function cleanBoardName($board) {

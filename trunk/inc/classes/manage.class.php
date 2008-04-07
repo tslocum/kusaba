@@ -1668,7 +1668,7 @@ class Manage {
 					}
 					$tpl_page .= '</td><td>';
 					if ($line['reason'] != '') {
-						 $tpl_page .= htmlentities(stripslashes($line['reason']));
+						 $tpl_page .= htmlentities($line['reason']);
 					} else {
 						$tpl_page .= '&nbsp;';
 					}
@@ -2722,7 +2722,6 @@ class Manage {
 					}
 					$regexp = substr($regexp, 0, -1) . ')/';
 					//$line['message'] = preg_replace_callback($regexp, array(&$this, 'search_callback'), stripslashes($line['message']));
-					$line['message'] = stripslashes($line['message']);
 					$tpl_page .= '<fieldset>' . $line['message'] . '</fieldset><br>';
 					$count++;
 				}
@@ -2845,7 +2844,7 @@ class Manage {
 						}
 						$tpl_page .= '</td><td>';
 						if ($line['message'] != '') {
-							$tpl_page .= stripslashes($line['message']);
+							$tpl_page .= $line['message'];
 						} else {
 							$tpl_page .= '&nbsp;';
 						}

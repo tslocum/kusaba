@@ -88,18 +88,18 @@ if ($_GET['p']=='faq') {
 	foreach($results AS $line) {
 		$entries++;
 		$content .= '<div class="content">' . "\n" .
-		'<h2><span class="newssub">'.stripslashes($line['subject']).' by ';
+		'<h2><span class="newssub">' . $line['subject'] . ' by ';
 		/* If the message had an email attached to it, add the proper html to link to it */
 		if ($line['postedemail']!="") {
-			$content .= '<a href="mailto:'.stripslashes($line['postedemail']).'">';
+			$content .= '<a href="mailto:' . $line['postedemail'] . '">';
 		}
-		$content .= stripslashes($line['postedby']);
+		$content .= $line['postedby'];
 		if ($line['postedemail']!="") {
 			$content .= '</a>';
 		}
 		$content .= ' - '.date("n/j/y @ g:iA T", $line['postedat']);
 		$content .= '</span><span class="permalink"><a href="#' . $line['id'] . '" name="' . $line['id'] . '" title="permalink">#</a></span></h2>
-		'.stripslashes($line['message']).'</div><br>';
+		' . $line['message'] . '</div><br>';
 	}
 }
 

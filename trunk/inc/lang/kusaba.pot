@@ -300,10 +300,10 @@ msgstr ""
 msgid "A common cause for this is an incorrect extension when the file is actually of a different type."
 msgstr ""
 
-msgid "Image successfully deleted from your post."
+msgid "File successfully deleted from your post."
 msgstr ""
 
-msgid "Your post already doesn't have an image!"
+msgid "Your post already doesn't have a file attached to it!"
 msgstr ""
 
 msgid "Post successfully deleted."

@@ -370,8 +370,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 				echo _gettext('That post is already in the report list.');
 			} else {
 				if ($post_class->Report()) {
-					echo _gettext('Post successfully reported.') . '<br>';
-					do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
+					echo _gettext('Post successfully reported.');
 				} else {
 					echo _gettext('Unable to report post.  Please go back and try again.');
 				}
@@ -385,16 +384,15 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 		if ($_POST['postpassword'] != '') {
 			if (md5($_POST['postpassword']) == $post_class->post_password) {
 				if (isset($_POST['fileonly'])) {
-					if ($post_class->post_file != '' && $post_class->post_file != 'removed') {
-						$post_class->DeleteImage();
+					if ($post_class->post_filename != '' && $post_class->post_filename != 'removed') {
+						$post_class->DeleteFile();
 						$board_class->RegeneratePages();
 						if ($post_class->post_parentid != 0) {
 							$board_class->RegenerateThread($post_class->post_parentid);
 						}
-						echo _gettext('Image successfully deleted from your post.') . '<br>';
-						do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
+						echo _gettext('File successfully deleted from your post.');
 					} else {
-						echo _gettext('Your post already doesn\'t have an image!');
+						echo _gettext('Your post already doesn\'t have a file attached to it!');
 					}
 				} else {
 					if ($post_class->Delete()) {
@@ -402,8 +400,7 @@ if ($posting_class->CheckValidPost($is_oekaki)) {
 							$board_class->RegenerateThread($post_class->post_parentid);
 						}
 						$board_class->RegeneratePages();
-						echo _gettext('Post successfully deleted.') . '<br>';
-						do_redirect(KU_BOARDSPATH . '/' . $board_class->board_dir . '/');
+						echo _gettext('Post successfully deleted.');
 					} else {
 						echo _gettext('There was an error in trying to delete your post');
 					}

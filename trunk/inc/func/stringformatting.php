@@ -7,29 +7,29 @@
  * @param string $tripcode Tripcode used in post
  * @return string Generated name and tripcode html
  */  
-function formatNameAndTrip($name, $email, $tripcode, $anonymous = 'Anonymous') {
+function formatNameAndTrip($post, $anonymous = 'Anonymous') {
 	$output = '<span class="postername">';
-			
-	if ($email != '') {
-		$output .= '<a href="mailto:' . $email . '">';
+	
+	if ($post['email'] != '') {
+		$output .= '<a href="mailto:' . $post['email'] . '">';
 	}
 	
-	if ($name == '' && $tripcode == '') {
+	if ($post['name'] == '' && $post['tripcode'] == '') {
 		$output .= $anonymous;
-	} else if ($name == '' && $tripcode != '') {
+	} else if ($post['name'] == '' && $post['tripcode'] != '') {
 		/* Just display the tripcode, no added html */
 	} else {
-		$output .= $name;
+		$output .= $post['name'];
 	}
 	
-	if ($email != '') {
+	if ($post['email'] != '') {
 		$output .= '</a>';
 	}
 	
 	$output .= '</span>';
 	
-	if ($tripcode != '') {
-		$output .= '<span class="postertrip">!' . $tripcode . '</span>';
+	if ($post['tripcode'] != '') {
+		$output .= '<span class="postertrip">!' . $post['tripcode'] . '</span>';
 	}
 	
 	$output .= "\n";

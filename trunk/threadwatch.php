@@ -89,8 +89,8 @@ if (isset($_GET['do'])) {
 		if (count($watched_threads) > 0) {
 			foreach ($watched_threads as $watched_thread) {
 				$threadinfo = $db->GetAll('SELECT `subject` , `name` , `tripcode` FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `id` = ' . $watched_thread['threadid'] . ' LIMIT 1');
-				
 				$threadinfo = $threadinfo[0];
+				$threadinfo['email'] = '';
 				
 				$output .= '<a href="' . KU_BOARDSFOLDER . mysql_real_escape_string($_GET['board']) . '/res/' . $watched_thread['threadid'] . '.html">' . $watched_thread['threadid'] . '</a> - ';
 				
@@ -98,7 +98,7 @@ if (isset($_GET['do'])) {
 					$output .= '<span class="filetitle">' . $threadinfo['subject'] . '</span> - ';
 				}
 				
-				$output .= formatNameAndTrip($threadinfo['name'], '', $threadinfo['tripcode'], 'Anonymous');
+				$output .= formatNameAndTrip($threadinfo, 'Anonymous');
 		
 				$numnewreplies = $db->GetOne('SELECT COUNT(*) FROM `'.KU_DBPREFIX.'posts_'.mysql_real_escape_string($_GET['board']).'` WHERE `IS_DELETED` = 0 AND `parentid` = ' . $watched_thread['threadid'] . ' AND `id` >  ' . $watched_thread['lastsawreplyid'] . ' LIMIT 1');
 				
