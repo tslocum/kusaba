@@ -1043,30 +1043,27 @@ class Board {
 		global $expandjavascript, $CURRENTLOCALE;
 		$buildpost_output = '';
 		
-		/* Depreciating */
-		$post_thread_start_id = ($post['parentid']==0) ? $post['id'] : $post['parentid'];
-		$post_is_thread = ($post['parentid']==0) ? true : false;
-		
-		$post['op_id'] = $post_thread_start_id;
-		$post['is_op'] = $post_is_thread;
+		$post['op_id'] = ($post['parentid'] == 0) ? $post['id'] : $post['parentid'];
+		$post['is_op'] = ($post['parentid'] == 0) ? true : false;
 		
 		if ($this->board_type_readable != 'text') {
 			/* Build a post imageboard style */
 			$info_file = '';
 			$info_post = '';
 			$info_image = '';
-			$post_is_standard = true;
-			$post_is_nofile = true;
+			$post['is_standard'] = true;
+			$post['has_file'] = false;
+			
 			$file_path = getCLBoardPath($this->board_dir, $this->board_loadbalanceurl_formatted, $this->archive_dir);
 			$post_thumb = $file_path . '/thumb/' . $post['filename'] . 's.' . $post['filetype'];
-			if ($post['filename'] != '' || $post['filetype'] != '' || $post_is_thread != '') {
-				$post_is_nofile = false;
+			if ($post['filename'] != '' || $post['filetype'] != '' || $post['is_op'] != '') {
+				$post['has_file'] = true;
 				if ($post['filename'] == 'removed') {
 					$post_thumb = 'removed';
 				} else {
 					/* Check if the filetype is not a default type */
 					if (!isDefaultFileType($post['filetype'])) {
-						$post_is_standard = false;
+						$post['is_standard'] = false;
 						$filetype_info = getfiletypeinfo($post['filetype']);
 						$post_thumb = KU_WEBPATH . '/inc/filetypes/' . $filetype_info[0];
 						$post['thumb_w'] = $filetype_info[1];
@@ -1078,14 +1075,14 @@ class Board {
 			$post_file_imgelement = '<img src="'.$post_file_url.'" alt="'.$post['id'].'" class="thumb" height="'.$post['image_h'].'" width="'.$post['image_w'].'">';
 			$post_file_thumblement = '<img src="'.$post_thumb.'" alt="'.$post['id'].'" class="thumb" height="'.$post['thumb_h'].'" width="'.$post['thumb_w'].'">';
 			/* Build the "File: ..." line */
-			if (!$post_is_nofile&&($post['filetype']!='you'&&$post['filetype']!='goo'&&$post['filename']!='') && $post['filename'] != 'removed') {
+			if ($post['has_file'] && ($post['filetype']!='you'&&$post['filetype']!='goo'&&$post['filename']!='') && $post['filename'] != 'removed') {
 				if ($post['parentid'] == 0 && $thread_relative_id !== '') {
 					$info_file .= '<a name="s' . $thread_relative_id . '"></a>';
 				}
 				$info_file .= '<span class="filesize">'._gettext('File').': ';
-				if ($post_is_standard) {
+				if ($post['is_standard']) {
 					$info_file .= '<a href="' . $post_file_url . '" onclick="javascript:expandimg(\'' . $post['id'] . '\', \'' . $post_file_url . '\', \'' . $post_thumb . '\', \'' . $post['image_w'] . '\', \'' . $post['image_h'] . '\', \'' . $post['thumb_w'] . '\', \'' . $post['thumb_h'] . '\');return false;">';
-					if (!$post_is_thread) {
+					if (!$post['is_op']) {
 						$expandjavascript .= 'expandimg(\'' . $post['id'] . '\', \'' . $post_file_url . '\', \'' . $post_thumb . '\', \'' . $post['image_w'] . '\', \'' . $post['image_h'] . '\', \'' . $post['thumb_w'] . '\', \'' . $post['thumb_h'] . '\');';
 					}
 				} else {
@@ -1110,7 +1107,7 @@ class Board {
 				$info_file .= ')</span>' . "\n";
 				if (KU_THUMBMSG) {
 					$info_file .= '<span class="thumbnailmsg"> ';
-					if ($post_is_standard) {
+					if ($post['is_standard']) {
 						$info_file .= _gettext('Thumbnail displayed, click image for full size.');
 					} else {
 						$info_file .= _gettext('Extension icon displayed, click image to open file.');
@@ -1123,7 +1120,7 @@ class Board {
 				}
 			}
 			/* Build the "[checkbox] (Poster name)..." line */
-			if ($post['filetype'] != 'you' && $post['filetype'] != 'goo' && $post['filename'] != '' && !$post_is_nofile) {
+			if ($post['filetype'] != 'you' && $post['filetype'] != 'goo' && $post['filename'] != '' && $post['has_file']) {
 				if ($post['filename'] == 'removed') {
 					$info_image .=  '<div hspace="20" style="float:left;text-align:center;padding:14px;margin:3px;border:black 3px dashed;">' . "\n" .
 					'	' . _gettext('File<br>Removed') . "\n" .
@@ -1152,26 +1149,26 @@ class Board {
 			' ' . formatDate($post['postedat'], 'post', $CURRENTLOCALE) . "\n" .
 			'		</label>' . "\n" .
 			' <span class="reflink">' . "\n" .
-			formatReflink($post_board, $page, $post_thread_start_id, $post['id'], $CURRENTLOCALE) .
+			'	' . $this->Reflink($post, $page, $CURRENTLOCALE) .
 			'</span>' . "\n";
 			if ($this->board_showid) {
 				$info_post .= ' ID: ' . substr($post['ipmd5'], 0, 6) . "\n";
 			}
 			/* I want to implement this as a possible feature, but I have yet to devise a practical way to give a correct calculation
-			if ($page && $post_is_thread && $thread_relative_id !== '' && $post['stickied'] == 0 && $post['locked'] == 0) {
+			if ($page && $post['is_op'] && $thread_relative_id !== '' && $post['stickied'] == 0 && $post['locked'] == 0) {
 				$info_post .= ' Estimated lifespan: ' . calculateThreadLifespan($post['id'], $page, $thread_replies, $thread_relative_id, $this->board_dir, $this->board_maxpages, $this->board_maxage) . "\n";
 			}*/
 			$info_post .= $this->ExtraButtons($post, $page, $thread_replies) .
-			$this->DeleteAndBanLinks($post['id'], $post_is_thread);
+			$this->DeleteAndBanLinks($post['id'], $post['is_op']);
 			
-			if ($page && $post_is_thread) {
+			if ($page && $post['is_op']) {
 				$modifier_last50 = ($thread_replies > 49) ? true : false;
 				$modifier_first100 = ($thread_replies > 99) ? true : false;
 				
-				$info_post .= ' &nbsp; ' . threadLinks('page', $post_thread_start_id, $this->board_dir, $this->board_type, $modifier_last50, $modifier_first100);
+				$info_post .= ' &nbsp; ' . threadLinks('page', $post['op_id'], $this->board_dir, $this->board_type, $modifier_last50, $modifier_first100);
 			}
 			
-			if (!$post_is_thread) {
+			if (!$post['is_op']) {
 				$buildpost_output .= '<table>' . "\n" .
 				'<tbody>' . "\n" .
 				'<tr>' . "\n" .
@@ -1200,14 +1197,14 @@ class Board {
 				$buildpost_output .= embeddedVideoBox($post);
 			}
 			
-			$buildpost_output .= formatLongMessage($post['message'], $this->board_dir, $post_thread_start_id, $page);
+			$buildpost_output .= formatLongMessage($post['message'], $this->board_dir, $post['op_id'], $page);
 			
 			$buildpost_output .= '</blockquote>' . "\n";
 			/* If the thread is two hours or less from being pruned, add the marked for deletion message */
 			if ($this->archive_dir == '' && checkMarkedForDeletion($post, $this->board_maxage)) {
 				$buildpost_output .= markedForDeletionMessage();
 			}
-			if (!$post_is_thread) {
+			if (!$post['is_op']) {
 				$buildpost_output .= '	</td>' . "\n" .
 				'</tr>' . "\n" . 
 				'</tbody>' . "\n" .
@@ -1224,14 +1221,14 @@ class Board {
 				$post['tripcode'] = _gettext('Deleted');
 				$post['message'] = '<font color="gray">'._gettext('This post has been deleted.').'</font>';
 			}
-			if ($post_is_thread) {
+			if ($post['is_op']) {
 				if ($page) {
 					$buildpost_output .= '<div class="border">' . "\n" .
 					'<div class="thread">' . "\n";
 				}
 			}
 			$buildpost_output .= '<a name="'.$thread_relative_id.'"></a>' . "\n";
-			if ($post_is_thread) {
+			if ($post['is_op']) {
 				if ($page) {
 					$buildpost_output .= '<span class="navlinks">' . "\n" .
 					'	<a href="#';
@@ -1253,7 +1250,7 @@ class Board {
 				}
 				$buildpost_output .= '<h2>';
 				if ($page) {
-					$buildpost_output .= '<a href="res/'.$post_thread_start_id.'.html">';
+					$buildpost_output .= '<a href="res/' . $post['op_id'] . '.html">';
 				}
 				$buildpost_output .= $post['subject'];
 				if ($page) {
@@ -1280,12 +1277,12 @@ class Board {
 			}
 			$buildpost_output .= '<h3>' . "\n" .
 			'<span class="postnum">' . "\n" .
-			'<a href="javascript:quote('.$reply_relative_id.', \'post'.$post_thread_start_id.'\');"';
+			'<a href="javascript:quote(' . $reply_relative_id . ', \'post' . $post['op_id'] . '\');"';
 			if (!$page) {
-				$buildpost_output .= ' name="'.$reply_relative_id.'"';
+				$buildpost_output .= ' name="' . $reply_relative_id . '"';
 			}
-			$buildpost_output .= '>'.$reply_relative_id.'</a>' .
-			'<a href="' . KU_BOARDSPATH . '/' . $this->board_dir . '/res/' . $post_thread_start_id . '.html#' . $reply_relative_id . '">.</a>' .
+			$buildpost_output .= '>' . $reply_relative_id . '</a>' .
+			'<a href="' . KU_BOARDSPATH . '/' . $this->board_dir . '/res/' . $post['op_id'] . '.html#' . $reply_relative_id . '">.</a>' .
 			'</span>' .
 			'<span class="postinfo">' .
 			_gettext('Name') . ': ';
@@ -1299,12 +1296,12 @@ class Board {
 			if (!$page) {
 				$buildpost_output .= ' <input type="checkbox" name="delete" value="' . $post['id'] . '">';
 			}
-			$buildpost_output .= ' ' . $this->DeleteAndBanLinks($post['id'], $post_is_thread) .
+			$buildpost_output .= ' ' . $this->DeleteAndBanLinks($post['id'], $post['is_op']) .
 			'<span class="id"></span>' . "\n" .
 			'</span>' . "\n" .
 			'</h3>' . "\n" .
 			'<blockquote>' . "\n" .
-			formatLongMessage($post['message'], $this->board_dir, $post_thread_start_id, $page) .
+			formatLongMessage($post['message'], $this->board_dir, $post['op_id'], $page) .
 			'</blockquote>' . "\n" .
 			'</div>' . "\n";
 		}
@@ -2318,6 +2315,28 @@ class Board {
 		}
 		
 		return $return;
+	}
+	
+	function Reflink($post, $page, $locale = 'en') {
+		$reflink_noquote = '<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/res/' . $post['op_id'] . '.html#' . $post['id'] . '"';
+		if (!$page) {
+			$reflink_noquote .= ' onclick="javascript:highlight(\'' . $post['id'] . '\');"';
+		}
+		$reflink_noquote .= '>';
+		
+		$reflink_quote = '<a href="' . KU_BOARDSFOLDER . $this->board_dir . '/res/' . $post['op_id'] . '.html#i' . $post['id'] . '"';
+		if (!$page) {
+			$reflink_quote .= ' onclick="insert(\'>>' . $post['id'] . '\');"';
+		}
+		$reflink_quote .= '>';
+		
+		if ($locale == 'ja') {
+			$return = $reflink_quote . formatJapaneseNumbers($post['id']) . '</a>' . $reflink_noquote . '番</a>';
+		} else {
+			$return = $reflink_noquote . 'No.&nbsp;' . '</a>' . $reflink_quote . $post['id'] . '</a>';
+		}
+		
+		return $return . "\n";
 	}
 }
 
