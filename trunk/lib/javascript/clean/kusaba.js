@@ -675,6 +675,277 @@ function keypress(e) {
 	}
 }
 
+function quickBrowse(direction, area) {
+	var docloc = document.location.toString();
+	if ((docloc.indexOf('catalog.html') == -1 && docloc.indexOf('/res/') == -1) || (docloc.indexOf('catalog.html') == -1 && e.keyCode == 80)) {
+		if (docloc.indexOf('.html') == -1 || docloc.indexOf('board.html') != -1) {
+			var page = 0;
+			var docloc_trimmed = docloc.substr(0, docloc.lastIndexOf('/') + 1);
+		} else {
+			var page = docloc.substr((docloc.lastIndexOf('/') + 1));
+			page = (+page.substr(0, page.indexOf('.html')));
+			var docloc_trimmed = docloc.substr(0, docloc.lastIndexOf('/') + 1);
+		}
+		if (page == 0) {
+			var docloc_valid = docloc_trimmed;
+		} else {
+			var docloc_valid  = docloc_trimmed + page + '.html';
+		}
+		
+		if (area == 'thread') {
+			if(match=/#s([0-9])/.exec(docloc)) {
+				var relativepost = (+match[1]);
+			} else {
+				var relativepost = -1;
+			}
+			
+			if (direction == 'down') {
+				if (relativepost == -1 || relativepost == 9) {
+					var newrelativepost = 0;
+				} else {
+					var newrelativepost = relativepost + 1;
+				}
+			} else if (direction == 'up') {
+				if (relativepost == -1 || relativepost == 0) {
+					var newrelativepost = 9;
+				} else {
+					var newrelativepost = relativepost - 1;
+				}
+			}
+			
+			document.location.href = docloc_valid + '#s' + newrelativepost;
+		} else if (area == 'page') {
+			if (direction == 'down') {
+				page = page + 1;
+			} else if (direction == 'up') {
+				if (page >= 1) {
+					page = page - 1;
+				}
+			}
+			
+			if (page == 0) {
+				document.location.href = docloc_trimmed;
+			} else {
+				document.location.href = docloc_trimmed + page + '.html';
+			}
+		} else if (area == 'postbox') {
+			document.location.href = docloc_valid + '#postbox';
+		}
+	}
+}
+
+// Wii Javascript
+var wii = {};
+
+wii.isWiiOperaBrowser = function() {
+  return (navigator.userAgent.toLowerCase().indexOf("nintendo wii") >= 0);
+}
+
+// wii keycodes
+wii.KEYCODE_MINUS_ = 170;
+wii.KEYCODE_PLUS_ = 174;
+wii.KEYCODE_1_ = 172;
+wii.KEYCODE_2_ = 173;
+wii.KEYCODE_B_ = 171;
+wii.KEYCODE_UP_ = 175;
+wii.KEYCODE_DOWN_ = 176;
+wii.KEYCODE_RIGHT_ = 177;
+wii.KEYCODE_LEFT_ = 178;
+
+wii.controllers_ = [];
+
+wii.addController = function(controller) {
+  if (!(controller instanceof wii.Controller)) {
+    throw new Error("invalid argument passed to wii.addController");
+  }
+  var controllers = wii.controllers_;
+  var alreadyAdded = false;
+  for (var i = 0, len = controllers.length; i < len; ++i) {
+    if (controllers[i] === controller) {
+      alreadyAdded = true;
+      break;
+    }
+  }
+  if (!alreadyAdded) {
+    controllers.push(controller);
+  }
+  return !alreadyAdded;
+}
+
+wii.removeController = function(controller) {
+  if (!(controller instanceof wii.Controller)) {
+    throw new Error("invalid argument passed to wii.addController");
+  }
+  var controllers = wii.controllers_;
+  var removed = false;
+  for (var i = 0, len = controllers.length; i < len; ++i) {
+    if (controllers[i] === controller) {
+      controllers.splice(i, 1);
+      removed = true;
+      break;
+    }
+  }
+  return removed;
+}
+
+wii.setupHandlers = function() {
+  document.onkeypress = wii.handleKeyPress_;
+  document.onclick = wii.handleMouseClick_;
+}
+
+wii.handleKeyPress_ = function(e) {
+  var keyCode = e.which;
+  var controllers = wii.controllers_;
+  var returnValue = true;
+  for (var i = 0, len = controllers.length; i < len; ++i) {
+    var controller = controllers[i];
+    if (!controller.handleKeyPress(keyCode)) {
+      returnValue = false;
+    }
+  }
+  return returnValue;
+}
+
+wii.handleMouseClick_ = function(e) {
+  if (e.which != 1) {
+    // not the left mouse button
+    return;
+  }
+  var returnValue = true;
+  var controllers = wii.controllers_;
+  for (var i = 0, len = controllers.length; i < len; ++i) {
+    var controller = controllers[i];
+    if (!controller.handleMouseClick()) {
+      returnValue = false;
+    }
+  }
+  return returnValue;
+}
+
+wii.Controller = function() {};
+wii.Controller.prototype.handleUp = function() { return true; };
+wii.Controller.prototype.handleDown = function() { return true; };
+wii.Controller.prototype.handleLeft = function() { return true; };
+wii.Controller.prototype.handleRight = function() { return true; };
+wii.Controller.prototype.handle1 = function() { return true; };
+
+wii.Wiimote = function() {
+  wii.Controller.call(null);
+};
+wii.Wiimote.prototype = new wii.Controller();
+wii.Wiimote.prototype.toString = function() {
+  return "[Wiimote]";
+};
+wii.Wiimote.prototype.handleMouseClick = function() {
+  return this.handleA();
+};
+wii.Wiimote.prototype.handleKeyPress = function(keyCode) {
+  switch (keyCode) {
+    case wii.KEYCODE_UP_:
+      this.handleUp();
+      break;
+    case wii.KEYCODE_DOWN_:
+      this.handleDown();
+      break;
+    case wii.KEYCODE_LEFT_:
+      this.handleLeft();
+      break;
+    case wii.KEYCODE_RIGHT_:
+      this.handleRight();
+      break;
+    case wii.KEYCODE_1_:
+      this.handle1();
+      break;
+    case wii.KEYCODE_2_:
+      this.handle2();
+      break;
+    default:
+      return true;
+  }
+  return false;
+};
+
+wii.HorizontalController = function() {
+  wii.Controller.call(null);
+};
+wii.HorizontalController.prototype = new wii.Controller();
+wii.HorizontalController.prototype.toString = function() {
+  return "[HorizontalController]";
+};
+wii.HorizontalController.prototype.handleKeyPress = function(keyCode) {
+  switch (keyCode) {
+    case wii.KEYCODE_UP_:
+      this.handleLeft();
+      break;
+    case wii.KEYCODE_DOWN_:
+      this.handleRight();
+      break;
+    case wii.KEYCODE_LEFT_:
+      this.handleDown();
+      break;
+    case wii.KEYCODE_RIGHT_:
+      this.handleUp();
+      break;
+    case wii.KEYCODE_1_:
+      this.handleB();
+      break;
+    default:
+      return true;
+  }
+  return false;
+};
+
+wii.KeyboardController = function() {
+  wii.Controller.call(null);
+};
+wii.KeyboardController.prototype = new wii.Controller();
+wii.KeyboardController.prototype.toString = function() {
+  return "[KeyboardController]";
+};
+wii.KeyboardController.prototype.handleKeyPress = function(keyCode) {
+  switch (keyCode) {
+    case 105: // I
+      this.handleUp();
+      break;
+    case 107: // K
+      this.handleDown();
+      break;
+    case 106: // J
+      this.handleLeft();
+      break;
+    case 108: // L
+      this.handleRight();
+      break;
+    case 45:  // -
+      this.handleMinus();
+      break;
+    case 43:  // +
+      this.handlePlus();
+      break;
+    case 49:  // 1
+      this.handle1();
+      break;
+    case 50:  // 2
+      this.handle2();
+      break;
+    case 98:  // B 
+      this.handleB();
+      break;
+    case 97:  // A
+      this.handleA();
+      break;
+    default:
+      return true;
+  }
+  return false;
+};
+
+function createLoggerFunction(msg) {
+	return function() {
+		alert(msg);
+	}
+}
+
 window.onunload=function(e) {
 	if(style_cookie) {
 		var title=get_active_stylesheet();
@@ -740,4 +1011,17 @@ if(style_cookie_site) {
 
 if (getCookie('kumod')=='yes') {
 	kumod_set = true;
+}
+
+if (wii.isWiiOperaBrowser()) {
+	var wiimote = new wii.Wiimote();
+	
+	wiimote.handleUp    = function() { quickBrowse('up', 'thread'); };
+	wiimote.handleDown  = function() { quickBrowse('down', 'thread'); };
+	wiimote.handleLeft  = function() { quickBrowse('up', 'page'); };
+	wiimote.handleRight = function() { quickBrowse('down', 'page'); };
+	wiimote.handle1     = function() { quickBrowse('', 'postbox'); };
+	
+	wii.setupHandlers();
+	wii.addController(wiimote);
 }

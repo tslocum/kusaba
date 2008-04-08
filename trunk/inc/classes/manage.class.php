@@ -2536,11 +2536,21 @@ class Manage {
 			$tpl_page .= '<tr><td colspan="5">' . _gettext('None') . '</td></tr>' . "\n";
 		}
 		$tpl_page .= '<tr><td align="center" colspan="5"><font size="+1"><b>VIP</b></font></td></tr>' . "\n";
-		$tpl_page .= '<tr><th>' . _gettext('Posting password') . '</th><th colspan="3">' . _gettext('Added on') . '</th><th>&nbsp;</th>' . "\n";;
-		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = '3' ORDER BY `username` ASC");
+		$tpl_page .= '<tr><th>' . _gettext('Posting password') . '</th><th>' . _gettext('Added on') . '</th><th colspan="2">Boards</th><th>&nbsp;</th>' . "\n";;
+		$results = $db->GetAll("SELECT HIGH_PRIORITY * FROM `" . KU_DBPREFIX . "staff` WHERE `type` = 3 ORDER BY `username` ASC");
 		if (count($results) > 0) {
 			foreach ($results as $line) {
-				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td colspan="2">' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
+				$tpl_page .= '<tr><td>' . $line['username'] . '</td><td>' . date("y/m/d(D)H:i", $line['addedon']) . '</td><td colspan="2">';
+				if ($line['boards'] != '') {
+					if ($line['boards'] == 'allboards') {
+						$tpl_page .= 'All boards';
+					} else {
+						$tpl_page .= '<b>/' . implode('/</b>, <b>/', explode('|', $line['boards'])) . '/</b>';
+					}
+				} else {
+					$tpl_page .= _gettext('No boards');
+				}
+				$tpl_page .= '</td><td>[<a href="?action=staff&edit=' . $line['id'] . '">' . _gettext('Edit') . '</a>]&nbsp;[<a href="?action=staff&del=' . $line['id'] . '">x</a>]</td></tr>' . "\n";
 			}
 		} else {
 			$tpl_page .= '<tr><td colspan="5">' . _gettext('None') . '</td></tr>' . "\n";

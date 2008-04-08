@@ -1071,9 +1071,11 @@ class Board {
 					}
 				}
 			}
+			
 			$post_file_url = $file_path . '/src/' . $post['filename'] . '.' . $post['filetype'];
 			$post_file_imgelement = '<img src="'.$post_file_url.'" alt="'.$post['id'].'" class="thumb" height="'.$post['image_h'].'" width="'.$post['image_w'].'">';
 			$post_file_thumblement = '<img src="'.$post_thumb.'" alt="'.$post['id'].'" class="thumb" height="'.$post['thumb_h'].'" width="'.$post['thumb_w'].'">';
+			
 			/* Build the "File: ..." line */
 			if ($post['has_file'] && ($post['filetype']!='you'&&$post['filetype']!='goo'&&$post['filename']!='') && $post['filename'] != 'removed') {
 				if ($post['parentid'] == 0 && $thread_relative_id !== '') {
@@ -1328,60 +1330,6 @@ class Board {
 		}
 		$tpl['title'] .= $this->board_desc;
 		$tpl['head'] = '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/protoaculous-compressed.js"></script>' . "\n";
-		/* Wii-specific features?
-			$tpl['head'] .= '<script type="text/javascript" src="' . getCWebPath() . 'lib/javascript/wii.js"></script>' . "\n" .
-			'<script type="text/javascript">' . "\n" .
-			'var wiimote = new wii.Wiimote();
-			var horizontalController = new wii.HorizontalController();
-			var keyboardController = new wii.KeyboardController();
-			
-			function changeController(code) {
-			  if (code == 0) {
-			    wii.addController(wiimote);
-			    wii.removeController(horizontalController);
-			    wii.removeController(keyboardController);
-			  } else if (code == 1) {
-			    wii.removeController(wiimote);
-			    wii.addController(horizontalController);
-			    wii.removeController(keyboardController);
-			  } else if (code == 2) {
-			    wii.removeController(wiimote);
-			    wii.removeController(horizontalController);
-			    wii.addController(keyboardController);
-			  }
-			}
-
-			function setupControllers() {
-			  var controllers = [ wiimote, horizontalController, keyboardController ];
-			  for (var i = 0; i < controllers.length; ++i) {
-			    var controller = controllers[i];
-			    /*controller.handleUp = createLoggerFunction(\'&uarr; button pressed\');
-			    controller.handleDown = createLoggerFunction(\'&darr; button pressed\');
-			    controller.handleLeft = createLoggerFunction(\'&larr; button pressed\');
-			    controller.handleRight = createLoggerFunction(\'&rarr; button pressed\');
-			    controller.handleMinus = createLoggerFunction(\'&ndash; button pressed\');
-			    controller.handlePlus = createLoggerFunction(\'+ button pressed\');
-			    controller.handle1 = createLoggerFunction(\'1 button pressed\');
-			    controller.handle2 = createLoggerFunction(\'2 button pressed\');
-			    controller.handleA = createLoggerFunction(\'A button pressed\', true);
-			    controller.handleB = createLoggerFunction(\'B button pressed\');
-			  }
-			}
-			
-			wii.setupHandlers();
-			setupControllers();
-			
-			var controller;
-			if (wii.isWiiOperaBrowser()) {
-				changeController(0);
-				//controller = $(\'wiimote\');
-			} else {
-				changeController(2);
-				//controller = $(\'keyboardController\');
-			}
-			//controller.checked = \'yes\';' . "\n" .
-			'</script>' . "\n";
-		}*/
 		$output = '';
 		
 		if ($this->board_type_readable != 'text') {
@@ -1422,6 +1370,7 @@ class Board {
 		}
 		$tpl['head'] .= ';' . "\n" .
 		'//--></script>' . "\n";
+		
 		if ($this->board_type_readable == 'text') {
 			if ($replythread == 0) {
 				$output .= '<body class="board">' . "\n";

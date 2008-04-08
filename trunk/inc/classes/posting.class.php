@@ -261,7 +261,7 @@ class Posting {
 		
 		if (isset($_POST['modpassword'])) {
 			
-			$results = $db->GetAll('SELECT `type`, `boards` FROM `' . KU_DBPREFIX . 'staff` WHERE `username` = \'' . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . '\' LIMIT 1');
+			$results = $db->GetAll('SELECT `type`, `boards` FROM `' . KU_DBPREFIX . 'staff` WHERE `username` = \'' . md5_decrypt($_POST['modpassword'], KU_RANDOMSEED) . '\' OR (`username` = \'' . $_POST['modpassword'] . '\' AND `type` = 3) LIMIT 1');
 			
 			if (count($results) > 0) {
 				if ($results[0][0] == 1) {
