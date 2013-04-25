@@ -1,6 +1,12 @@
 #summary Guide to a successful installation of kusaba
 #labels Featured,Phase-Deploy
 
+=Don't use kusaba, use TinyIB=
+*kusaba is outdated and unsupported.  Visit [https://github.com/tslocum/TinyIB https://github.com/tslocum/TinyIB] to learn about TinyIB, a better imageboard software.*
+
+
+
+
 =kusaba Requirements=
 To run kusaba, you should have a webserver with at least the following:
 
