@@ -1,0 +1,18 @@
+# Administrators #
+
+Administrators are the heighest empowered staff in kusaba.  They can add and remove other administrators, as well as any staff below that.  Every function provided by the maange panel is accessible by administrators.
+  * Administrators are global moderators.  That is, they will receive D & B links for all boards
+
+# Moderators #
+
+Moderators are able to delete and ban users from assigned boards.  If a board is not in their list of moderation, they will not be able to take any action on that board.  When banning a user, they may only place specific bans upon their assigned boards, or a global ban.
+  * Moderators can not use anything in the Administration area of the manage panel, and will not even see it when logged in.  They also are able to work with reports, however currently the report system is unavailable
+
+# Janitors #
+
+Janitors have a single purpose: deleting posts.  They are like moderators in the way they only have power over their assigned boards, however deleting posts is the only thing they are able to do.
+
+# VIP #
+
+VIP "staff" are simply VIP codes which may be used during posting.  When adding a VIP code, only enter the username field, the password field is not used.  The username entered will be the code which is to be entered in the Mod box while posting to receive ## VIP ## on the post.
+  * VIP codes may not be used to log into the manage panel

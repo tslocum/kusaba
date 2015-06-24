@@ -1,0 +1,71 @@
+# Upgrading #
+
+Download the upgrade zip of the next version in line from what you are currently running.  **You can not skip upgrades!**
+
+If there is no upgrade zip of the next version, that means the upgrade and install are packaged together.  Download the dual zip.
+
+Make a backup of your current config.php somewhere and open it in a text editor.
+
+Extract the upgrade zip's contents and open up config.php
+
+Replace the values in the new config.php with your old values.  **KU\_RANDOMSEED must stay the exact same for each upgrade!**
+
+Upload all of the files except the OTHER folder.
+
+Open the OTHER folder and look for an upgrade.php.  If there isn't one, you do not need to take any further actions to finish upgrading.
+
+If there is, upload it to the server and run it from your browser.
+
+Delete upgrade.php, and you're finished.
+
+# I'm using WAMP and having problems with... #
+
+XAMPP has been tested and works fully with kusaba.  Please use XAMPP instead.
+
+# Blank, white pages with no errors #
+
+This is most likely due to display\_errors set to Off in your php.ini
+
+You have two choices:  set display\_errors to On, or locate your error log file and read from there.
+
+If you don't have access to your php.ini, ask your host to set this directive for you.
+
+# Mod Posting #
+
+Mod posting is the act of using your staff account to make a modified post, which can do quite a few things.
+
+To make a mod post, log in to the manage panel and click on the link in the menu labeled "Show Posting Password".  It will change into a string of text;  copy this.
+
+Go back to the board you want to make a mod post in and scroll to the post form.  Click the space to the right of the e in File, and the Mod box will open.
+
+Paste your posting password in the Mod box and change any options in the Mod box if you desire, and click post.
+
+# Adding Boards to the Menu #
+
+First go to the manage panel, Administration -> Edit Sections.
+
+Add a section, and take note of its ID.
+
+Go to Board options, select a board, and in the Section box, place that ID.
+
+Save the changes.
+
+Reload your front page, and it should show up.
+
+# Making F5 Work Properly #
+
+Thanks go to hurrrrr from freechan.org for this:
+
+Once your site is set up and finished being configured, go to the front page.  You should see a menu with your boards and the news area.  Click View -> Page Source, and copy the contents.
+
+Make a new file called kusaba.html, and in that file, paste the HTML into it, and upload it to the same area as kusaba.php
+
+Open your .htaccess, change:
+
+DirectoryIndex kusaba.php
+
+To:
+
+DirectoryIndex kusaba.html
+
+Overwrite the old .htaccess, reload your front page, and enjoy finally having proper F5 support!

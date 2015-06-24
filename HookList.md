@@ -1,0 +1,1 @@
+  * $hooks['posting'] - PostingHook - Post data directly before insertion

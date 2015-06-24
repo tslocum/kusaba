@@ -1,0 +1,256 @@
+# 1.0.4 #
+  * All configurable page-layout features now default to off
+  * The staff page now shows the time which each staff member was last active
+  * Images posted in the past 24 hours are now easily checked for following the rules without scavenging each board with the new "Recently uploaded images" page in the manage panel
+  * The manage panel's menu has been reorganized a bit
+  * News page is now tpl'd
+  * Quotes made on imageboards can now be moused over to reveal a preview of the post being referenced.  This will only work on new posts made after the upgrade
+  * Post Spy has been added.  This, upon being enabled, will add new posts as they arrive when viewing an entire thread
+
+# 1.0.3 #
+  * The number of images omitted will now display with the proper number
+  * You may now choose to use a compact thread list on the front page of text boards by using the Compact List option in board options
+  * Setting KU\_MENUTYPE to plain will now make the menu much smaller and less styled
+  * Changing the width/height of embedded YouTube videos is now taken care of in config.php by changing KU\_YOUTUBEWIDTH and KU\_YOUTUBEHEIGHT
+  * Expand all images has been added
+  * Long strings of text without a space or line break will now cut using multibyte compatible functions, if they are available.  This means if the text being cut is in Japanese, you will no longer end up with characters missing and split characters resulting in question marks
+  * kusamove has been implemented into the manage panel, and is now accessible to administrators
+  * Many more improvements are now in place towards making the entire database use a UTF-8 charset
+  * (Steve) Added extra information to the ban appeal emails
+  * (Steve) Fixed modposting for moderators who are set to moderate all boards
+  * Added a "Deny appeal" link to the ban appeal emails
+  * The search posts feature has returned
+  * The passcache table has been removed; names and tripcodes will now no longer cache in the database
+  * Pingbacks now send post count statistics
+  * Better page validation (http://validator.w3.org/ )
+  * Ban proxy list file submitting has been fixed
+  * The default configuration values for the paths is now completely up to the user to enter.  I'm sick of constantly having people rely solely on it and then post support threads about how it is incorrect
+
+# 1.0.2 #
+  * KU\_WEBCORAL and KU\_BOARDSCORAL have been added.  If set, they will be used in place of their original counterparts for images, css, and javascript
+  * Numerous actions have been taken to make pages load faster, including javascript compression and reduction of external requests per page.  The uncompressed version of all javascript files are still included in case of a need for modification
+  * The code tag has been improved, and will now render multiple spaces and tabs properly
+  * Multi-quote has been heavily improved
+  * **mbstring is no longer required for english-only sites!** (any language other than english may have problems, which can be fixed by installing mbstring into php like normal)
+  * Message formatting selection has been added.  This allows you to save usage of the text art font, or keep the normal formatting
+  * Message preview for adding a post on text boards has been added.  This may be extended to normal imageboards
+  * A "More..." link has been added, which will reveal an extra row in the post area to pick message formatting and use message preview
+  * The name displayed when a user does not enter a name is now configurable on a per-board basis by changing the Anonymous value in board options
+
+# 1.0.1 #
+  * A style resembling Futaba has been added for text boards
+  * Imagemagick may now be used for thumbnailing files by setting KU\_THUMBMETHOD to 'imagemagick'
+  * Multi-quote support has been added
+  * Text board styles may now be changed in config.php
+  * A default style for a text board may now be set in board options
+  * Forced anonymous on a text board will now hide the Name field in the reply area
+  * You may now change the number of threads shown on the front page of a text board using KU\_THREADSTXT.  The default is 15
+  * All post tables will now use the InnoDB engine
+  * A few structural improvements have been placed on all post tables
+  * You may now choose whether or not to allow animation in .gif thumbnails (only applies when using imagemagick)
+
+# 1.0.0 #
+  * Trevorchan has been renamed to **kusaba**!
+  * Icons will now change color to best fit the currently selected style
+  * Site styles have been added, currently Futaba and Burichan are available, and can be controlled in the menu
+  * Board naming is now better checked for validity
+  * Global moderators/janitors are now possible by checking an "all boards" checkbox
+  * When editing a board's options, you may now choose to automatically regenerate all of its html files after saving
+  * **Reports have been fixed!**
+  * The list of boards shown at the top/bottom of board pages can now be chosen to have created automatically, or use the boards.html file
+  * Blotter capability has been added
+  * A ban appeal system has been added
+
+# 0.9.9 #
+  * operations.functions.php has been merged into functions.php
+  * The "Return ..." links are now placed at the bottom of the thread as well as the top
+  * When visiting a First 100 posts or Last 50 posts page, the number of omitted posts will now be displayed
+  * You may now pick an individual locale to use for any single board, which will then render using that language, and give errors in that language during posting
+  * Boards may now display a poster's ID (representation of each unique IP address) in every post by checking the Show ID box in board options
+  * Some statistics are now able to be viewed in the manage panel, represented with bar graphs.  This will be expanded upon in the future
+
+# 0.9.8 #
+  * TC\_NOMESSAGETHREAD and TC\_NOMESSAGEREPLY have been added, which can be used set as replacement text for posts made with no message
+  * TC\_THUMBMSG has been added, which decides whether or not to show the "Thumbnail displayed, click image for full size." message in posts.  It defaults to false
+  * No-read bans will now add properly
+  * Inline image expansion now works with IE, Opera, and Safari, instead of exclusively Firefox
+  * The Headline style has been stolen from Kareha, and may now be used on text boards
+  * TC\_DIRTITLE has been added, which decides whether or not to include the board's directory in the title and at the top of the page.  Eg. with true, /b/ would be shown as "/b/ - Random", false would be shown as "Random"
+  * Running the cleanup command now removes posts deleted more than seven days from the current date from the database, and then runs OPTIMIZE TABLE on each table in the database
+  * You may now use passwords with your posts on text boards, allowing you to delete them later
+  * Smarty cached templates directory is now able to be changed, or completely disabled
+  * TC\_LINELENGTH has been added, which helps cut large posts on board pages by cutting it off at a certain number of characters, instead of only by number of lines
+  * Text boards will now display posts made using an email address properly
+  * Text boards will now cut off long posts on the front page
+  * Clicking the number next to No. in an expanded thread will now go straight to the thread page, instead of first adding it to the message box on the current page
+  * Special tripcode support has been added, which allows you to set a certain tripkey (such as #pass144) to give a certain result (such as !Administrator)
+  * Captcha images will now display codes which are created by trying to make a more readable fake word rather than a random string
+  * TC\_STATICMENU has been added, which allows you to choose whether or not to generate the menu.html and menu\_dirs.html files, or only use the menu.php file
+  * TC\_BANMSG has been added, allowing you to easily configure what message should be used when placing a ban
+  * Adding the ban message set by TC\_BANMSG is now optional, and is set while placing the ban using a checkbox.  As a result, TC\_ADDBANMSG has been removed
+  * All paths are now calculated at runtime by default, making it even easier to configure Trevorchan (and stop so many people coming to ask how to edit them)
+
+# 0.9.7 #
+  * The Watched Threads box is now hidden by default, and will use APC to cut down on MySQL usage if it is enabled
+  * Trial/Popular boards will now display properly in the menu
+  * Upload board pages displaying all entries will now correctly label threads marked for deletion
+  * The menu displayed on the front page is now only generated when changes are made through the manage boards panel which reflect on it.  It is saved to two html files, one showing directories, and the other not
+  * Translations work again
+  * Users which use a capcode including SJIS characters will now have their tripcode properly calculated.  If anyone has used a SJIS capcode on your site, you may wish to run DELETE FROM `passcache` to make sure the wrong calculation is not cached
+  * Secure tripcode support has been added
+  * The news page has been restyled, and now includes links which point directly to any given news post
+  * Access keys have a few additions to make the entire post box accessible
+  * Users may now use built in shortcuts to jump from thread to thread on board pages, using the alt key and either ' or ].  They may also change pages with ; or [, also using the alt key.  They may also go directly to the postbox area by pressing alt+p.  This currently seems to only work in Firefox
+  * First 100/Last 50 posts pages are now generated if TC\_FIRSTLAST is set to true
+  * aa tags may be used around text art to display properly
+  * A spoiler tag has been added
+
+# 0.9.6 #
+  * Modifications have been made to make Trevorchan compatible with a fresh install of XAMPP.  IIS testing is planned in the near future
+  * APC has been integrated, caching the configuration and replies to threads, and can be enabled by setting TC\_APC to true
+  * VIP codes may be added in the staff page, which uses only the username field.  When added, a post may be made with the username placed in the mod password field, and will make ## VIP ## appear on the post.  VIP users may not log in to the manage panel, nor use any of the checkbox options during posting
+  * Threads are now marked for deletion in two hours when they reach the specified mark page.  The default is 9, and can be set per-board
+  * A CGI path can be set pointing to where the manage files, the board.php file, and the oekaki files are kept
+  * Boards now generate a "catalog" of the threads in catalog.html, which can be disabled by a setting in the board options page.  Catalogs are only  generated for normal imageboards and oekaki imageboards.  The catalog consists of a very small thumbnail for each thread's picture, along with the number of replies, giving a much broader look at all of the threads on the board.  This is not retroactive, because it requires a second thumbnailing, which means once enabled, it will take a while before the catalog looks as it should.  Fresh installations of v0.9.6 will not have this problem
+  * Replies which contain an image will be thumbnailed at a maximum of 125 now, instead of the 200 which is used for the thread starting post.  This can be changed in the config
+  * A load balancer script is now included in the .OTHER folder.  When an URL and password is set in the board options page, it will attempt to connect to the script, and send it the file the user is attempting to post.  The load balancer will thumbnail and store the script, and serve it until the file is deleted.  Unfortunately, MIME type checking does not work with the load balancer script at this time, because it is lost during the transfer.  I hope to find a fix for this soon
+  * The original file name of the file which was uploaded is now displayed in the size/dimension area
+  * There is now a directory of chans which can be pinged, and you may set TC\_PINGBACK to a string of characters and numbers which will be used as your password when pinging it
+
+# 0.9.5 #
+  * Oekaki painters may now choose to use the Selfy palette with either of the Shi-Painter apps
+  * Javascript scripts have been moved to lib/javascript/
+  * The following take place on all post tables, to reflect the use of non-image files and promote clarity:
+    * The column threadid has been renamed to parentid
+    * The column user has been renamed to name
+    * The column image has been renamed to filename, and now supports a length of 50 instead of 20
+    * The column imagetype has been renamed to filetype, and now supports a length of 20 instead of 5
+    * The column imagemd5 has been renamed to filemd5
+    * The column image\_size has been renamed to filesize
+  * The boards table has been updated to not have a thread age limit by default, due to numerous reports of people forgetting to increase it further than 96 hours
+  * The watched threads box's drag handle is now filled to be more noticeable
+  * The watched threads box now is resizeable and will remember its dimensions
+  * The watched threads box and the poster information area of thread posts now use icons in place of [.md](.md) boxes and text
+  * The manage stickies/locked threads pages have been redesigned
+  * If captcha is enabled for a board, trying to create a new thread or reply without entering anything in the captcha box will stop the form from submitting and raise an alert message
+  * You may use your own CSS styles by adding them to the list found in config.php
+    * The default style is now set in config.php, and to make a board use that default, set it to "Default Style" in board options
+    * Not only can you add styles, you may remove them
+    * This also introduces TC\_STYLESWITCHER, which will show/hide the list of styles at the top of the page
+  * You may now add staff members using the type "Janitor".  Janitors have the single ability to delete posts from boards which you set them to moderate, and nothing else
+  * Boards can now be set to the type "Upload imageboard", which will render pages with a more file-friendly look
+  * Automatic thread archiving may be enabled on a per-board basis
+  * Images may be expanded inline by clicking the filename above the image.  Currently tested to only work in Firefox
+  * Due to an increase of reports of false positives through the DNSBL system, it has been dropped.  You may wish to go through and unban all IP addresses blocked with it just in case
+  * While banning a post which contained an image, there is an option to ban the hash as well, which will automatically ban any poster who attempts to upload that same image
+
+# 0.9.4 #
+  * Delete posts by IP wasn't deleting images correctly while removing posts, which is now fixed
+  * TC\_POSTDELAY has been split into two configurations, TC\_NEWTHREADDELAY and TC\_REPLYDELAY
+  * TC\_MAXPPM has been removed because of the above change, meaning the table iplist is no longer needed
+  * config.php is no longer a wall of configuration options, and has been sectioned
+  * Quotes (>) were causing an extra line to be placed above them whenever being used after text, which is now fixed
+  * Oekaki users may now check the "Use animation" checkbox to have their drawing recorded in pch format as well.  This will place a link at the bottom of their posts for other viewers to view their animation as it was being drawn
+  * Quick reply has been implemented, and can be enabled with TC\_QUICKREPLY
+  * User-added filetypes may now have a MIME type associated with them, requiring any files uploaded of that type to match a specified MIME type
+  * Users may now watch threads for new replies by using the thread watch box which floats to the left of the post box.  To disable this, set TC\_WATCHTHREADS to false
+
+# 0.9.3 #
+  * DNS Block, created by N3X15, is now available for use in Trevorchan, simply by enabling TC\_DNSBL.  DNS Block will automatically ban users found to be using tor or another proxy service, to help prevent ban evasion
+  * The inc/ folder has been reorganized a bit.  Pages are now in inc/pages/, and fonts are now in inc/fonts/
+  * ADOdb has been removed and replaced with ADOdb Lite.  In this transition query caching was removed.  If you wish to continue caching your queries, it is up to you to find another method
+  * A new folder, lib/, has been added.  In it is the libraries for ADOdb Lite, oekaki, Smarty, and gettext
+  * The menu and manage panel now uses Smarty for page rendering.  This will hopefully expand to other pages as well
+  * If TC\_EXPAND is enabled, users will be able to expand threads inside of a board page if they wish by clicking expand in the omitted replies notice
+  * The manage panel now has a new way of linking to separate pages.  It resembles the board list from the front page, and gives easier access to the different pages rather than clicking a tab first
+  * Regular expressions are now possible in the wordfilter
+  * The code styling tag is now fixed (previously, each return in the message would render as two returns)
+
+# 0.9.2 #
+
+  * Moderators/Administrators can delete multiple posts using checkboxes on the board/thread pages (Thanks Steve)
+  * RSS feeds can be enabled through config.php, making the file rss.xml in the same folder as board.html (Thanks Steve)
+  * Clicking the FAQ / Rules links will take you to a new page.  Clicking FAQ will read from inc/faq.html, and Rules will read from inc/rules.html.  Blog has been removed, as that is an external feature.  Add it back in if you use it
+  * Administrators are now able to view the disk space used by individual boards' res/ and thumb/ directories, along with all boards placed together
+  * Users can now hide threads they don't wish to see, which will be hidden each visit until they un-hide them
+  * **(USER WAS BANNED FOR THIS POST)** in red coloring will be added at the end of posts upon banning if the option TC\_ADDBANMSG is enabled in config.php
+  * Boards can be marked as trial or popular to change the styling in the menu
+  * Oekaki image processing now has a wider compatibility with servers (an ini setting would cause it to not retrieve the image data)
+
+# 0.9.1 #
+
+  * Filenames longer than 20 characters are now cut short instead of causing 404's
+  * Posters can place return (My preference) or noko (4chan preference) in the email field to return to their thread, regardless of the installation's configuration
+  * The D & B links will now correctly link to the installation's manage.php if you have a TC\_BOARDSFOLDER of something other than /
+  * Easily check for a new version though Misc > Check for new version
+  * Ability to rename Anonymous poster's names using the TC\_ANONYMOUS constant
+  * Ability to choose the name of the html file used as the zero page (Default: board.html)
+
+# 0.9.0 #
+
+  * Better support for UTF-8 characters
+  * Switch to using gettext and .mo files for internationalization
+  * CSS preference not being saved has been fixed
+  * No-file posts can be enabled from the board options page
+  * Support for user-customized filetypes, with the option for a thumbnail to be displayed for each different filetype
+  * Text board thread replies will now be displayed correctly
+  * Text board styles can be switched (Currently Pseud0ch and Yotsuba)
+  * Configuration entries previously stored in the database are now in the config.php file
+  * Default style for an imageboard may be chosen
+  * The captcha image will check if the server has the ttf library installed, and if so, display easy to read text.  Otherwise, it will create not so good looking text using gd's native text functions
+  * Prettier manage boards area, with much better organization and tabs
+  * Japanese kanji for sage and age may be entered into the e-mail field with proper functionality
+  * Released earlier than usual because of the hectic 0.8 updates
+  * Released as v0.9.0 instead of v0.9 for problem fixes
+
+# 0.8 #
+
+  * Posts distributed across different tables, one for each board
+  * News can be edited/deleted
+  * Sections can be collapsed by default
+  * Captcha system can be enabled in case of a spam attack
+  * YouTube videos can be attached to posts instead of images
+
+# 0.7 #
+
+  * Sections
+  * OOP
+  * Miscellaneous security fixes
+
+# 0.6 #
+
+  * Oekaki
+
+# 0.5 #
+
+  * Localization
+  * Miscellaneous optimizations
+
+# 0.4 #
+
+  * No notable new features.  Mainly bug fixes
+
+# 0.3 #
+
+  * Many new additions
+
+# 0.2 #
+
+  * Removal of cURL
+  * Fix of the 404 bug
+
+# 0.1 #
+
+  * Initial release
+
+
+
+
+
+
+
+
+
+
+
+

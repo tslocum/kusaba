@@ -1,0 +1,55 @@
+# Introduction #
+
+These are mostly from working with 7chan, however also with many smaller chans which I have seen come, scratch their heads at why they don't have any users, and then go just as quickly as they arrived.
+
+
+# What not to do #
+
+People **will not** come to your site if:
+  * It is unoriginal (this is a huge factor)
+  * It does now show effort
+  * It does not have a sense of community
+
+I'll go into a bit more detail on each.
+
+
+## It is unoriginal ##
+
+From what I have seen, I can make a good guess that at least one quarter to one half of all kusaba installations are just 4chan clones, with a different name.  There is already a 4chan, what makes your site so much better?  Claiming that you have better mods, or a tighter community, or any other small things like that will not grab users' attention.
+
+You need to show that you are not making another clone of 4chan.  Take some good things from it, if you will, but try and stray away as far as possible to show that **you have originality**.
+
+One of the recent sites which showed up in my directory is called PaintChan.  It focuses mainly on oekaki drawings, and encourages users to contribute, even giving the lower-skilled their own board to use, making it so their drawings aren't interlaced with the higher quality ones.  This isn't even all that much different from a basic imageboard site, but because of their difference, they get users.  And I don't mean Winzy spammers or other lowlifes who spam every chan they find, I mean real users who **want** to contribute.
+
+## It does not show effort ##
+
+Not showing effort does tie in with being unoriginal, but there are other ways to show how the site does not care about its users.
+
+You need to think about how you are going to show that you care.  Make a few posts in the boards, write news to show the site is still alive, exchange text links to and from other chans with different focuses than your site.
+
+**Moderate your site.**  People are going to post unwanted content on your site.  People are going to flood your site.  People are going to spam your site.  There is no magical way to stop this without having good moderators.
+
+I don't mean make a news post saying "We need moderators, email me!", I mean asking your trusted friends, and perhaps your top users (since they will already be using the site often).
+
+Don't forget that kusaba does support janitors, which can only delete posts from boards which they are allowed.  You can use this to have users prove they are active and know what content is allowed, and what isn't.  When they look like they would be a good addition, promote them to moderator.
+
+## It does not have a sense of community ##
+
+This also ties with the above two.  Installing kusaba, giving it a name, making a few boards and then saying "okay, go." will not leave your users with a sense of you even caring about what happens.  Post with your users, inform them of how things are going with the site, make contests (if it suits your site's focus).
+
+
+# Good ways to show effort #
+
+  * Write your own board/site styles to make your site stand out
+  * Rearrange some of the content in pages to make your site unique (this requires some kusaba knowledge)
+
+
+# Getting your site known #
+
+  * Get listed on both overchans (http://www.1chan.net/overchan/ and http://shii.org/2ch/)
+  * Set KU\_PINGBACK in your config.php to be added to the kusaba Directory
+
+
+# WIP #
+
+This article can easily be added to.  If you have something you'd like to add, or think I forgot something, post in /c/.
